@@ -3,6 +3,10 @@
    License: none (public domain)
 */
 
+p {
+  background-color: green;
+}
+
 html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
 a, abbr, acronym, address, big, cite, code,
@@ -28,7 +32,26 @@ footer, header, hgroup, menu, nav, section {
   display: block;
 }
 body {
+  width: 100vw;
+  height: 100vh;
+
+  padding: 4px;
+
+  overflow-x: hidden;
+  overflow-y: hidden;
+
+  box-sizing: border-box;
+  background-color: #262626;
+
   line-height: 1;
+}
+#wrapper {
+  height: calc(100vh - 8px);
+  width: 100%;
+
+  box-sizing: border-box;
+  border: 1px solid #0f0f0f;
+  background-color: #191919;
 }
 ol, ul {
   list-style: none;

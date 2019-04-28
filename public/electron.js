@@ -95,8 +95,11 @@ app.on('ready', () => {
     // if (process.platform === 'win32')
         // createContextMenu();
 
-    autoUpdater.autoDownload = true; //todo set allowPrerelease to true if they enable dev builds in settings.
-    autoUpdater.checkForUpdates();
+    if (!isDev) {
+        autoUpdater.autoDownload = true; //todo set allowPrerelease to true if they enable dev builds in settings.
+        autoUpdater.checkForUpdates();
+    }
+
 });
 
 app.on('window-all-closed', () => {
@@ -106,6 +109,23 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
     if (mainWindow === null) {
         createWindow();
+    }
+});
+
+ipcMain.on('titlebar', (event, arg) => {
+    let window = BrowserWindow.fromWebContents(event.sender);
+    switch (arg.action) {
+        case 'QUIT':
+            window.close();
+            break;
+        case 'MAXIMIZE':
+            if (window.isMaximized())
+                window.unmaximize();
+            else window.maximize();
+            break;
+        case 'MINIMIZE':
+            window.minimize();
+            break;
     }
 });
 
