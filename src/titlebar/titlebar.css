@@ -29,6 +29,9 @@
   word-wrap: normal;
   direction: ltr;
 }
+.tab-content {
+  padding: 15px;
+}
 #titlebar {
   display: flex;
   user-select: none;

@@ -1,0 +1,249 @@
+@import "../core/core";
+
+// Text
+.text {
+  width: 200px;
+
+  padding-top: 15px;
+
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  background-color: @backgroundAlt;
+
+  label {
+    display: block;
+    position: relative;
+    top: -25px;
+    left: 10px;
+
+    width: 100%;
+    height: 0;
+
+    font-family: Helvetica, sans-serif;
+    font-size: 16px;
+    color: @dullDarkGray;
+
+    z-index: 1;
+    transition: all 0.3s ease;
+  }
+
+  input {
+    display: block;
+    position: relative;
+    outline: none;
+
+    padding-left: 10px;
+    padding-right: 10px;
+
+    width: calc(100% - 20px);
+
+    font-size: 16px;
+    font-family: Helvetica, sans-serif;
+
+    border: none;
+    border-bottom: 1px solid @dullDarkGray;
+    background: none;
+    color: @lightGray;
+
+    z-index: 2;
+
+    &:focus, &:valid {
+      border-bottom: 1px solid @primary;
+    }
+
+    &:focus + label, &:valid + label {
+      top: -30px;
+
+      font-size: 11px;
+      color: @primary;
+    }
+  }
+}
+
+// Password
+
+// Textarea
+
+// Switch
+.switch {
+
+
+
+
+
+
+  //position: relative;
+  //display: inline-block;
+  //user-select: none;
+  //
+  //width: 50px;
+  //height: 24px;
+  //
+  //input {
+  //  opacity: 0;
+  //  width: 0;
+  //  height: 0;
+  //
+  //  &:checked + span {
+  //    background-color: @primary;
+  //
+  //    &:before {
+  //      transform: translateX(26px);
+  //    }
+  //  }
+  //
+  //  &:focus + span {
+  //    box-shadow: 0 0 1px @primary;
+  //  }
+  //}
+  //
+  //span {
+  //  position: absolute;
+  //  top: 0;
+  //  left: 0;
+  //  right: 0;
+  //  bottom: 0;
+  //  cursor: pointer;
+  //
+  //  border-radius: 34px;
+  //  background-color: @dullGray;
+  //
+  //  transition: 0.4s;
+  //
+  //  &:before {
+  //    position: absolute;
+  //    height: 16px;
+  //    width: 16px;
+  //    left: 4px;
+  //    bottom: 4px;
+  //    content: "";
+  //
+  //    border-radius: 50%;
+  //    background-color: @lightGray;
+  //
+  //    transition: 0.4s;
+  //  }
+  //}
+}
+
+// Checkbox
+.check {
+  display: block;
+  position: relative;
+  user-select: none;
+  cursor: pointer;
+
+  margin-bottom: 12px;
+  padding-left: 26px;
+
+  line-height: 20px;
+  font-size: 20px;
+  font-family: Raleway, sans-serif;
+  color: @lightGray;
+
+  input {
+    position: absolute;
+    cursor: pointer;
+
+    width: 0;
+    height: 0;
+
+    opacity: 0;
+
+    &:checked ~ span {
+      background-color: @primary;
+
+      &:after {
+        display: block;
+      }
+    }
+  }
+
+  span {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    width: 20px;
+    height: 20px;
+
+    background-color: @lightGray;
+
+    &:after {
+      display: none;
+      position: absolute;
+      left: 6px;
+      top: 1px;
+      content: "";
+
+      width: 5px;
+      height: 10px;
+
+      border: solid white;
+      border-width: 0 3px 3px 0;
+
+      transform: rotate(45deg);
+    }
+  }
+
+  &:hover input ~ span {
+    background-color: @dullGray;
+  }
+  &:hover input:checked ~ span {
+    background-color: @primary;
+  }
+}
+
+// Range
+
+// Dropdown
+
+// Color Picker
+.color-picker {
+  width: 100px;
+  height: 90px;
+
+  margin: 0;
+  padding: 5px;
+
+  background-color: @backgroundAlt;
+  box-shadow: 0 0 7px 0 rgba(0,0,0,0.68);
+
+  p {
+    font-size: 12px;
+    font-family: Raleway, sans-serif;
+    color: @lightGray;
+
+    input {
+      border-bottom: 1px solid black;
+    }
+  }
+
+  main {
+    margin-bottom: 10px;
+
+    border-bottom: 2px solid black;
+    color: @dullGray;
+  }
+
+  input {
+    box-sizing: border-box;
+    outline: none;
+
+    width: 90%;
+    height: 25px;
+
+    padding-left: 2px;
+
+    font-size: 15px;
+    font-family: "Source Sans Pro", sans-serif;
+
+    border: none;
+    background-color: transparent;
+    color: @dullGray;
+  }
+
+  div {
+    display: flex;
+  }
+}
