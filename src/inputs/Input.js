@@ -40,22 +40,18 @@ const File = (props) => {
 
 const Switch = (props) => {
     return (
-        <label>
-            {props.label}
-            <label className="switch">
-                <input id={props.id} type="checkbox" onInput={(e) => props.onInput(e, e.target.checked)} />
-                <span></span>
-            </label>
-        </label>
+        <div className="switch">
+            <input id={props.id} type="checkbox" name={props.id} onInput={(e) => props.onInput(e, e.target.checked)} />
+            <label htmlFor={props.id}></label>
+        </div>
     );
 };
 
 const Checkbox = (props) => {
     return (
         <div className="check">
-            {props.label}
             <input id={props.id} type="checkbox" onInput={(e) => props.onInput(e, e.target.checked)} />
-            <span></span>
+            <label htmlFor={props.id}></label>
         </div>
     );
 };
@@ -79,10 +75,10 @@ const Radio = (props) => {
 
 const RadioOption = (props) => {
     return (
-        <label>
-            {props.label}
-            <input type="radio" name={props.group} value={props.value} onInput={(e) => props.onInput(e)} />
-        </label>
+        <div className="">
+            <input id={props.id} type="radio" name={props.group} value={props.value} onInput={(e) => props.onInput(e)} />
+            <label htmlFor={props.id}>{props.label}</label>
+        </div>
     );
 };
 
@@ -97,10 +93,9 @@ const Range = (props) => {
 
 const Progress = (props) => {
     return (
-        <label>
-            {props.label}
+        <div className="progress">
             <progress id={props.id} max={props.max} value={props.value}></progress>
-        </label>
+        </div>
     );
 };
 
@@ -113,19 +108,19 @@ class Dropdown extends React.Component {
 
     render() {
         return (
-            <label>
-                {this.props.label}
+            <div className="dropdown">
                 <select id={this.props.id} defaultValue={this.props.default} onInput={(e) => this.props.onInput(e)}>
                     {this.props.children}
                 </select>
-            </label>
+                <label htmlFor={this.props.id}>{this.props.label}</label>
+            </div>
         );
     }
 }
 
 const DropdownOption = (props) => {
     return (
-        <option value={props.value}>{props.name}</option>//
+        <option value={props.value}>{props.name}</option>
     );
 };
 

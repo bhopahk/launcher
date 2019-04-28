@@ -32,17 +32,12 @@ function App() {
                         <br/>
                         <Password id="testPassword" label="Password Label" />
                         <br/>
-                        <TextArea id="testTextarea" label="Text Area Label" placeholder="Type me an essay!" width={30} height={1} />
+                        <Switch id="testSwitch" />
                         <br/>
-                        <Switch id="testSwitch" label={"Switch Label"} />
+                        <Switch id="testSwitch2" />
                         <br/>
                         <Checkbox id="testCheckbox" label={"Checkbox Label"} />
                         <Checkbox id="testCheckbox2" label={"Checkbox Label 2"} />
-                        <br/>
-                        <Radio id="testOptions">
-                            <RadioOption id="option1" label="Option #1" value="one" />
-                            <RadioOption id="option2" label="Option #2" value="two" />
-                        </Radio>
                         <br/>
                         <Range id="testRange" min={1} max={100} />
                         <br/>

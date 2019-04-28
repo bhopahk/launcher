@@ -66,135 +66,155 @@
 
 // Switch
 .switch {
+  input {
+    display: none;
+  }
 
+  label {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
 
+    min-width: 112px;
 
+    text-align: left;
+    font-weight: 500;
 
+    &:before, &:after {
+      position: absolute;
+      top: 50%;
+      outline: 0;
+      content: "";
 
+      margin: 0;
 
-  //position: relative;
-  //display: inline-block;
-  //user-select: none;
-  //
-  //width: 50px;
-  //height: 24px;
-  //
-  //input {
-  //  opacity: 0;
-  //  width: 0;
-  //  height: 0;
-  //
-  //  &:checked + span {
-  //    background-color: @primary;
-  //
-  //    &:before {
-  //      transform: translateX(26px);
-  //    }
-  //  }
-  //
-  //  &:focus + span {
-  //    box-shadow: 0 0 1px @primary;
-  //  }
-  //}
-  //
-  //span {
-  //  position: absolute;
-  //  top: 0;
-  //  left: 0;
-  //  right: 0;
-  //  bottom: 0;
-  //  cursor: pointer;
-  //
-  //  border-radius: 34px;
-  //  background-color: @dullGray;
-  //
-  //  transition: 0.4s;
-  //
-  //  &:before {
-  //    position: absolute;
-  //    height: 16px;
-  //    width: 16px;
-  //    left: 4px;
-  //    bottom: 4px;
-  //    content: "";
-  //
-  //    border-radius: 50%;
-  //    background-color: @lightGray;
-  //
-  //    transition: 0.4s;
-  //  }
-  //}
+      transform: translate(0, -50%);
+      transition: all 0.3s ease;
+    }
+
+    &:before {
+      left: 1px;
+
+      width: 34px;
+      height: 14px;
+
+      border-radius: 8px;
+      background-color: @dullGray;
+    }
+
+    &:after {
+      left: 0;
+
+      width: 20px;
+      height: 20px;
+
+      border-radius: 50%;
+      background-color: @lightGray;
+      box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.14), 0 2px 2px 0 rgba(0, 0, 0, 0.098), 0 1px 5px 0 rgba(0, 0, 0, 0.084);
+    }
+  }
+
+  input:checked + label:before {
+    background-color: @secondary;
+  }
+
+  input:checked + label:after {
+    background-color: @primary;
+    transform: translate(80%, -50%);
+  }
 }
 
 // Checkbox
 .check {
-  display: block;
-  position: relative;
-  user-select: none;
-  cursor: pointer;
-
-  margin-bottom: 12px;
-  padding-left: 26px;
-
-  line-height: 20px;
-  font-size: 20px;
-  font-family: Raleway, sans-serif;
-  color: @lightGray;
-
   input {
-    position: absolute;
+    display: none;
+  }
+
+  label {
+    display: inline-block;
+    position: relative;
     cursor: pointer;
 
-    width: 0;
-    height: 0;
-
-    opacity: 0;
-
-    &:checked ~ span {
-      background-color: @primary;
-
-      &:after {
-        display: block;
-      }
-    }
+    margin: 2px;
+    vertical-align: middle;
   }
 
-  span {
-    position: absolute;
-    top: 0;
-    left: 0;
+  input + label:before {
+    display: inline-block;
+    content: '';
 
-    width: 20px;
-    height: 20px;
+    width: 10px;
+    height: 10px;
+    padding: 2px;
+    margin-right: 10px;
 
-    background-color: @lightGray;
+    text-align: center;
+    vertical-align: middle;
 
-    &:after {
-      display: none;
-      position: absolute;
-      left: 6px;
-      top: 1px;
-      content: "";
-
-      width: 5px;
-      height: 10px;
-
-      border: solid white;
-      border-width: 0 3px 3px 0;
-
-      transform: rotate(45deg);
-    }
+    border: 2px solid @dullGray;
+    border-radius: 2px;
   }
 
-  &:hover input ~ span {
-    background-color: @dullGray;
-  }
-  &:hover input:checked ~ span {
+  input:checked + label:before {
+    border: 2px solid @primary;
     background-color: @primary;
+  }
+
+  input:checked + label:after {
+    position: absolute;
+    top: 1px;
+    left: 5px;
+    content: "";
+
+    width: 2px;
+    height: 7px;
+
+    padding: 2px;
+
+    border: solid @background;
+    border-width: 0 2px 2px 0;
+
+    text-align: center;
+    transform: rotate(45deg);
   }
 }
 
+// Radio
+//todo
+
 // Range
+
+// Progress
+.progress {
+  width: 100%;
+  height: 3px;
+
+  margin: 0;
+  padding: 0;
+
+  progress[value] {
+    height: 3px;
+
+    margin: 0;
+    padding: 0;
+
+    background-color: #000000;
+
+    transition: all 0.3s ease;
+
+    &::-webkit-progress-bar {
+      background-color: @secondary;
+    }
+
+    &::-webkit-progress-value {
+      background-color: @primary;
+    }
+  }
+
+  &[value] {
+
+  }
+}
 
 // Dropdown
 
