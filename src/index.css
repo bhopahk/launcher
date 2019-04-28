@@ -3,10 +3,6 @@
    License: none (public domain)
 */
 
-p {
-  background-color: green;
-}
-
 html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
 a, abbr, acronym, address, big, cite, code,
@@ -66,4 +62,17 @@ q:before, q:after {
 table {
   border-collapse: collapse;
   border-spacing: 0;
+}
+
+::-webkit-scrollbar {
+  width: 2px;
+}
+::-webkit-scrollbar-track {
+  background: #363636;
+}
+::-webkit-scrollbar-thumb {
+  background: #242840;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #185cc9;
 }
