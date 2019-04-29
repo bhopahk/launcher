@@ -19,7 +19,7 @@ const createWindow = () => {
         minWidth: 880,
         minHeight: 550,
         frame: false,
-        backgroundColor: '#191919',
+        backgroundColor: '#111111',
         icon: __srcdir + '/static/LauncherNoText.png',
         webPreferences: {
             nodeIntegration: false,

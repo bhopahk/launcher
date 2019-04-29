@@ -20,4 +20,17 @@ const Titlebar = (props) => {
     );
 };
 
-export default Titlebar;
+const TitleBarActions = (props) => {
+    return (
+        <div id="titlebarActions" style={props.style}>
+            <MaterialIcon name={'remove'} size={25} onClick={() => window.ipc.send('titlebar', { action: 'MINIMIZE' })} />
+            <MaterialIcon name={'crop_square'} size={25} onClick={() => window.ipc.send('titlebar', { action: 'MAXIMIZE' })} />
+            <MaterialIcon name={'close'} size={25} onClick={() => window.ipc.send('titlebar', { action: 'QUIT' })} />
+        </div>
+    );
+};
+
+export {
+    Titlebar,
+    TitleBarActions
+};
