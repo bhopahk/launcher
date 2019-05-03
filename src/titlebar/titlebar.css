@@ -54,4 +54,17 @@
 #titlebarRight i:hover {
   color: #185cc9;
 }
+#titlebarActions {
+  position: absolute;
+  right: 8px;
+  top: 12px;
+  -webkit-app-region: no-drag;
+  cursor: pointer;
+}
+#titlebarActions i {
+  color: #777777;
+}
+#titlebarActions i:hover {
+  color: #185cc9;
+}
 /*# sourceMappingURL=titlebar.css.map */

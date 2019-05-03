@@ -1,0 +1,81 @@
+@import "../core/core";
+
+.settings {
+  position: relative;
+  display: flex;
+  justify-content: center;
+
+  width: 50%;
+  height: calc(100vh - 85px);
+
+  margin: 0 auto;
+  padding: 15px;
+
+  .settings-list {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+
+    width: 30%;
+    min-width: 200px;
+    height: 100%;
+
+    margin: 0;
+
+    hr {
+      position: absolute;
+    }
+
+    button {
+      display: block;
+      outline: none;
+
+      height: 40px;
+
+      margin: 10px 10px 5px;
+
+      font-size: 15px;
+      font-family: Raleway, sans-serif;
+
+      border: 1px solid @primary;
+      border-radius: 5px;
+      background-color: @backgroundAlt;
+      color: @dullGray;
+
+      transition: 0.3s;
+
+      &:hover {
+        background: @primary;
+        color: @background;
+      }
+
+      &.active {
+        background: @primary;
+        color: @background;
+      }
+    }
+  }
+
+  .settings-content {
+    display: block;
+    box-sizing: border-box;
+    position: relative;
+
+    width: 70%;
+    min-width: 400px;
+    height: 100%;
+
+    padding: 10px;
+
+    overflow-x: hidden;
+    overflow-y: hidden;
+
+    border-left: 1px solid @primary;
+    //background-color: @backgroundAlt;
+    background: linear-gradient(to right, @backgroundAlt, @backgroundAlt, @background);
+
+    &.scroll {
+      overflow-y: auto;
+    }
+  }
+}

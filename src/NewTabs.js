@@ -1,5 +1,6 @@
 import React from 'react';
 import './newTabs.css'
+import MaterialIcon from "./core/Icon";
 
 class Tabs extends React.Component {
     constructor(props) {
@@ -31,7 +32,7 @@ class Tabs extends React.Component {
 
     getDisplay(type, value) {
         if (type)
-            return (<i className="material-icons">{value}</i>);
+            return (<MaterialIcon name={value} size={15} onClick={() => {}} />);
         return value;
     }
 

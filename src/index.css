@@ -45,6 +45,8 @@ body {
   height: calc(100vh - 8px);
   width: 100%;
 
+  -webkit-app-region: drag;
+
   box-sizing: border-box;
   border: 1px solid #0f0f0f;
   background-color: #262626;

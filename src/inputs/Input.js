@@ -1,11 +1,10 @@
 import React from 'react';
 import './input.css'
-import MaterialIcon from "../core/Icon";
 
 const Text = (props) => {
     return (
         <div className="text">
-            <input id={props.id} type="text" onInput={(e) => props.onInput(e)} required={true}/>
+            <input id={props.id} type="text" onChange={(e) => props.onInput(e)} required={true} value={props.getValue()} />
             <label htmlFor={props.id}>{props.label}</label>
         </div>
     );
@@ -14,18 +13,9 @@ const Text = (props) => {
 const Password = (props) => {
     return (
         <div className="text">
-            <input id={props.id} type="password" onInput={(e) => props.onInput(e)} required={true} />
+            <input id={props.id} type="password" onChange={(e) => props.onInput(e)} required={true} value={props.getValue()} />
             <label htmlFor={props.id}>{props.label}</label>
         </div>
-    );
-};
-
-const TextArea = (props) => {
-    return (
-        <label>
-            {props.label}
-            <textarea id={props.id} placeholder={props.placeholder} onInput={(e) => props.onInput(e)} rows={props.height} cols={props.width}></textarea>
-        </label>
     );
 };
 
@@ -33,7 +23,7 @@ const File = (props) => {
     return (
         <label>
             {props.label}
-            <input id={props.id} type="file" accept={props.accept} onInput={e => props.onInput(e)} />
+            <input id={props.id} type="file" accept={props.accept} onChange={e => props.onInput(e)} />
         </label>
     );
 };
@@ -41,7 +31,7 @@ const File = (props) => {
 const Switch = (props) => {
     return (
         <div className="switch">
-            <input id={props.id} type="checkbox" name={props.id} onInput={(e) => props.onInput(e, e.target.checked)} />
+            <input id={props.id} type="checkbox" name={props.id} onChange={(e) => props.onInput(e, e.target.checked)} value={props.getValue()} />
             <label htmlFor={props.id}></label>
         </div>
     );
@@ -50,7 +40,7 @@ const Switch = (props) => {
 const Checkbox = (props) => {
     return (
         <div className="check">
-            <input id={props.id} type="checkbox" onInput={(e) => props.onInput(e, e.target.checked)} />
+            <input id={props.id} type="checkbox" onChange={(e) => props.onInput(e, e.target.checked)} value={props.getValue()} />
             <label htmlFor={props.id}></label>
         </div>
     );
@@ -76,7 +66,7 @@ const Radio = (props) => {
 const RadioOption = (props) => {
     return (
         <div className="">
-            <input id={props.id} type="radio" name={props.group} value={props.value} onInput={(e) => props.onInput(e)} />
+            <input id={props.id} type="radio" name={props.group} value={props.value} onChange={(e) => props.onInput(e)} />
             <label htmlFor={props.id}>{props.label}</label>
         </div>
     );
@@ -86,7 +76,7 @@ const Range = (props) => {
     return (
         <label>
             {props.label}
-            <input type="range" min={props.min} max={props.max} value={props.value} step={props.step} onInput={(e) => props.onInput(e)} />
+            <input id={props.id} type="range" min={props.min} max={props.max} value={props.getValue(props.value)} step={props.step} onChange={(e) => props.onInput(e)} />
         </label>
     );
 };
@@ -109,7 +99,7 @@ class Dropdown extends React.Component {
     render() {
         return (
             <div className="dropdown">
-                <select id={this.props.id} defaultValue={this.props.default} onInput={(e) => this.props.onInput(e)}>
+                <select id={this.props.id} defaultValue={this.props.default} onChange={(e) => this.props.onInput(e)}>
                     {this.props.children}
                 </select>
                 <label htmlFor={this.props.id}>{this.props.label}</label>
@@ -128,10 +118,13 @@ class ColorPicker extends React.Component {
     constructor(props) {
         super(props);
 
-        let rgb;
-        if (this.props.default)
-            rgb = ColorPicker.hexToRgb(`${this.props.default.startsWith('#') ? '' : '#'}${this.props.default}`);
-        else rgb = { r: 0, g: 0, b: 0 };
+        let val = props.getValue(this.props.default);
+        if (val == null)
+            val = '000000';
+        let rgb = ColorPicker.hexToRgb(`${val.startsWith('#') ? '' : '#'}${val}`);
+        // if (this.props.default)
+        //     rgb = ColorPicker.hexToRgb(`${this.props.default.startsWith('#') ? '' : '#'}${this.props.default}`);
+        // else rgb = { r: 0, g: 0, b: 0 };
 
         this.state = {
             red: rgb.r,
@@ -160,8 +153,13 @@ class ColorPicker extends React.Component {
 
     update(type, value) {
         let newState = {};
-        newState[type] = value;
+        newState[type] = parseInt(value);
         this.setState(newState);
+        let hex = ColorPicker.rgbToHex(this.state.red, this.state.green, this.state.blue);
+        console.log(hex);
+        this.props.onInput({
+            target: { id: this.props.id }
+        }, hex);
     }
 
     render() {
@@ -173,7 +171,7 @@ class ColorPicker extends React.Component {
                     borderBottom: `2px solid #${hex}`,
                     color: `#${hex}`,
                     }}>#
-                    <input type="text" defaultValue={hex} onInput={e => {
+                    <input type="text" defaultValue={hex} onChange={e => {
                         if (e.target.value.length !== 6)
                             return;
                         let rgb = ColorPicker.hexToRgb(e.target.value);
@@ -187,19 +185,19 @@ class ColorPicker extends React.Component {
                 <div>
                     <p>
                         R
-                        <input type="text" value={this.state.red} onInput={e => this.update('red', e.target.value)} style={{
+                        <input type="text" value={this.state.red} onChange={e => this.update('red', e.target.value)} style={{
                             borderBottom: `1px solid #${ColorPicker.rgbToHex(this.state.red, 0, 0)}`
                         }} />
                     </p>
                     <p>
                         G
-                        <input type="text" value={this.state.green} onInput={e => this.update('green', e.target.value)} style={{
+                        <input type="text" value={this.state.green} onChange={e => this.update('green', e.target.value)} style={{
                             borderBottom: `1px solid #${ColorPicker.rgbToHex(0, this.state.green, 0)}`
                         }} />
                     </p>
                     <p>
                         B
-                        <input type="text" value={this.state.blue} onInput={e => this.update('blue', e.target.value)} style={{
+                        <input type="text" value={this.state.blue} onChange={e => this.update('blue', e.target.value)} style={{
                             borderBottom: `1px solid #${ColorPicker.rgbToHex(0, 0, this.state.blue)}`
                         }} />
                     </p>
@@ -212,7 +210,6 @@ class ColorPicker extends React.Component {
 export {
     Text,
     Password,
-    TextArea,
     File,
     Switch,
     Checkbox,

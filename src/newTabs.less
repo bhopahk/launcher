@@ -13,6 +13,7 @@
 
 
     button {
+      -webkit-app-region: no-drag;
       position: relative;
       box-sizing: border-box;
       align-self: flex-end;
@@ -36,15 +37,19 @@
         width: 50px;
       }
 
-      &.active div {
-        position: absolute;
-        left: 0;
-        top: 100%;
+      &.active {
+        color: @primary;
 
-        width: 100%;
-        height: 1px;
+        div {
+          position: absolute;
+          left: 0;
+          top: 100%;
 
-        background-color: @background;
+          width: 100%;
+          height: 1px;
+
+          background-color: @background;
+        }
       }
     }
   }
@@ -61,6 +66,8 @@
   }
 
   .tab-content {
+    -webkit-app-region: no-drag;
+
     width: 100%;
     height: calc(100% - 41px);
 

@@ -7,7 +7,7 @@ const MaterialIcon = (props) => {
             height: `${props.size}px !important`,
             width: `${props.size}px !important`,
             verticalAlign: 'middle',
-            paddingBottom: '4px',
+            paddingBottom: '2px',
         }} onClick={() => props.onClick()}>{props.name}</i>
     );
 };
