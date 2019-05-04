@@ -1,0 +1,73 @@
+@import "../colors";
+
+.snackbar {
+  display: none;
+  box-sizing: border-box;
+  align-items: center;
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+
+  width: 300px;
+  max-height: 50px;
+
+  overflow: hidden;
+
+  border-radius: 5px;
+  background-color: @offBlack;
+
+  z-index: 10;
+
+  p {
+    box-sizing: border-box;
+
+    width: 100%;
+    padding: 15px 0 15px 15px;
+
+    font-family: "Source Sans Pro", sans-serif;
+    text-align: center;
+    color: @superOffWhite
+  }
+
+  button {
+    box-sizing: border-box;
+    cursor: pointer;
+    outline: none;
+    user-select: none;
+
+    width: 80px;
+    min-width: 80px;
+
+    margin-left: auto;
+    padding-top: 10px;
+    padding-bottom: 10px;
+
+    font-size: 15px;
+    font-family: Raleway, sans-serif;
+
+    border: none;
+    background-color: transparent;
+    color: @offWhite;
+    text-shadow: 2px 2px black;
+
+    transition: 0.3s;
+
+    &:hover {
+      color: @primary;
+    }
+  }
+
+  &.show {
+    display: flex;
+  }
+}
+
+@keyframes fadein {
+  from {bottom: 0; opacity: 0;}
+  to {bottom: 20px; opacity: 1;}
+}
+
+@keyframes fadeout {
+  from {bottom: 20px; opacity: 1;}
+  to {bottom: 0; opacity: 0;}
+}
