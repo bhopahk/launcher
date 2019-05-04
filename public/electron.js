@@ -19,7 +19,9 @@ const createWindow = () => {
         minWidth: 950,
         minHeight: 550,
         frame: false,
-        backgroundColor: '#111111',
+        // backgroundColor: '#111111',
+        transparent: true,
+        // vibrancy: 'dark',
         icon: __srcdir + '/static/LauncherNoText.png',
         webPreferences: {
             nodeIntegration: false,
@@ -27,13 +29,18 @@ const createWindow = () => {
             preload: path.join( __dirname, 'preload.js')
         }
     });
+    // require('electron-vibrancy').SetVibrancy(mainWindow, 9);
+
+    // SetVibrancy(window, 0);
+
+    // mainWindow.setOpacity(0.5);
 
     mainWindow.loadURL(
         isDev
             ? 'http://localhost:3000'
             : `file://${path.join(__dirname, '../build/index.html')}`,
     );
-    mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools();
 
     if (isDev) {
         const {
@@ -87,19 +94,20 @@ const createContextMenu = () => {
 };
 
 app.on('ready', () => {
-    if (process.platform === 'win32')
-        app.setAppUserModelId('launcher');
+    setTimeout(() => {
+        if (process.platform === 'win32')
+            app.setAppUserModelId('launcher');
 
-    createWindow();
-    // createTrayMenu();
-    // if (process.platform === 'win32')
-        // createContextMenu();
+        createWindow();
+        // createTrayMenu();
+        // if (process.platform === 'win32')
+        //     createContextMenu();
 
-    if (!isDev) {
-        autoUpdater.autoDownload = true; //todo set allowPrerelease to true if they enable dev builds in settings.
-        autoUpdater.checkForUpdates();
-    }
-
+        if (!isDev) {
+            autoUpdater.autoDownload = true; //todo set allowPrerelease to true if they enable dev builds in settings.
+            autoUpdater.checkForUpdates();
+        }
+    }, 100);
 });
 
 app.on('window-all-closed', () => {

@@ -1,3 +1,5 @@
+@import "colors";
+
 @font-face {
   font-family: 'Source Sans Pro';
   font-style: normal;
@@ -16,6 +18,13 @@
   font-weight: 400;
   src: url(https://fonts.gstatic.com/s/materialicons/v47/flUhRq6tzZclQEJ-Vdg-IuiaDsNZ.ttf) format('truetype');
 }
+@font-face {
+  font-family: 'Oswald';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Oswald Regular'), local('Oswald-Regular'), url(https://fonts.gstatic.com/s/oswald/v17/TK3iWkUHHAIjg752GT8G.woff2) format('woff2');
+}
+
 .material-icons {
   font-family: 'Material Icons';
   font-weight: normal;
@@ -29,42 +38,11 @@
   word-wrap: normal;
   direction: ltr;
 }
-#titlebar {
-  display: flex;
-  user-select: none;
-  -webkit-app-region: drag;
-  width: 100%;
-  height: 30px;
-  line-height: 30px;
+
+
+body {
+  width: 100vh;
+  height: 100vh;
+
+  background: @backgroundVibrant;
 }
-#titlebar h1 {
-  font-size: 17px;
-  font-family: Raleway, sans-serif;
-  color: #185cc9;
-}
-#titlebarRight {
-  margin-left: auto;
-}
-#titlebarRight i {
-  -webkit-app-region: no-drag;
-  cursor: pointer;
-  color: #777777;
-  transition: 0.2s;
-}
-#titlebarRight i:hover {
-  color: #185cc9;
-}
-#titlebarActions {
-  position: absolute;
-  right: 8px;
-  top: 12px;
-  -webkit-app-region: no-drag;
-  cursor: pointer;
-}
-#titlebarActions i {
-  color: #777777;
-}
-#titlebarActions i:hover {
-  color: #185cc9;
-}
-/*# sourceMappingURL=titlebar.css.map */

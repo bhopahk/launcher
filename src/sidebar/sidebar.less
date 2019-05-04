@@ -1,0 +1,143 @@
+@import "../colors";
+
+.sidebar-header {
+  display: flex;
+  flex-direction: row;
+
+  width: 100%;
+
+  margin: 0;
+
+  img {
+    width: 35px;
+    height: 35px;
+  }
+
+  h1 {
+    font-size: 20px;
+    line-height: 35px;
+    font-family: Raleway, sans-serif;
+    color: @offWhite;
+    text-shadow: 2px 2px @offBlack;
+  }
+}
+
+.sidebar {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  user-select: none;
+
+  width: 300px;
+  height: 100vh;
+
+  margin: 0;
+  padding: 30px 30px 0;
+
+  background-color: @backgroundOpaque;
+
+  .group {
+
+    p {
+      margin-top: 30px;
+      padding-left: 10px;
+
+      font-size: 14px;
+      font-family: Oswald, sans-serif;
+      color: @offWhite;
+      text-shadow: 2px 2px @offBlack;
+    }
+
+    button {
+      display: block;
+      box-sizing: border-box;
+      outline: none;
+
+      width: 100%;
+      height: auto;
+
+      margin: 15px 0;
+      padding: 0;
+
+      text-align: left;
+      font-size: 15px;
+      font-family: "Source Sans Pro", sans-serif;
+      font-weight: bold;
+      border: none;
+      background: transparent;
+      color: @inactive;
+
+      i {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        vertical-align: middle;
+
+        width: 30px;
+
+        padding-bottom: 3px;
+      }
+
+      &.active {
+        color: @offWhite;
+
+        i {
+          color: @superOffWhite;
+          background: @highlightGradient;
+        }
+      }
+
+      &:hover i {
+        color: @superOffWhite;
+        background: @highlightGradient;
+      }
+
+      &.disabled {
+        color: @disabled;
+      }
+      &.disabled:hover {
+        text-decoration: line-through;
+
+        i {
+          color: @disabled;
+          background: transparent;
+        }
+      }
+    }
+  }
+}
+
+.sidebar-footer {
+  box-sizing: border-box;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+
+  margin: auto;
+
+  button {
+    position: relative;
+    box-sizing: border-box;
+    outline: none;
+
+    margin: 10px;
+    padding: 0;
+
+    border: none;
+    background: transparent;
+    font-family: Oswald, sans-serif;
+    color: @superOffWhite;
+    text-shadow: 2px 2px @offBlack;
+
+    i {
+      font-size: 20px;
+    }
+
+    &:hover {
+      color: @offWhite;
+    }
+  }
+}
