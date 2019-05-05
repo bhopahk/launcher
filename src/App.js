@@ -11,7 +11,7 @@ import {
 } from './sidebar/Sidebar';
 import CurseModpackListing from './modpack/provider/Curse';
 
-import ModpackBrowser from './modpack/Modpack';
+import { ModpackBrowser } from './modpack/Modpack';
 
 class App extends React.Component {
     static snackbar = React.createRef();
@@ -35,13 +35,13 @@ class App extends React.Component {
                     </SidebarGroup>
                     <SidebarGroup index={1} title="install">
                         <Page id="recommended" icon="star" display="Recommended">
-                            <ModpackBrowser />
+                            <ModpackBrowser error />
                         </Page>
                         <Page id="curse" icon="fire" display="Curse Modpacks">
                             <CurseModpackListing />
                         </Page>
                         <Page id="technic" icon="wrench" display="Technic Modpacks?">
-                            <ModpackBrowser />
+                            <ModpackBrowser error />
                         </Page>
                         <Page id="custom" icon="tools" display="Custom Profile">
                             <p>Custom Profiles</p>

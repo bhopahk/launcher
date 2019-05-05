@@ -3,42 +3,13 @@
 .modpack-browser {
   box-sizing: border-box;
   width: 100%;
-  height: 100%;
+  //height: 50px;
+  height: calc(100vh - 30px - 3vh);
 
   overflow-x: hidden;
   overflow-y: auto;
 
-  // Rendered if there was an error.
-  .bug {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-
-    width: 100%;
-    height: 100%;
-
-    h1 {
-      font-size: 70px;
-      color: @offWhite;
-      text-shadow: 5px 5px @offBlack;
-    }
-
-    p {
-      margin-top: 20px;
-
-      font-size: 15px;
-      font-family: Raleway, sans-serif;
-
-      color: @superOffWhite;
-
-      span {
-        cursor: pointer;
-
-        color: @offWhite;
-      }
-    }
-  }
+  padding-bottom: 30px;
 
   // Rendered for each individual modpack
   .modpack {
@@ -61,6 +32,7 @@
       display: block;
 
       width: 20vh;
+      min-width: 20vh;
       height: 20vh;
 
       border-top-left-radius: 10px;
@@ -88,6 +60,7 @@
           text-shadow: 2px 2px @offBlack;
 
           width: 85%;
+          padding-bottom: 5px;
 
           overflow: hidden;
           white-space: nowrap;
@@ -202,90 +175,129 @@
       }
     }
   }
+}
 
-  .modpack-filter {
+.modpack-filter {
+  display: flex;
+
+  height: 3vh;
+
+  margin-left: 30px;
+  margin-top: 30px;
+
+  .search {
+    box-sizing: border-box;
     display: flex;
+    flex-direction: row-reverse;
 
-    margin-left: 30px;
-    margin-top: 30px;
+    height: 4vh;
 
-    .search {
+    color: @offGrey;
+
+    input {
       box-sizing: border-box;
-      display: flex;
-      flex-direction: row-reverse;
+      outline: none;
 
-      height: 4vh;
+      height: 2.5vh;
 
+      border: none;
+      background: transparent;
+      font-family: "Source Sans Pro", sans-serif;
       color: @offGrey;
 
-      input {
-        box-sizing: border-box;
-        outline: none;
+      &:focus {
+        color: @offWhite;
+      }
 
-        height: 2.5vh;
-
-        border: none;
-        background: transparent;
+      &::placeholder {
         font-family: "Source Sans Pro", sans-serif;
         color: @offGrey;
-
-        &:focus {
-          color: @offWhite;
-        }
-
-        &::placeholder {
-          font-family: "Source Sans Pro", sans-serif;
-          color: @offGrey;
-        }
-      }
-
-      i {
-        box-sizing: border-box;
-
-        margin-right: 5px;
-
-        font-size: 2.5vh;
-
-      }
-
-      input:focus + i {
-        color: @offWhite;
       }
     }
 
-    .dropdowns {
-      select {
-        text-align-last: right;
+    i {
+      box-sizing: border-box;
+
+      margin-right: 5px;
+
+      font-size: 2.5vh;
+
+    }
+
+    input:focus + i {
+      color: @offWhite;
+    }
+  }
+
+  .dropdowns {
+    select {
+      text-align-last: right;
+      outline: none;
+
+      border: none;
+      background: transparent;
+      font-family: Raleway, sans-serif;
+      color: @offGrey;
+
+      option {
+        direction: rtl;
         outline: none;
 
         border: none;
-        background: transparent;
-        font-family: Raleway, sans-serif;
-        color: @offGrey;
-
-        option {
-          direction: rtl;
-          outline: none;
-
-          border: none;
-          background-color: @backgroundOpaque2;
-          color: @offWhite;
-        }
-      }
-    }
-
-    .refresh {
-      display: flex;
-      align-items: center;
-
-      margin-left: 15px;
-
-      font-size: 2vh;
-      color: @offGrey;
-
-      &:hover {
+        background-color: @backgroundOpaque2;
         color: @offWhite;
       }
+    }
+  }
+
+  .refresh {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+
+    margin-left: 15px;
+
+    font-size: 2vh;
+    color: @offGrey;
+
+    &:hover {
+      color: @offWhite;
+    }
+  }
+}
+
+// Rendered if there was an error.
+.bug {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  width: 100%;
+  height: calc(100vh - 30px - 3vh);
+
+  h1 {
+    font-size: 70px;
+    color: @offWhite;
+    text-shadow: 5px 5px @offBlack;
+
+    &.small {
+      text-shadow: 2px 2px @offBlack;
+    }
+  }
+
+  p {
+    margin-top: 20px;
+
+    font-size: 15px;
+    font-family: Raleway, sans-serif;
+
+    color: @superOffWhite;
+
+    span {
+      cursor: pointer;
+
+      color: @offWhite;
     }
   }
 }

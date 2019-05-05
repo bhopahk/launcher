@@ -1,57 +1,89 @@
 import React from 'react';
-import Snackbar from '../snackbar/Snackbar';
 import './modpack.css';
 
-export default class ModpackBrowser extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            error: true,
-            modpacks: [],
-        };
-    }
-
-    filter() {
+export const ModpackBrowser = (props) => {
+    if (props.error) {
         return (
-            <div className="modpack-filter">
+            <div className="bug">
+                <h1><i className="fas fa-bug"></i></h1>
+                <p>An error has occurred, please <span onClick={() => props.onRefresh()}>refresh</span> the page.</p>
             </div>
         );
     }
-
-    // noinspection JSMethodCanBeStatic
-    onRefresh() {
-        this.forceUpdate();
-        Snackbar.sendSnack({
-            body: 'I am a snackbar for minor notifications!',
-            action: 'action',
-            onAction: () => {alert('i have done an action!')},
-            // dismissOnClick: false,
-            // requireAction: true,
-        });
-    }
-
-    render() {
-        if (this.state.error) {
-            return (
-                <div className="modpack-browser">
-                    <div className="bug">
-                        <h1><i className="fas fa-bug"></i></h1>
-                        <p>An error has occurred, please <span onClick={() => this.onRefresh()}>refresh</span> the page.</p>
-                    </div>
-                </div>
-            );
-        }
+    if (props.modpacks.length === 0 && props.loading)
         return (
-            <div className="modpack-browser">
-                {this.filter()}
-                {this.state.modpacks.map(modpack => {
-                    return (<Modpack {...modpack} />)
-                })}
+            <div className="bug">
+                <h1 className="small"><i className="fas fa-frown"></i></h1>
+                <p>No modpacks were found, please edit your search!</p>
             </div>
         );
-    }
-}
+    return (
+        <div className="modpack-browser" onScroll={e => {
+            if ((e.target.scrollHeight - e.target.offsetHeight) <= (e.target.scrollTop + 10))
+                props.onScrollBottom();
+        }}>
+            {[...props.modpacks].map(modpack => {
+                return (<Modpack key={modpack.id} {...modpack} />)
+            })}
+            {/*{props.loading ? (<p>LOADING</p>) : (<div></div>)}*/}
+        </div>
+    );
+};
+
+// export default class ModpackBrowser extends React.Component {
+//     constructor(props) {
+//         super(props);
+//
+//         this.state = {
+//             error: true,
+//             modpacks: [],
+//         };
+//     }
+//
+//     filter() {
+//         return (
+//             <div className="modpack-filter">
+//             </div>
+//         );
+//     }
+//
+//     // noinspection JSMethodCanBeStatic
+//     onRefresh() {
+//         this.forceUpdate();
+//         Snackbar.sendSnack({
+//             body: 'I am a snackbar for minor notifications!',
+//             action: 'action',
+//             onAction: () => {alert('i have done an action!')},
+//             // dismissOnClick: false,
+//             // requireAction: true,
+//         });
+//     }
+//
+//     componentWillReceiveProps(nextProps, nextContext) {
+//         this.setState(nextProps);
+//     }
+//
+//     render() {
+//         if (this.state.error) {
+//             return (
+//                 <div className="modpack-browser">
+//                     <div className="bug">
+//                         <h1><i className="fas fa-bug"></i></h1>
+//                         <p>An error has occurred, please <span onClick={() => this.onRefresh()}>refresh</span> the page.</p>
+//                     </div>
+//                 </div>
+//             );
+//         }
+//         return (
+//             <div className="modpack-browser">
+//                 {this.filter()}
+//                 {this.state.modpacks.map(modpack => {
+//                     return (<Modpack key={modpack.id} {...modpack} />)
+//                 })}
+//             </div>
+//         );
+//     }
+// }
 
 const Modpack = (props) => {
     return (
@@ -71,7 +103,7 @@ const Modpack = (props) => {
                     </div>
                     <div>
                         <h3>UPDATED</h3>
-                        <h2>{new Date(props.modified * 1000).toLocaleDateString('en-US')}</h2>
+                        <h2>{new Date(props.modified).toLocaleDateString('en-US')}</h2>
                     </div>
                     <div>
                         <h3>GAME VERSION</h3>
