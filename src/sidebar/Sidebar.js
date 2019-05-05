@@ -12,12 +12,15 @@ class Sidebar extends React.Component {
             activeItem: 0,
             links: [],
         };
+        let index = 0;
         props.children.forEach(child => {
-            if (child.type.name === 'SidebarHeader')
+            console.log('child', child);
+            if (index === 0)
                 p.header = child;
-            if (child.type.name === 'SidebarFooter')
+            else if (index === 4)
                 p.footer = child;
-            if (child.type.name === 'SidebarGroup') {
+            else {
+                this.minifiedGroupName = child.type.name;
                 p.links[child.props.index] = [];
                 child.props.children.forEach(childChild => {
                     p.links[child.props.index].push(childChild);
@@ -27,7 +30,9 @@ class Sidebar extends React.Component {
                     }
                 });
             }
+            index++;
         });
+        console.log(p);
 
         this.state = p;
     }
@@ -36,7 +41,7 @@ class Sidebar extends React.Component {
         if (stop)
             return;
         let active = this.state.links[group][item];
-        if (active.type.name === 'Link') {
+        if (active.type.hasOwnProperty('onClick')) {
             active.props.onClick();
             return;
         }
@@ -50,6 +55,8 @@ class Sidebar extends React.Component {
     render() {
         let group = -1;
         let item = -1;
+        console.log(this.state.activeGroup, this.state.activeItem);
+        console.log(this.state.links);
         const active = this.state.links[this.state.activeGroup][this.state.activeItem];
         return (
             <div className="wrapper">
@@ -57,7 +64,7 @@ class Sidebar extends React.Component {
                     {this.state.header}
                     {this.props.children.map(child => {
                         item = -1;
-                        if (child.type.name !== 'SidebarGroup')
+                        if (child.type.name !== this.minifiedGroupName)
                             return (<div key={Math.random()}></div>);
                         group++;
                         return (

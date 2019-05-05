@@ -8,6 +8,7 @@ class CurseModpackListing extends React.Component {
 
         this.page = 0;
         this.canLoadMore = true;
+        this.searchRefreshTimeout = null;
 
         // noinspection SpellCheckingInspection
         this.state = {
@@ -115,7 +116,11 @@ class CurseModpackListing extends React.Component {
                 <div className="modpack-filter">
                     <div className="search">
                         <input id="curseSearch" type="text" placeholder="Search..." onChange={(e) => {
-                            this.setState({ search: e.target.value }, () => this.clearRefresh())
+                            const newValue = e.target.value;
+                            clearTimeout(this.searchRefreshTimeout);
+                            this.searchRefreshTimeout = setTimeout(() => {
+                                this.setState({ search: newValue }, () => this.clearRefresh());
+                            }, 750);
                         }} />
                         <i className="fas fa-search"></i>
                     </div>

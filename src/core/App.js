@@ -16,15 +16,42 @@ import { ModpackBrowser } from './modpack/Modpack';
 class App extends React.Component {
     static snackbar = React.createRef();
 
+    constructor(props) {
+        super(props);
+
+        window.ipc.on('argv', (event, arg) => {
+            alert(arg);
+        })
+    }
+
     render() {
         return (
             <div>
                 <Actions />
-                <Sidebar default="curse">
+                <Sidebar default="profiles">
                     <SidebarHeader />
                     <SidebarGroup index={0} title="library">
                         <Page id="profiles" icon="list" display="Profiles">
-                            <p>Profiles</p>
+                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
+                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
+                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
+                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
+                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
+                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
+                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
+                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
+                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
+                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
+                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
+                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
+                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
+                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
+                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
+                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
+                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
+                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
+                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
+                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
                         </Page>
                         <Page id="profiles2" icon="lock" display="Coming Soon" disabled={true}>
                             <p>Profiles Alt</p>

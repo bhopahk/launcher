@@ -1,4 +1,4 @@
-@import "../colors";
+@import "../core/colors";
 
 .modpack-browser {
   box-sizing: border-box;
@@ -10,6 +10,19 @@
   overflow-y: auto;
 
   padding-bottom: 30px;
+
+  &::-webkit-scrollbar {
+    width: 2px;
+  }
+  &::-webkit-scrollbar-track {
+    background: #363636;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #185cc9;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: #185cc9;
+  }
 
   // Rendered for each individual modpack
   .modpack {

@@ -93,6 +93,16 @@ const createContextMenu = () => {
     ])
 };
 
+const registerUriListeners = () => {
+    const locked = app.requestSingleInstanceLock();
+    if (!locked)
+        app.quit();
+    app.on('second-instance', (event, argv, cwd) => {
+
+        mainWindow.show();
+    })
+};
+
 app.on('ready', () => {
     setTimeout(() => {
         if (process.platform === 'win32')
@@ -102,6 +112,8 @@ app.on('ready', () => {
         // createTrayMenu();
         // if (process.platform === 'win32')
         //     createContextMenu();
+
+        registerUriListeners();
 
         if (!isDev) {
             autoUpdater.autoDownload = true; //todo set allowPrerelease to true if they enable dev builds in settings.
@@ -120,11 +132,18 @@ app.on('activate', () => {
     }
 });
 
+app.on('open-url', (event, data) => {
+    event.preventDefault();
+    shell.openExternal(data);
+});
+
 ipcMain.on('titlebar', (event, arg) => {
     let window = BrowserWindow.fromWebContents(event.sender);
     switch (arg.action) {
         case 'QUIT':
-            window.close();
+            if (window === mainWindow)
+                window.hide();
+            else window.close();
             break;
         case 'MAXIMIZE':
             if (window.isMaximized())
@@ -139,6 +158,10 @@ ipcMain.on('titlebar', (event, arg) => {
 
 ipcMain.on('open-external', (event, arg) => {
     shell.openExternal(arg);
+});
+
+ipcMain.on('argv', event => {
+    event.sender.send('argv', process.argv);
 });
 
 // Auto Update

@@ -1,5 +1,5 @@
 import React from 'react';
-import App from '../App';
+import App from '../core/App';
 import './snackbar.css';
 
 import Queue from '../util/Queue';
