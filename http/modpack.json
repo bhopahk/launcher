@@ -1,0 +1,226 @@
+{
+  "id": 269708,
+  "name": "All the Mods 3",
+  "authors": [
+    {
+      "name": "atmteam",
+      "url": "https://www.curseforge.com/members/atmteam",
+      "twitchId": 170399703
+    },
+    {
+      "name": "whatthedrunk",
+      "url": "https://www.curseforge.com/members/whatthedrunk",
+      "twitchId": 131880352
+    }
+  ],
+  "attachments": [
+    {
+      "id": 217569,
+      "projectID": 269708,
+      "description": "Custom items used for optional challenge recipes for creative-only items",
+      "isDefault": false,
+      "thumbnailUrl": "https://media.forgecdn.net/attachments/thumbnails/217/569/310/172/atmtweaks.png",
+      "title": "Custom Items",
+      "url": "https://media.forgecdn.net/attachments/217/569/atmtweaks.png"
+    },
+    {
+      "id": 217570,
+      "projectID": 269708,
+      "description": "Plenty of decoration and visual-based mods to let your creative side go wild",
+      "isDefault": false,
+      "thumbnailUrl": "https://media.forgecdn.net/attachments/thumbnails/217/570/310/172/05ef4b2053-1.jpg",
+      "title": "Have fun building",
+      "url": "https://media.forgecdn.net/attachments/217/570/05ef4b2053-1.jpg"
+    },
+    {
+      "id": 196458,
+      "projectID": 269708,
+      "description": "",
+      "isDefault": true,
+      "thumbnailUrl": "https://media.forgecdn.net/avatars/thumbnails/196/458/256/256/636885406042747877.png",
+      "title": "636885406042747877.png",
+      "url": "https://media.forgecdn.net/avatars/196/458/636885406042747877.png"
+    }
+  ],
+  "websiteUrl": "https://www.curseforge.com/minecraft/modpacks/all-the-mods-3",
+  "gameId": 432,
+  "summary": "All your favorite mods now on 1.12",
+  "defaultFileId": 2697844,
+  "commentCount": 0,
+  "downloadCount": 1449016.0,
+  "rating": 0,
+  "installCount": 0,
+  "latestFiles": [
+    {
+      "id": 2616900,
+      "fileName": "All the Mods 3 5.10.0",
+      "fileNameOnDisk": "All the Mods 3 v5.10.0.zip",
+      "fileDate": "2018-09-14T17:22:50.76",
+      "fileLength": 2557740,
+      "releaseType": 3,
+      "fileStatus": 1,
+      "downloadUrl": "https://files.forgecdn.net/files/2616/900/All the Mods 3 v5.10.0.zip",
+      "isAlternate": false,
+      "alternateFileId": 0,
+      "dependencies": [],
+      "isAvailable": true,
+      "modules": [
+        {
+          "folderName": "manifest.json",
+          "fimgerprint": 2578975937
+        }
+      ],
+      "packageFingerprint": 3575161747,
+      "gameVersion": [
+        "1.12.2"
+      ],
+      "installMetadata": null
+    },
+    {
+      "id": 2632710,
+      "fileName": "All the Mods 3 5.11.1",
+      "fileNameOnDisk": "All the Mods 3-v5.11.1.zip",
+      "fileDate": "2018-10-28T15:18:08.943",
+      "fileLength": 3076188,
+      "releaseType": 2,
+      "fileStatus": 1,
+      "downloadUrl": "https://files.forgecdn.net/files/2632/710/All the Mods 3-v5.11.1.zip",
+      "isAlternate": false,
+      "alternateFileId": 0,
+      "dependencies": [],
+      "isAvailable": true,
+      "modules": [
+        {
+          "folderName": "manifest.json",
+          "fimgerprint": 179955001
+        }
+      ],
+      "packageFingerprint": 747039661,
+      "gameVersion": [
+        "1.12.2"
+      ],
+      "installMetadata": null
+    },
+    {
+      "id": 2697844,
+      "fileName": "All the Mods 3 5.12.1",
+      "fileNameOnDisk": "All the Mods 3-v5.12.1.zip",
+      "fileDate": "2019-04-11T04:18:05.11",
+      "fileLength": 2902743,
+      "releaseType": 1,
+      "fileStatus": 1,
+      "downloadUrl": "https://files.forgecdn.net/files/2697/844/All the Mods 3-v5.12.1.zip",
+      "isAlternate": false,
+      "alternateFileId": 0,
+      "dependencies": [],
+      "isAvailable": true,
+      "modules": [
+        {
+          "folderName": "manifest.json",
+          "fimgerprint": 3813831830
+        }
+      ],
+      "packageFingerprint": 214564708,
+      "gameVersion": [
+        "1.12.2"
+      ],
+      "installMetadata": null
+    }
+  ],
+  "categories": [
+    {
+      "id": 4472,
+      "name": "Tech",
+      "url": "https://www.curseforge.com/modpacks/minecraft/category/tech",
+      "avatarUrl": "https://media.forgecdn.net/avatars/14/479/635596761534662757.png",
+      "parentId": 4472,
+      "rootId": 4472
+    },
+    {
+      "id": 4473,
+      "name": "Magic",
+      "url": "https://www.curseforge.com/modpacks/minecraft/category/magic",
+      "avatarUrl": "https://media.forgecdn.net/avatars/14/474/635596760578719019.png",
+      "parentId": 4473,
+      "rootId": 4473
+    },
+    {
+      "id": 4476,
+      "name": "Exploration",
+      "url": "https://www.curseforge.com/modpacks/minecraft/category/exploration",
+      "avatarUrl": "https://media.forgecdn.net/avatars/14/486/635596815896417213.png",
+      "parentId": 4476,
+      "rootId": 4476
+    },
+    {
+      "id": 4482,
+      "name": "Extra Large",
+      "url": "https://www.curseforge.com/modpacks/minecraft/category/extra-large",
+      "avatarUrl": "https://media.forgecdn.net/avatars/14/472/635596760403562826.png",
+      "parentId": 4482,
+      "rootId": 4482
+    },
+    {
+      "id": 4484,
+      "name": "Multiplayer",
+      "url": "https://www.curseforge.com/modpacks/minecraft/category/multiplayer",
+      "avatarUrl": "https://media.forgecdn.net/avatars/14/481/635596792838491141.png",
+      "parentId": 4484,
+      "rootId": 4484
+    }
+  ],
+  "primaryAuthorName": "atmteam",
+  "externalUrl": null,
+  "status": 1,
+  "stage": 1,
+  "donationUrl": null,
+  "primaryCategoryName": "Exploration",
+  "primaryCategoryAvatarUrl": "https://media.forgecdn.net/avatars/14/486/635596815896417213.png",
+  "likes": 0,
+  "categorySection": {
+    "Id": 4471,
+    "gameId": 432,
+    "name": "Modpacks",
+    "packageType": 5,
+    "path": "downloads",
+    "initialInclusionPattern": "$^",
+    "extraIncludePattern": null
+  },
+  "packageType": 5,
+  "avatarUrl": null,
+  "slug": "all-the-mods-3",
+  "clientUrl": "https://www.curseforge.com/minecraft/modpacks/all-the-mods-3",
+  "gameVersionLatestFiles": [
+    {
+      "gameVersion": "1.12.2",
+      "projectFileId": 2697844,
+      "projectFileName": "All the Mods 3 5.12.1",
+      "fileType": 1
+    },
+    {
+      "gameVersion": "1.12.2",
+      "projectFileId": 2632710,
+      "projectFileName": "All the Mods 3 5.11.1",
+      "fileType": 2
+    },
+    {
+      "gameVersion": "1.12.2",
+      "projectFileId": 2616900,
+      "projectFileName": "All the Mods 3 5.10.0",
+      "fileType": 3
+    }
+  ],
+  "isFeatured": 1,
+  "popularityScore": 13201.7303,
+  "gamePopularityRank": 753,
+  "primaryLanguage": "enUS",
+  "fullDescription": "<p><img src=\"https://i.imgur.com/R3RgVCP.png\" alt=\"\" width=\"498\" height=\"105\"></p>\r\n<p><a href=\"/linkout?remoteUrl=https%253a%252f%252fwww.reddit.com%252fr%252fallthemods%252fcomments%252fayl6aq%252fserver_list%252f\" rel=\"nofollow\"><img src=\"https://i.imgur.com/wYCbA6c.png\" alt=\"\" width=\"166\" height=\"111\"></a> <a href=\"https://discord.gg/FdFDVWb\" rel=\"nofollow\"><img src=\"https://i.imgur.com/3XOjTB1.png\" alt=\"\" width=\"167\" height=\"111\"><img src=\"https://i.imgur.com/ceNJD8V.png\" alt=\"\" width=\"167\" height=\"111\"></a></p>\r\n<p>&nbsp;</p>\r\n<p><span><iframe allowfullscreen=\"allowfullscreen\" src=\"https://www.youtube.com/embed/kKGzCnVWoJA?wmode=transparent\" height=\"358\" width=\"638\"></iframe></span></p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p><a href=\"/linkout?remoteUrl=http%253a%252f%252fwww.akliz.net%252fallthemods\" rel=\"nofollow\"><img src=\"http://i.imgur.com/vGH7XHZ.png\" alt=\"\" width=\"500\" height=\"141\">&nbsp;</a></p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p><span style=\"font-weight:400\"><strong>All the Mods</strong> started out as a private pack for just a few friends of mine that turned into something others wanted to play!&nbsp;</span></p>\r\n<p>It has all the basics that most other \"big name\" packs include but with a nice mix of some of newer or lesser-known mods as well.</p>\r\n<p><span style=\"font-weight:400\">For example; Thaumcraft, Ender IO, Thermal Expansion for the big names and Rustic, Traverse and FastWorkBench for the not as well known!</span></p>\r\n<p>Can you get to the Creative items by making the \"<strong>ATM Star</strong>\"?&nbsp;</p>\r\n<p><span style=\"font-weight:400\">In <strong>All the Mods 3</strong> we will continue the tradition adding many new mods while going for more stability.</span></p>\r\n<p><strong>Does \"All The Mods\" really contain </strong><strong>ALL</strong><strong> THE MODS? No, of course not:&nbsp;</strong><a href=\"/linkout?remoteUrl=https%253a%252f%252frawgit.com%252fAllTheMods%252fATM-3%252fmaster%252fmodlist.html\" rel=\"nofollow\"><em><span style=\"font-weight:400\">Modlist</span></em></a></p>\r\n<p>&nbsp;</p>\r\n<p><em><span style=\"font-weight:400\">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span></em></p>",
+  "gameName": "Minecraft",
+  "portalName": "www.curseforge.com",
+  "sectionName": "modpacks",
+  "dateModified": "2019-04-18T11:02:22.937",
+  "dateCreated": "2017-06-12T16:56:28.927",
+  "dateReleased": "2019-04-16T04:44:53.59",
+  "isAvailable": true,
+  "categoryList": "Tech, Magic, Exploration, Extra Large, Multiplayer"
+}

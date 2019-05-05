@@ -8,16 +8,24 @@ export default class ModpackBrowser extends React.Component {
 
         this.state = {
             error: true,
+            modpacks: [],
         };
+    }
+
+    filter() {
+        return (
+            <div className="modpack-filter">
+            </div>
+        );
     }
 
     // noinspection JSMethodCanBeStatic
     onRefresh() {
         this.forceUpdate();
         Snackbar.sendSnack({
-            body: 'Take me to lunch?',
-            action: 'undo',
-            onAction: () => {alert('undone!')},
+            body: 'I am a snackbar for minor notifications!',
+            action: 'action',
+            onAction: () => {alert('i have done an action!')},
             // dismissOnClick: false,
             // requireAction: true,
         });
@@ -36,7 +44,10 @@ export default class ModpackBrowser extends React.Component {
         }
         return (
             <div className="modpack-browser">
-                <p>{this.state.test}</p>
+                {this.filter()}
+                {this.state.modpacks.map(modpack => {
+                    return (<Modpack {...modpack} />)
+                })}
             </div>
         );
     }
@@ -45,9 +56,73 @@ export default class ModpackBrowser extends React.Component {
 const Modpack = (props) => {
     return (
         <div className="modpack">
+            <img src={props.icon} alt={props.name} />
+            <div className="modpack-info">
+                <div className="modpack-info-ext">
+                    <h1>{props.name}</h1>
+                    <h2>by <span>{props.primaryAuthor}</span></h2>
+                    <p>{truncateString(props.summary)}</p>
+                    <i className={`fas ${props.featured ? 'fa-star' : ''}`}></i>
+                </div>
+                <div className="modpack-details">
+                    <div>
+                        <h3>DOWNLOADS</h3>
+                        <h2>{truncateNumber(props.downloads, 2)}</h2>
+                    </div>
+                    <div>
+                        <h3>UPDATED</h3>
+                        <h2>{new Date(props.modified * 1000).toLocaleDateString('en-US')}</h2>
+                    </div>
+                    <div>
+                        <h3>GAME VERSION</h3>
+                        <h2>{props.gameVersionLatestFiles[0].version}</h2>
+                    </div>
+                    <div>
+                        <h3>POPULARITY INDEX</h3>
+                        <h2>{Math.round(props.popularity)}</h2>
+                    </div>
+                </div>
+            </div>
+            <div className="modpack-install">
+                <div>
+                    <button><i className="fas fa-file-download"></i> Install</button>
+                    <div></div>
+                    <button><i className="fas fa-caret-down"></i></button>
+                </div>
+            </div>
         </div>
     );
 };
+
+const truncateString = (str) => {
+    // 158 chars
+    let truncated = str;
+    if (str.length > 150) {
+        truncated = truncated.substring(0, 150);
+        truncated = truncated.substring(0, truncated.lastIndexOf(' '));
+        truncated += '...';
+    }
+    return truncated;
+};
+
+const truncateNumber = (number, decPlaces) => {
+    decPlaces = Math.pow(10, decPlaces);
+    let abbrev = [ "k", "m", "b", "t" ];
+
+    for (let i = abbrev.length - 1; i >= 0; i--) {
+        let size = Math.pow(10,(i + 1) * 3);
+        if (size <= number) {
+            number = Math.round(number * decPlaces / size) / decPlaces;
+            if ((number === 1000) && (i < abbrev.length - 1)) {
+                number = 1;
+                i++;
+            }
+            number += abbrev[i];
+            break;
+        }
+    }
+    return number;
+}
 
 export {
     Modpack

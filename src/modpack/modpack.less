@@ -1,8 +1,12 @@
 @import "../colors";
 
 .modpack-browser {
+  box-sizing: border-box;
   width: 100%;
   height: 100%;
+
+  overflow-x: hidden;
+  overflow-y: auto;
 
   // Rendered if there was an error.
   .bug {
@@ -17,6 +21,7 @@
     h1 {
       font-size: 70px;
       color: @offWhite;
+      text-shadow: 5px 5px @offBlack;
     }
 
     p {
@@ -30,6 +35,255 @@
       span {
         cursor: pointer;
 
+        color: @offWhite;
+      }
+    }
+  }
+
+  // Rendered for each individual modpack
+  .modpack {
+    box-sizing: border-box;
+    display: flex;
+    position: relative;
+
+    width: calc(100% - 60px);
+
+    margin: 30px 30px 0;
+    //margin-bottom: 10px;
+    padding: 0;
+
+    border: none;
+    border-radius: 10px;
+    background-color: @backgroundOpaque;
+    box-shadow: @shadowDark;
+
+    img {
+      display: block;
+
+      width: 20vh;
+      height: 20vh;
+
+      border-top-left-radius: 10px;
+      border-bottom-left-radius: 10px;
+    }
+
+    .modpack-info {
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+
+      width: 100%;
+
+      margin: 5px 5px 5px 10px;
+
+      .modpack-info-ext {
+        width: 100%;
+
+        h1 {
+          position: relative;
+          font-size: 4.5vh;
+          font-family: "Source Sans Pro", sans-serif;
+          color: @offWhite;
+          text-shadow: 2px 2px @offBlack;
+
+          width: 85%;
+
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          vertical-align: middle;
+        }
+
+        i {
+          position: absolute;
+          left: 17vh;
+          top: 1vh;
+
+          font-size: 2vh;
+          text-shadow: 2px 2px @offBlack;
+          color: @offWhite;
+        }
+
+        h2 {
+          font-size: 2vh;
+          font-family: Raleway, sans-serif;
+          color: @inactive;
+
+          span {
+            color: @superOffWhite;
+          }
+        }
+
+        p {
+          width: 80%;
+          height: 5vh;
+          overflow: hidden;
+
+          margin-top: 10px;
+
+          font-size: 2.5vh;
+          font-family: "Source Sans Pro", sans-serif;
+          color: @superOffWhite;
+        }
+      }
+
+      .modpack-details {
+        position: absolute;
+        bottom: 5px;
+        left: calc(20vh + 10px);
+        display: flex;
+        align-self: flex-end;
+
+        div {
+          box-sizing: border-box;
+          margin-right: 15px;
+
+          h3 {
+            font-size: 1.5vh;
+            font-family: Raleway, sans-serif;
+            font-weight: lighter;
+            color: @superOffWhite
+          }
+
+          h2 {
+            font-size: 2.5vh;
+            font-family: "Source Sans Pro", sans-serif;
+            font-weight: normal;
+            color: @offWhite
+          }
+        }
+      }
+    }
+
+    .modpack-install {
+      display: flex;
+      align-items: center;
+      position: absolute;
+      right: 15px;
+
+      height: 100%;
+
+      div {
+        display: flex;
+        align-items: center;
+        //border: 1px solid @inactive;
+        border-radius: 5px;
+        background-color: @backgroundOpaque2;
+        box-shadow: 0 0 12px -5px rgba(0,0,0,0.62);
+
+        div {
+          width: 1px;
+          height: 2.5vh;
+
+          background-color: @inactive;
+        }
+
+        button {
+          box-sizing: border-box;
+          outline: none;
+          cursor: pointer;
+          user-select: none;
+
+          font-size: 3vh;
+          font-family: Raleway, sans-serif;
+
+          border: none;
+          background: transparent;
+          color: @superOffWhite;
+          text-shadow: 2px 2px @offBlack;
+
+          transition: 0.3s;
+
+          &:hover {
+            color: @offWhite;
+          }
+        }
+      }
+    }
+  }
+
+  .modpack-filter {
+    display: flex;
+
+    margin-left: 30px;
+    margin-top: 30px;
+
+    .search {
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: row-reverse;
+
+      height: 4vh;
+
+      color: @offGrey;
+
+      input {
+        box-sizing: border-box;
+        outline: none;
+
+        height: 2.5vh;
+
+        border: none;
+        background: transparent;
+        font-family: "Source Sans Pro", sans-serif;
+        color: @offGrey;
+
+        &:focus {
+          color: @offWhite;
+        }
+
+        &::placeholder {
+          font-family: "Source Sans Pro", sans-serif;
+          color: @offGrey;
+        }
+      }
+
+      i {
+        box-sizing: border-box;
+
+        margin-right: 5px;
+
+        font-size: 2.5vh;
+
+      }
+
+      input:focus + i {
+        color: @offWhite;
+      }
+    }
+
+    .dropdowns {
+      select {
+        text-align-last: right;
+        outline: none;
+
+        border: none;
+        background: transparent;
+        font-family: Raleway, sans-serif;
+        color: @offGrey;
+
+        option {
+          direction: rtl;
+          outline: none;
+
+          border: none;
+          background-color: @backgroundOpaque2;
+          color: @offWhite;
+        }
+      }
+    }
+
+    .refresh {
+      display: flex;
+      align-items: center;
+
+      margin-left: 15px;
+
+      font-size: 2vh;
+      color: @offGrey;
+
+      &:hover {
         color: @offWhite;
       }
     }

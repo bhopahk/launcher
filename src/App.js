@@ -20,7 +20,7 @@ class App extends React.Component {
         return (
             <div>
                 <Actions />
-                <Sidebar default="profiles">
+                <Sidebar default="curse">
                     <SidebarHeader />
                     <SidebarGroup index={0} title="library">
                         <Page id="profiles" icon="list" display="Profiles">
@@ -34,13 +34,13 @@ class App extends React.Component {
                         </Page>
                     </SidebarGroup>
                     <SidebarGroup index={1} title="install">
+                        <Page id="recommended" icon="star" display="Recommended">
+                            <ModpackBrowser />
+                        </Page>
                         <Page id="curse" icon="fire" display="Curse Modpacks">
                             <CurseModpackListing />
                         </Page>
                         <Page id="technic" icon="wrench" display="Technic Modpacks?">
-                            <ModpackBrowser />
-                        </Page>
-                        <Page id="recommended" icon="star" display="Recommended">
                             <ModpackBrowser />
                         </Page>
                         <Page id="custom" icon="tools" display="Custom Profile">

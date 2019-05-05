@@ -100,7 +100,7 @@ const SidebarHeader = (props) => {
 const SidebarFooter = (props) => {
     return (
         <div className="sidebar-footer">
-            <button onClick={() => {alert('opening settings')}}><i className="fas fa-cog"></i></button>
+            <button onClick={() => {alert('opening settings')}}><i className="fas fa-cog flip"></i></button>
             <button onClick={() => {window.ipc.send('open-external', 'https://www.google.com/search?q=this+will+be+a+discord+link+eventually')}}><i className="fab fa-discord"></i></button>
             <button onClick={() => {alert('showing changelog')}}>v1.2.3</button>
         </div>
