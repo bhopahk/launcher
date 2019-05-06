@@ -1,6 +1,7 @@
 import React from 'react';
 import "./sidebar.css";
 import "./content.css";
+import "../download/downloads.css";
 import logo from '../static/LauncherNoText.png'
 
 class Sidebar extends React.Component {
@@ -14,7 +15,6 @@ class Sidebar extends React.Component {
         };
         let index = 0;
         props.children.forEach(child => {
-            console.log('child', child);
             if (index === 0)
                 p.header = child;
             else if (index === 4)
@@ -32,9 +32,16 @@ class Sidebar extends React.Component {
             }
             index++;
         });
-        console.log(p);
 
         this.state = p;
+
+        let downloads = null;
+        document.addEventListener('click', e => {
+            if (downloads == null)
+                downloads = document.getElementById('downloads-button');
+            if (!downloads.contains(e.target))
+                document.getElementById('downloads-button').classList.remove('active');
+        })
     }
 
     setActive(group, item, stop) {
@@ -55,8 +62,6 @@ class Sidebar extends React.Component {
     render() {
         let group = -1;
         let item = -1;
-        console.log(this.state.activeGroup, this.state.activeItem);
-        console.log(this.state.links);
         const active = this.state.links[this.state.activeGroup][this.state.activeItem];
         return (
             <div className="wrapper">
@@ -74,7 +79,7 @@ class Sidebar extends React.Component {
                                     item++;
                                     const g = group;
                                     const i = item;
-                                    return (<button key={link.props.id}
+                                    return (<button key={link.props.id} id={link.props.id}
                                                     className={`${this.state.activeGroup === group && this.state.activeItem === item ? 'active' : '' }
                                                         ${link.props.disabled ? 'disabled' : ''}`}
                                                     onClick={() => {this.setActive(g, i, link.props.disabled)}}>
@@ -103,15 +108,40 @@ const SidebarHeader = (props) => {
     );
 };
 
-const SidebarFooter = (props) => {
-    return (
-        <div className="sidebar-footer">
-            <button onClick={() => {alert('opening settings')}}><i className="fas fa-cog flip"></i></button>
-            <button onClick={() => {window.ipc.send('open-external', 'https://www.google.com/search?q=this+will+be+a+discord+link+eventually')}}><i className="fab fa-discord"></i></button>
-            <button onClick={() => {alert('showing changelog')}}>v1.2.3</button>
-        </div>
-    );
-};
+class SidebarFooter extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+
+            totalProgress: 0.7,
+        }
+    }
+
+
+    render() {
+        const percentage = 100 * (1 - this.state.totalProgress);
+
+        return (
+            <div className="sidebar-footer">
+                <button onClick={(event) => {event.target.classList.toggle('active')}}>
+                    <i className="fas fa-cog flip"></i>
+                </button>
+                <button onClick={() => {window.ipc.send('open-external', 'https://www.google.com/search?q=this+will+be+a+discord+link+eventually')}}><i className="fab fa-discord"></i></button>
+                <button id="downloads-button">
+                    <i className="fas fa-arrow-alt-circle-down" style={{
+                        background: `linear-gradient(#b5b3b3 ${percentage}%, #185cc9 ${percentage}%)`,
+                        WebkitBackgroundClip: `text`
+                    }} onClick={() => { document.getElementById('downloads-button').classList.toggle('active') }}></i>
+                    <div className="downloads">
+                        <p>Hello</p>
+                    </div>
+                </button>
+                <button onClick={() => {alert('showing changelog')}}>v1.2.3</button>
+            </div>
+        );
+    }
+}
 
 const SidebarGroup = () => {};
 

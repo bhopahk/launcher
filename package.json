@@ -35,19 +35,20 @@
     "files": [
       "build/**/*",
       "node_modules/**/*",
-      "./public/electron.js"
+      "./public/electron.js",
+      "./public/icon.png"
     ],
     "extends": null,
     "directories": {
       "buildResources": "assets"
     },
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "icon": "./build/icon.png"
     },
     "nsis": {
-      "oneClick": false,
-      "perMachine": false,
-      "allowToChangeInstallationDirectory": true
+      "oneClick": true,
+      "perMachine": false
     }
   },
   "browserslist": {

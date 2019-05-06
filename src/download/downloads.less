@@ -1,0 +1,30 @@
+@import "../core/colors";
+
+#downloads-button {
+  position: relative;
+
+  .downloads {
+    display: none;
+    position: absolute;
+    left: -130px;
+    top: -315px;
+
+    width: 250px;
+    height: 300px;
+
+    background-color: green;
+
+    z-index: 3;
+  }
+
+  &.active .downloads {
+    display: block;
+  }
+
+  i {
+    -webkit-text-fill-color: transparent;
+    text-shadow: none;
+
+    filter: drop-shadow(2px 2px @offBlack);
+  }
+}

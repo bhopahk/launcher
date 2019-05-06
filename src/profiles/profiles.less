@@ -1,0 +1,200 @@
+@import "../core/colors";
+@borderSized: calc(100% - 60px);
+
+.profiles {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 200px);
+  grid-gap: 30px;
+  grid-template-rows: repeat(auto-fill, 200px);
+
+  width: @borderSized;
+  height: @borderSized;
+
+  margin: 30px;
+  padding: 0;
+
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+    border-radius: 5px;
+  }
+  &::-webkit-scrollbar-track {
+    background: @backgroundOpaque;
+    border-radius: 5px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: @offGrey;
+    border-radius: 5px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: @superOffWhite;
+  }
+
+  .profile {
+    position: relative;
+    cursor: pointer;
+
+    width: 200px;
+    height: 200px;
+
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 0 15px -4px rgba(0,0,0,1);
+
+    img {
+      width: 200px;
+      height: 200px;
+
+      border: none;
+      border-radius: 10px;
+    }
+
+    .profile-content {
+      box-sizing: border-box;
+      position: absolute;
+      overflow: hidden;
+      left: 0;
+      top: 0;
+      user-select: none;
+
+      width: 200px;
+      height: 200px;
+
+      border: 1px solid rgba(0, 0, 0, 0.5);
+      border-radius: 10px;
+      background-repeat: no-repeat;
+      background-attachment: unset;
+      background-size: contain;
+      background-position: top;
+
+      .profile-blur {
+        position: absolute;
+        bottom: -2px;
+
+        width: 101%;
+        height: 50px;
+
+        border-bottom-right-radius: 10px;
+        border-bottom-left-radius: 10px;
+        background: inherit;
+        background-size: 200px;
+        background-position-y: -150px;
+
+        overflow: hidden;
+
+        &::before {
+          position: absolute;
+          left: -1px;
+          content: '';
+
+          width: 200px;
+          height: 200px;
+          background: inherit;
+
+          filter: blur(1.5px) brightness(60%);
+        }
+      }
+
+      .profile-details {
+        position: absolute;
+        bottom: 5px;
+        left: 5px;
+
+        width: calc(100% - 10px);
+
+        text-align: center;
+
+        h1 {
+          overflow: hidden;
+          padding-bottom: 5px;
+
+          font-size: 20px;
+          font-family: Raleway, sans-serif;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          color: @offWhite;
+          text-shadow: 2px 2px @offBlack;
+        }
+
+        p {
+          font-size: 15px;
+          font-family: "Source Sans Pro", sans-serif;
+
+          color: @offWhite;
+
+          span {
+            padding-left: 5px;
+            padding-right: 5px;
+
+            color: @superOffWhite;
+            text-shadow: 1px 1px @offBlack;
+          }
+        }
+      }
+
+      .profile-play {
+        position: absolute;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        width: 100%;
+        height: 100%;
+
+        i {
+          display: none;
+
+          font-size: 30px;
+          color: @offWhite;
+          text-shadow: 2px 2px @offBlack;
+        }
+
+        &:hover i {
+          display: block;
+        }
+
+        &:active i {
+          text-shadow: none;
+        }
+      }
+    }
+  }
+}
+
+.profiles-empty {
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  width: @borderSized;
+  height: @borderSized;
+
+  padding: 0;
+  margin: 30px;
+
+  h1 {
+    padding-bottom: 10px;
+
+    font-size: 70px;
+    color: @offWhite;
+    text-shadow: 5px 5px @offBlack;
+  }
+
+  p {
+    font-size: 20px;
+    font-family: Raleway, sans-serif;
+    color: @superOffWhite;
+
+    span {
+      cursor: pointer;
+
+      color: @offWhite;
+      text-shadow: 2px 2px @offBlack;
+    }
+  }
+}

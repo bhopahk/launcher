@@ -1,2 +1,2 @@
 window.ipc = require('electron').ipcRenderer;
-delete window.localStorage;
+// delete window.localStorage;

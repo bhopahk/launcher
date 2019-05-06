@@ -3,14 +3,10 @@ const { autoUpdater } = require('electron-updater');
 
 const path = require('path');
 const isDev = require('electron-is-dev');
-const __srcdir = path.join(__dirname, '../', 'src');
+const __srcdir = path.join(app.getAppPath(), 'src');
 
 let mainWindow;
 let tray;
-
-process.argv.forEach(function (val, index, array) {
-    console.log(index + ': ' + val);
-});
 
 const createWindow = () => {
     mainWindow = new BrowserWindow({
@@ -22,8 +18,10 @@ const createWindow = () => {
         // backgroundColor: '#111111',
         transparent: true,
         // vibrancy: 'dark',
-        icon: __srcdir + '/static/LauncherNoText.png',
+        icon: __dirname + '/icon.png',
         webPreferences: {
+            blinkFeatures: 'CSSBackdropFilter',
+            experimentalFeatures: true,
             nodeIntegration: false,
             contextIsolation: false, //todo ideally this would be enabled for extra security.
             preload: path.join( __dirname, 'preload.js')
@@ -106,7 +104,7 @@ const registerUriListeners = () => {
 app.on('ready', () => {
     setTimeout(() => {
         if (process.platform === 'win32')
-            app.setAppUserModelId('launcher');
+            app.setAppUserModelId(isDev ? 'launcher' : 'launcher-dev');
 
         createWindow();
         // createTrayMenu();
@@ -162,6 +160,7 @@ ipcMain.on('open-external', (event, arg) => {
 
 ipcMain.on('argv', event => {
     event.sender.send('argv', process.argv);
+    event.sender.send('argv', app.getAppPath());
 });
 
 // Auto Update

@@ -30,61 +30,6 @@ export const ModpackBrowser = (props) => {
     );
 };
 
-// export default class ModpackBrowser extends React.Component {
-//     constructor(props) {
-//         super(props);
-//
-//         this.state = {
-//             error: true,
-//             modpacks: [],
-//         };
-//     }
-//
-//     filter() {
-//         return (
-//             <div className="modpack-filter">
-//             </div>
-//         );
-//     }
-//
-//     // noinspection JSMethodCanBeStatic
-//     onRefresh() {
-//         this.forceUpdate();
-//         Snackbar.sendSnack({
-//             body: 'I am a snackbar for minor notifications!',
-//             action: 'action',
-//             onAction: () => {alert('i have done an action!')},
-//             // dismissOnClick: false,
-//             // requireAction: true,
-//         });
-//     }
-//
-//     componentWillReceiveProps(nextProps, nextContext) {
-//         this.setState(nextProps);
-//     }
-//
-//     render() {
-//         if (this.state.error) {
-//             return (
-//                 <div className="modpack-browser">
-//                     <div className="bug">
-//                         <h1><i className="fas fa-bug"></i></h1>
-//                         <p>An error has occurred, please <span onClick={() => this.onRefresh()}>refresh</span> the page.</p>
-//                     </div>
-//                 </div>
-//             );
-//         }
-//         return (
-//             <div className="modpack-browser">
-//                 {this.filter()}
-//                 {this.state.modpacks.map(modpack => {
-//                     return (<Modpack key={modpack.id} {...modpack} />)
-//                 })}
-//             </div>
-//         );
-//     }
-// }
-
 const Modpack = (props) => {
     return (
         <div className="modpack">

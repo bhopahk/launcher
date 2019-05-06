@@ -1,20 +1,23 @@
 import React from 'react';
 import './app.css';
-import Snackbar from './snackbar/Snackbar';
-import Actions from './actions/Actions';
+import Snackbar from '../snackbar/Snackbar';
+import { ModalConductor, Modal } from '../modal/Modal';
+import Actions from '../actions/Actions';
 import {
     Sidebar,
     SidebarHeader,
     SidebarFooter,
     SidebarGroup,
     Page, Link
-} from './sidebar/Sidebar';
-import CurseModpackListing from './modpack/provider/Curse';
+} from '../sidebar/Sidebar';
+import { Profiles } from '../profiles/Profiles';
+import CurseModpackListing from '../modpack/provider/Curse';
 
-import { ModpackBrowser } from './modpack/Modpack';
+import { ModpackBrowser } from '../modpack/Modpack';
 
 class App extends React.Component {
     static snackbar = React.createRef();
+    static modals = React.createRef();
 
     constructor(props) {
         super(props);
@@ -32,26 +35,7 @@ class App extends React.Component {
                     <SidebarHeader />
                     <SidebarGroup index={0} title="library">
                         <Page id="profiles" icon="list" display="Profiles">
-                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
-                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
-                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
-                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
-                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
-                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
-                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
-                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
-                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
-                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
-                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
-                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
-                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
-                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
-                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
-                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
-                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
-                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
-                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
-                            <p onClick={() => window.ipc.send('argv', 'd')}>Profiles</p>
+                            <Profiles />
                         </Page>
                         <Page id="profiles2" icon="lock" display="Coming Soon" disabled={true}>
                             <p>Profiles Alt</p>
@@ -72,6 +56,8 @@ class App extends React.Component {
                         </Page>
                         <Page id="custom" icon="tools" display="Custom Profile">
                             <p>Custom Profiles</p>
+                            <button onClick={() => ModalConductor.openModal('test1')}>Open Modal 1</button>
+                            <button onClick={() => ModalConductor.openModal('test2')}>Open Modal 2</button>
                         </Page>
                     </SidebarGroup>
                     <SidebarGroup index={2} title="quick launch">
@@ -80,7 +66,15 @@ class App extends React.Component {
                     </SidebarGroup>
                     <SidebarFooter />
                 </Sidebar>
-                <Snackbar ref = {App.snackbar}/>
+                <Snackbar ref={App.snackbar}/>
+                <ModalConductor ref={App.modals}>
+                    <Modal id="test1" className="testing">
+                        <p>Hello Modal 1</p>
+                    </Modal>
+                    <Modal id="test2">
+                        <p>Hello Modal 2</p>
+                    </Modal>
+                </ModalConductor>
             </div>
         );
     }
