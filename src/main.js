@@ -25,7 +25,6 @@ const { autoUpdater } = require('electron-updater');
 
 const path = require('path');
 const isDev = require('electron-is-dev');
-const __srcdir = path.join(app.getAppPath(), 'src');
 
 let mainWindow;
 let tray;
@@ -38,7 +37,6 @@ const createWindow = () => {
         minHeight: 550,
         frame: false,
         transparent: true,
-        // vibrancy: 'dark',
         icon: app.getAppPath() + '/public/icon.png',
         webPreferences: {
             nodeIntegration: false,
@@ -69,20 +67,16 @@ const createWindow = () => {
 };
 
 const createTrayMenu = () => {
-    tray = new Tray(path.join(__srcdir, 'static/LauncherNoText.png'));
+    tray = new Tray(path.join(app.getAppPath() + '/public/icon.png'));
     tray.setContextMenu(Menu.buildFromTemplate([
         { label: 'Item1', type: 'normal' },
         { label: 'Item1', type: 'normal' },
         { type: 'separator' },
         { label: 'Item3', type: 'normal' }
     ]));
-    tray.setToolTip('I am a tooltip');
-    tray.addListener('click', () => {
-        console.log('tray icon clicked');
-        mainWindow.focus();
-    });
+    tray.setToolTip('Launcher');
+    tray.addListener('click', () => mainWindow.focus());
 };
-
 const createContextMenu = () => {
     app.setUserTasks([
         {
@@ -103,7 +97,6 @@ const createContextMenu = () => {
         }
     ])
 };
-
 const registerUriListeners = () => {
     const locked = app.requestSingleInstanceLock();
     if (!locked)
@@ -121,27 +114,16 @@ app.on('ready', () => {
 
         createWindow();
 
-        // require('../src/module/installer').download('https://launcher.mojang.com/download/Minecraft.exe', 'C:\\dev\\RandomOutput\\Minecraft.exe')
-        //     .then(loc => {
-        //         console.log('FINISHED DOWNLOAD!!');
-        //         console.log(loc);
-        //     });
-        // require('../src/module/installer').unzip('C:\\dev\\RandomOutput\\All+the+Mods+3-v5.12.1.zip')
-        //     .then(loc => {
-        //         console.log('FINISHED UNZIP');
-        //         console.log(loc);
-        //     });
-        // console.log('THIS SHOULD BE BEFORE UNZIP!');
-        // const fetch = require('../src/module/fetch');
-        // fetch();
-        // fetch();
-        require('../src/module/installer').installVersion();
-
-        // createTrayMenu();
+        createTrayMenu();
         if (process.platform === 'win32')
             createContextMenu();
-
         registerUriListeners();
+
+        require('./module/installer').installForge('forge-14.23.1.2565', callback => {
+            console.log(`${callback.name} - ${callback.index}/${callback.count}`);
+        }).then((downloaded) => {
+            console.log(downloaded);
+        }).catch(err => console.log(err));
 
         if (!isDev) {
             autoUpdater.autoDownload = true; //todo set allowPrerelease to true if they enable dev builds in settings.
