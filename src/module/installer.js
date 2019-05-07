@@ -81,12 +81,14 @@ exports.installVersion = (version, libCallback) => {
         const dir = path.join(installDir, 'versions', version);
         return fs.exists(dir)
             .then(exists => {
-                if (exists)
-                    return resolve(false);
                 return fs.mkdirs(dir)
                     .then(() => {
                         return fetch(`https://addons-ecs.forgesvc.net/api/minecraft/version/${version}`)
                             .then(json => {
+                                if (exists)
+                                    return this.installLibraries(fs.readJsonSync(path.join(dir, `${version}.json`)).libraries, libCallback)
+                                        .then(libCount => resolve(libCount))
+                                        .catch(reject);
                                 return this.download(json.jarDownloadUrl, path.join(dir, `${version}.jar`))
                                     .then(() => {
                                         return this.download(json.jsonDownloadUrl, path.join(dir, `${version}.json`))
@@ -105,20 +107,21 @@ exports.installVersion = (version, libCallback) => {
 exports.installForge = (version, libCallback) => {
     return new Promise((resolve, reject) => {
         const dir = path.join(installDir, 'versions', version);
-        return fs.exists(dir)
-            .then(exists => {
-                if (exists)
-                    return resolve(false);
-                return fs.mkdirs(dir)
-                    .then(() => {
-                        return fetch(`https://addons-ecs.forgesvc.net/api/minecraft/modloader/${version}`)
-                            .then(json => {
-                                let version = JSON.parse(json.versionJson);
-                                version.jar = json.minecraftVersion;
-                                return this.installVersion(json.minecraftVersion, libCallback)
-                                    .then(count => {
-                                        return fs.writeJson(path.join(dir, `${json.name}.json`), version, { spaces: 4 })
-                                            .then(() => resolve(count))
+        return fs.mkdirs(dir)
+            .then(() => {
+                return fetch(`https://addons-ecs.forgesvc.net/api/minecraft/modloader/${version}`)
+                    .then(json => {
+                        let version = JSON.parse(json.versionJson);
+                        version.jar = json.minecraftVersion;
+                        return this.installVersion(json.minecraftVersion, libCallback)
+                            .then(count => {
+                                this.installLibraries(version.libraries, libCallback)
+                                    .then(newCount => {
+                                        const jsonPath = path.join(dir, `${json.name}.json`);
+                                        if (fs.existsSync(jsonPath))
+                                            return resolve(false);
+                                        return fs.writeJson(jsonPath, version, { spaces: 4 })
+                                            .then(() => resolve(count + newCount))
                                             .catch(reject);
                                     }).catch(reject);
                             }).catch(reject);
@@ -132,30 +135,55 @@ exports.installFabric = () => {
 };
 
 exports.installLibraries = (libraries, callback) => {
-    return new Promise((resolve => {
-        const count = libraries.length;
+    return new Promise((resolve, reject) => {
+        let libs = [];
+        if (libraries.common !== null) {
+            // This is a set of Fabric libraries.
+            libs.concat(libraries.common);
+            libs.concat(libraries.client);
+        } else
+            // This is either Forge or Vanilla.
+            libs.concat(libraries);
+
         let index = 0;
-        libraries.forEach(library => { //todo check hash as well as size after downloading to ensure it is the correct file & downloaded successfully.
-            let dl = library.natives == null ? library.downloads.artifact : library.downloads.classifiers[aliases[platform]];
-            if (dl == null)
-                dl = library.downloads.artifact;
-            const alt = dl === library.downloads.artifact ? null : library.downloads.artifact;
-            return downloadLibraryArtifact(dl)
-                .then(() => {
-                    return downloadLibraryArtifact(alt) //todo add a failure catch to retry download once and then if it fails twice notify through a callback or something.
-                        .then(() => {
-                            index++;
-                            if (callback)
-                                callback({
-                                    name: library.name,
-                                    index, count,
-                                });
-                            if (count === index)
-                                resolve(count);
-                        }).catch(reject);
-                }).catch(reject);
+        const count = libraries.length;
+        libs.forEach(library => {
+            if (library.downloads == null) {
+                // This is a Forge or Fabric library and needs to be downloaded from Maven.
+                if (library.serverreq && !library.clientreq)
+                    // This is a forge library and specifically a server lib, so we dont need it.
+                    return;
+
+                //todo this
+            } else {
+                // This is a Vanilla library which provides the download link, but there are some native ones.
+                const global = library.downloads.artifact;
+                const native = library.natives == null ? null : library.downloads.classifiers[aliases[platform]];
+
+                return new Promise((resolve2) => {
+                    if (global == null)
+                        return resolve2();
+                    return downloadLibraryArtifact(global);
+                }).then(() => {
+                    return new Promise(resolve2 => {
+                        if (native == null)
+                            return resolve2();
+                        return downloadLibraryArtifact(global);
+                    });
+                }).catch(reject); //todo catch download fails and try again.
+            }
+
+            // Send callback
+            index++;
+            if (callback)
+                callback({
+                    name: library.name,
+                    index, count,
+                });
+            if (count === index)
+                resolve(count);
         });
-    }))
+    });
 };
 
 const downloadLibraryArtifact = (artifact) => {
@@ -175,4 +203,8 @@ const downloadLibraryArtifact = (artifact) => {
                     }).catch(reject);
             }).catch(reject);
     });
+};
+
+const downloadMavenArtifact = (artifact) => {
+
 };
