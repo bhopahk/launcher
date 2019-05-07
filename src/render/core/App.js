@@ -58,6 +58,7 @@ class App extends React.Component {
                             <p>Custom Profiles</p>
                             <button onClick={() => ModalConductor.openModal('test1')}>Open Modal 1</button>
                             <button onClick={() => ModalConductor.openModal('test2')}>Open Modal 2</button>
+                            <button onClick={() => window.ipc.send('argv', 'twonk')}>argv</button>
                         </Page>
                     </SidebarGroup>
                     <SidebarGroup index={2} title="quick launch">

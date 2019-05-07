@@ -23,7 +23,9 @@ export const ModpackBrowser = (props) => {
                 props.onScrollBottom();
         }}>
             {[...props.modpacks].map(modpack => {
-                return (<Modpack key={modpack.id} {...modpack} />)
+                return (<Modpack key={modpack.id} {...modpack}
+                                 onInstall={(version) => props.onModpackInstall(modpack.id, version)}
+                                 onShowVersions={() => props.onModpackFetchVersions(modpack.id)} />)
             })}
             {/*{props.loading ? (<p>LOADING</p>) : (<div></div>)}*/}
         </div>
@@ -62,9 +64,9 @@ const Modpack = (props) => {
             </div>
             <div className="modpack-install">
                 <div>
-                    <button><i className="fas fa-file-download"></i> Install</button>
+                    <button onClick={() => props.onInstall(props.defaultFile)}><i className="fas fa-file-download"></i> Install</button>
                     <div></div>
-                    <button><i className="fas fa-caret-down"></i></button>
+                    <button onClick={() => props.onShowVersions()}><i className="fas fa-caret-down"></i></button>
                 </div>
             </div>
         </div>
@@ -99,7 +101,7 @@ const truncateNumber = (number, decPlaces) => {
         }
     }
     return number;
-}
+};
 
 export {
     Modpack

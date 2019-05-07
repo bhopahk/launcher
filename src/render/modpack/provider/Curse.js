@@ -63,6 +63,7 @@ class CurseModpackListing extends React.Component {
                 });
 
                 oldModpacks.push({
+                    disabled: false,
                     id: packJson.id,
                     name: packJson.name,
                     slug: packJson.slug,
@@ -108,6 +109,23 @@ class CurseModpackListing extends React.Component {
             body: 'Refreshing modpack listings...',
         });
         this.clearRefresh();
+    }
+
+    fetchVersions(id) {
+        alert(`fetching versions for ${id}`)
+    }
+
+    installModpack(id, version) {
+        let cp = this.state.modpacks.slice();
+        for (let i = 0; i < cp.length; i++) {
+            if (cp[i].id !== id)
+                continue;
+            cp[i].disabled = true;//todo this isnt working
+        }
+        this.setState({
+            modpacks: cp,
+        });
+        alert(`installing ${id} // ${version}`)
     }
 
     render() {
@@ -170,7 +188,7 @@ class CurseModpackListing extends React.Component {
                 <ModpackBrowser modpacks={this.state.modpacks} loading={!this.canLoadMore} onRefresh={() => this.onRefresh()} onScrollBottom={() => {
                     if (this.canLoadMore)
                         this.fetchNextPage();
-                }} />
+                }} onModpackInstall={(id, version) => {this.installModpack(id, version)}} onModpackFetchVersions={(id) => {this.fetchVersions(id)}} />
             </div>
         );
     }

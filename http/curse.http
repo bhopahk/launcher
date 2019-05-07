@@ -8,11 +8,8 @@ User-Agent: Launcher (https://github.com/bhopahk/launcher)
 
 ### ATM 3 Default File
 
-GET https://staging_cursemeta.dries007.net/269708/2697844.json
+GET https://addons-ecs.forgesvc.net/api/addon/269708/files
 User-Agent: Launcher (https://github.com/bhopahk/launcher)
 
-###
+### ATM 3 Default File
 
-GET https://addons-ecs.forgesvc.net/api/addon/search?gameId=432&pageSize=20&index=0&sort=Featured&searchFilter=&categoryId=0&sectionId=4471&sortDescending=true
-
-###

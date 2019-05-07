@@ -13,7 +13,6 @@ class Profiles extends React.Component {
                 //     icon: 'https://media.forgecdn.net/avatars/thumbnails/196/458/256/256/636885406042747877.png',
                 //     version: 'v1.2.3',
                 //     played: 1557109303000,
-                //     onLaunch: () => {this.handleLaunch(12345)}
                 // },
                 // {
                 //     id: 54321,
@@ -21,7 +20,6 @@ class Profiles extends React.Component {
                 //     icon: 'https://media.forgecdn.net/avatars/thumbnails/196/458/256/256/636885406042747877.png',
                 //     version: 'v1.2.3',
                 //     played: 1557109303000,
-                //     onLaunch: () => {this.handleLaunch(54321)}
                 // }
             ]
         };
@@ -48,7 +46,7 @@ class Profiles extends React.Component {
         return (
             <div className="profiles">
                 {this.state.profiles.map(profile => {
-                    return (<Profile key={profile.id} {...profile} />)
+                    return (<Profile key={profile.id} {...profile} onLaunch={() => this.handleLaunch(profile.props.id)} />)
                 })}
             </div>
         );
