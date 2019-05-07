@@ -39,7 +39,7 @@ const createWindow = () => {
         frame: false,
         transparent: true,
         // vibrancy: 'dark',
-        icon: __dirname + '/icon.png',
+        icon: app.getAppPath() + '/public/icon.png',
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: false, //todo ideally this would be enabled for extra security.

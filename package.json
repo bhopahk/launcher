@@ -5,14 +5,14 @@
   "private": false,
   "author": "Matt Worzala <bhop.me>",
   "license": "MIT",
-  "main": "public/electron.js",
+  "main": "public/gateway.js",
   "homepage": "./",
   "scripts": {
     "start": "concurrently \"cross-env BROWSER=none react-scripts start\" \"wait-on http://localhost:3000 && electron .\"",
     "dev": "react-scripts start",
     "build": "react-scripts build",
     "package": "electron-builder --dir",
-    "dist": "react-scripts build && build --x64 --win --c.extraMetadata.main=build/electron.js -p always"
+    "dist": "react-scripts build && build --x64 --win --c.extraMetadata.main=build/gateway.js -p always"
   },
   "dependencies": {
     "electron-is-dev": "^1.1.0",
@@ -38,7 +38,7 @@
     "files": [
       "build/**/*",
       "node_modules/**/*",
-      "./public/electron.js",
+      "./public/gateway.js",
       "./public/icon.png",
       "src/**"
     ],
