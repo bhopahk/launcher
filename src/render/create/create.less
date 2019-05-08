@@ -29,6 +29,96 @@
     text-shadow: 2px 2px @offBlack;
   }
 
+  h3 {
+    font-size: 15px;
+    font-family: Oswald, sans-serif;
+  }
+
+  .create-profile-name {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: center;
+
+    border: none;
+
+    i {
+      padding: 5px;
+
+      border-top-left-radius: 5px;
+      border-bottom-left-radius: 5px;
+      color: @offGrey;
+      background-color: rgba(0, 0, 0, 0.2);
+    }
+
+    input:focus + i {
+      color: @offWhite;
+    }
+
+    input {
+      box-sizing: border-box;
+      outline: none;
+
+      border: none;
+      border-top-right-radius: 5px;
+      border-bottom-right-radius: 5px;
+      background-color: rgba(0, 0, 0, 0.2);
+      font-size: 15px;
+      font-family: "Source Sans Pro", sans-serif;
+      color: @offWhite;
+
+      &::placeholder {
+        font-family: "Source Sans Pro", sans-serif;
+        color: @offGrey;
+      }
+    }
+  }
+
+  button {
+    box-sizing: border-box;
+    outline: none;
+    user-select: none;
+    cursor: pointer;
+
+    padding: 5px;
+    margin: 0 20px 20px;
+
+    font-size: 20px;
+    font-family: Raleway, sans-serif;
+
+    border: none;
+    border-radius: 5px;
+    background-color: @backgroundVibrant;
+    color: @superOffWhite;
+
+    text-shadow: 2px 2px @offBlack;
+    box-shadow: 0 0 12px -5px rgba(0,0,0,0.72);
+
+    &:active {
+      box-shadow: none;
+    }
+  }
+
+  select {
+    box-sizing: border-box;
+    outline: none;
+
+    font-size: 20px;
+    font-family: Raleway, sans-serif;
+
+    border: none;
+    border-bottom: 1px solid @offGrey;
+    background: transparent;
+    color: @offGrey;
+
+    &:focus {
+      border-bottom: 1px solid @offWhite;
+    }
+
+    option {
+      background-color: @backgroundVibrant;
+    }
+  }
+
   .create-profile-types {
     display: flex;
 
@@ -40,11 +130,13 @@
       box-sizing: border-box;
       display: block;
       flex: 1;
+      position: relative;
+      cursor: pointer;
 
       max-width: 300px;
 
       margin: 10px;
-      padding: 5px;
+      padding: 5px 5px 15px;
 
       text-align: center;
 
@@ -52,10 +144,24 @@
       border-radius: 5px;
       background-color: @backgroundVibrant;
 
-      &.active {
-        box-shadow: 0 0 12px 0 rgba(0,0,0,0.75);
+      transition: all 0.3s;
+      * {
+        transition: all 0.3s;
       }
 
+      i {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+
+        font-size: 15px;
+        color: @superOffWhite;
+        text-shadow: 2px 2px @offBlack;
+
+        &:hover {
+          color: @offWhite;
+        }
+      }
 
       h2 {
         padding-top: 10px;
@@ -76,6 +182,48 @@
         font-size: 17px;
         font-family: "Source Sans Pro", sans-serif;
         color: @offGrey;
+      }
+
+      select {
+        margin: 10px 0;
+
+        font-size: 15px;
+      }
+
+      &.active {
+        box-shadow: 0 0 12px 0 rgba(0,0,0,0.75);
+      }
+
+      &.disabled {
+        cursor: not-allowed;
+        background: transparent;
+
+        * {
+          cursor: not-allowed;
+        }
+
+        i {
+          color: @inactive;
+          text-shadow: none;
+
+          &:hover {
+            color: @inactive;
+          }
+        }
+
+        h2 {
+          color: @inactive;
+        }
+
+        p {
+          color: @inactive;
+        }
+
+        select {
+          color: @inactive;
+
+          border-bottom: 1px solid transparent;
+        }
       }
     }
   }
