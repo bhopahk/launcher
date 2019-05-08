@@ -118,13 +118,7 @@ app.on('ready', () => {
         if (process.platform === 'win32')
             createContextMenu();
         registerUriListeners();
-
-        require('./module/installer').installForge('forge-14.23.1.2565', callback => {
-            console.log(`${callback.name} - ${callback.index}/${callback.count}`);
-        }).then((downloaded) => {
-            console.log(downloaded);
-        }).catch(err => console.log(err));
-
+        
         if (!isDev) {
             autoUpdater.autoDownload = true; //todo set allowPrerelease to true if they enable dev builds in settings.
             autoUpdater.checkForUpdates();

@@ -13,3 +13,8 @@ User-Agent: Launcher (https://github.com/bhopahk/launcher)
 
 ### ATM 3 Default File
 
+GET https://addons-ecs.forgesvc.net/api/minecraft/version/1.12.2
+User-Agent: Launcher (https://github.com/bhopahk/launcher)
+
+###
+

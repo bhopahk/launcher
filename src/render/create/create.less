@@ -1,0 +1,82 @@
+@import "../core/colors";
+
+.create-profile-wrapper {
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  margin: 30px;
+
+  width: calc(100% - 60px);
+  height: calc(100% - 60px);
+}
+
+.create-profile {
+  box-sizing: inherit;
+  position: relative;
+
+  text-align: center;
+
+  h1 {
+    padding-bottom: 10px;
+
+    font-size: 30px;
+    font-family: Raleway, sans-serif;
+    color: @offWhite;
+
+    text-shadow: 2px 2px @offBlack;
+  }
+
+  .create-profile-types {
+    display: flex;
+
+    width: 100%;
+
+    margin: 20px 0;
+
+    .create-profile-type {
+      box-sizing: border-box;
+      display: block;
+      flex: 1;
+
+      max-width: 300px;
+
+      margin: 10px;
+      padding: 5px;
+
+      text-align: center;
+
+      border: none;
+      border-radius: 5px;
+      background-color: @backgroundVibrant;
+
+      &.active {
+        box-shadow: 0 0 12px 0 rgba(0,0,0,0.75);
+      }
+
+
+      h2 {
+        padding-top: 10px;
+        padding-bottom: 15px;
+
+        font-size: 20px;
+        font-family: Raleway, sans-serif;
+        color: @offWhite;
+
+        text-shadow: 2px 2px @offBlack;
+      }
+
+      p {
+        overflow: hidden;
+        max-height: 93px;
+        padding-bottom: 10px;
+
+        font-size: 17px;
+        font-family: "Source Sans Pro", sans-serif;
+        color: @offGrey;
+      }
+    }
+  }
+}

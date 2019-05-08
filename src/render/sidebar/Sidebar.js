@@ -103,7 +103,7 @@ const SidebarHeader = (props) => {
     return (
         <div className="sidebar-header">
             <img src={logo} alt="Launcher Logo" />
-            <h1>Named Launcher</h1>
+            <h1>Proton Launcher</h1>
         </div>
     );
 };
@@ -127,9 +127,10 @@ class SidebarFooter extends React.Component {
                 <button onClick={(event) => {event.target.classList.toggle('active')}}>
                     <i className="fas fa-cog flip"></i>
                 </button>
+                <button onClick={() => {window.ipc.send('open-external', 'https://github.com/bhopahk/launcher')}}><i className="fab fa-github"></i></button>
                 <button onClick={() => {window.ipc.send('open-external', 'https://www.google.com/search?q=this+will+be+a+discord+link+eventually')}}><i className="fab fa-discord"></i></button>
-                <button id="downloads-button">
-                    <i className="fas fa-arrow-alt-circle-down" style={{
+                <button id="downloads-button"> {/*arrow-alt-circle-down*/}
+                    <i className="fas fa-cloud-download-alt" style={{
                         background: `linear-gradient(#b5b3b3 ${percentage}%, #185cc9 ${percentage}%)`,
                         WebkitBackgroundClip: `text`
                     }} onClick={() => { document.getElementById('downloads-button').classList.toggle('active') }}></i>

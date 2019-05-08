@@ -14,6 +14,7 @@ import { Profiles } from '../profiles/Profiles';
 import CurseModpackListing from '../modpack/provider/Curse';
 
 import { ModpackBrowser } from '../modpack/Modpack';
+import CreateProfile from "../create/CreateProfile";
 
 class App extends React.Component {
     static snackbar = React.createRef();
@@ -31,7 +32,7 @@ class App extends React.Component {
         return (
             <div>
                 <Actions />
-                <Sidebar default="profiles">
+                <Sidebar default="custom">
                     <SidebarHeader />
                     <SidebarGroup index={0} title="library">
                         <Page id="profiles" icon="list" display="Profiles">
@@ -52,13 +53,14 @@ class App extends React.Component {
                             <CurseModpackListing />
                         </Page>
                         <Page id="technic" icon="wrench" display="Technic Modpacks?">
-                            <ModpackBrowser error />
-                        </Page>
-                        <Page id="custom" icon="tools" display="Custom Profile">
                             <p>Custom Profiles</p>
                             <button onClick={() => ModalConductor.openModal('test1')}>Open Modal 1</button>
                             <button onClick={() => ModalConductor.openModal('test2')}>Open Modal 2</button>
                             <button onClick={() => window.ipc.send('argv', 'twonk')}>argv</button>
+                            {/*<ModpackBrowser error />*/}
+                        </Page>
+                        <Page id="custom" icon="tools" display="Custom Profile">
+                            <CreateProfile />
                         </Page>
                     </SidebarGroup>
                     <SidebarGroup index={2} title="quick launch">

@@ -47,6 +47,7 @@ exports.download = (url, location, http) => {
     return new Promise((resolve, reject) => {
         if (fs.existsSync(location))
             return resolve(location);
+        else fs.ensureFileSync(location);
         let target = fs.createWriteStream(location);
         https.get(url, resp => {
             resp.pipe(target);
@@ -72,139 +73,109 @@ exports.unzip = (file) => {
     });
 };
 
-exports.installBaseGame = (location, platform = 'win32', modern = true) => {
+exports.installBaseGame = async (platform = 'win32', modern = true) => {
+    if (platform !== 'win32' || !modern) {
+        console.log('Cannot install minecraft launcher for any os other than windows!');
+        return;
+    }
+
+    await this.download('https://launcher.mojang.com/download/Minecraft.exe', path.join(installDir, 'minecraft.exe'))
+};
+
+exports.installVersion = async (version, libCallback) => { //todo proper error handling
+    const dir = path.join(installDir, 'versions', version);
+
+    await fs.mkdirs(dir);
+    const vanilla = await fetch(`https://addons-ecs.forgesvc.net/api/minecraft/version/${version}`);
+
+    await this.download(vanilla.jarDownloadUrl, path.join(dir, `${version}.jar`));
+    await this.download(vanilla.jsonDownloadUrl, path.join(dir, `${version}.json`));
+    const json = await fs.readJson(path.join(dir, `${version}.json`));
+    await this.installLibraries(json.libraries, libCallback);
+};
+
+exports.installForge = async (version, libCallback) => {
+    const dir = path.join(installDir, 'versions', version);
+
+    await fs.mkdirs(dir);
+    const forge = await fetch(`https://addons-ecs.forgesvc.net/api/minecraft/modloader/${version}`);
+    let versionJson = JSON.parse(forge.versionJson);
+    versionJson.jar = forge.minecraftVersion;
+
+    await this.installVersion(forge.minecraftVersion, libCallback);
+    await this.installLibraries(versionJson.libraries, libCallback);
+    await fs.writeJson(path.join(dir, `${forge.name}.json`), versionJson, { spaces: 4 });
+};
+
+exports.installFabric = async () => {
 
 };
 
-exports.installVersion = (version, libCallback) => {
-    return new Promise((resolve, reject) => {
-        const dir = path.join(installDir, 'versions', version);
-        return fs.exists(dir)
-            .then(exists => {
-                return fs.mkdirs(dir)
-                    .then(() => {
-                        return fetch(`https://addons-ecs.forgesvc.net/api/minecraft/version/${version}`)
-                            .then(json => {
-                                if (exists)
-                                    return this.installLibraries(fs.readJsonSync(path.join(dir, `${version}.json`)).libraries, libCallback)
-                                        .then(libCount => resolve(libCount))
-                                        .catch(reject);
-                                return this.download(json.jarDownloadUrl, path.join(dir, `${version}.jar`))
-                                    .then(() => {
-                                        return this.download(json.jsonDownloadUrl, path.join(dir, `${version}.json`))
-                                            .then(() => {
-                                                return this.installLibraries(fs.readJsonSync(path.join(dir, `${version}.json`)).libraries, libCallback)
-                                                    .then(libCount => resolve(libCount))
-                                                    .catch(reject);
-                                            }).catch(reject);
-                                    }).catch(reject);
-                            }).catch(reject);
-                    }).catch(reject);
-            }).catch(reject);
-    })
-};
+exports.installLibraries = async (libraries, callback) => {
+    let libs = [];
+    if (libraries.common !== undefined) {
+        // This is a set of Fabric libraries.
+        libs = libs.concat(libraries.common);
+        libs = libs.concat(libraries.client);
+    } else
+        // This is either Forge or Vanilla.
+        libs = libs.concat(libraries);
 
-exports.installForge = (version, libCallback) => {
-    return new Promise((resolve, reject) => {
-        const dir = path.join(installDir, 'versions', version);
-        return fs.mkdirs(dir)
-            .then(() => {
-                return fetch(`https://addons-ecs.forgesvc.net/api/minecraft/modloader/${version}`)
-                    .then(json => {
-                        let version = JSON.parse(json.versionJson);
-                        version.jar = json.minecraftVersion;
-                        return this.installVersion(json.minecraftVersion, libCallback)
-                            .then(count => {
-                                this.installLibraries(version.libraries, libCallback)
-                                    .then(newCount => {
-                                        const jsonPath = path.join(dir, `${json.name}.json`);
-                                        if (fs.existsSync(jsonPath))
-                                            return resolve(false);
-                                        return fs.writeJson(jsonPath, version, { spaces: 4 })
-                                            .then(() => resolve(count + newCount))
-                                            .catch(reject);
-                                    }).catch(reject);
-                            }).catch(reject);
-                    }).catch(reject);
-            }).catch(reject);
-    });
-};
-
-exports.installFabric = () => {
-
-};
-
-exports.installLibraries = (libraries, callback) => {
-    return new Promise((resolve, reject) => {
-        let libs = [];
-        if (libraries.common !== null) {
-            // This is a set of Fabric libraries.
-            libs.concat(libraries.common);
-            libs.concat(libraries.client);
-        } else
-            // This is either Forge or Vanilla.
-            libs.concat(libraries);
-
-        let index = 0;
-        const count = libraries.length;
-        libs.forEach(library => {
-            if (library.downloads == null) {
-                // This is a Forge or Fabric library and needs to be downloaded from Maven.
-                if (library.serverreq && !library.clientreq)
-                    // This is a forge library and specifically a server lib, so we dont need it.
-                    return;
-
-                //todo this
-            } else {
-                // This is a Vanilla library which provides the download link, but there are some native ones.
-                const global = library.downloads.artifact;
-                const native = library.natives == null ? null : library.downloads.classifiers[aliases[platform]];
-
-                return new Promise((resolve2) => {
-                    if (global == null)
-                        return resolve2();
-                    return downloadLibraryArtifact(global);
-                }).then(() => {
-                    return new Promise(resolve2 => {
-                        if (native == null)
-                            return resolve2();
-                        return downloadLibraryArtifact(global);
-                    });
-                }).catch(reject); //todo catch download fails and try again.
+    const count = libs.length;
+    for (let i = 0; i < libs.length; i++) {
+        const library = libs[i];
+        const sendCallback = () => {
+            if (callback) callback({
+                    name: library.name,
+                    index: i + 1,
+                    count,
+                });
+        };
+        if (library.downloads == null) {
+            // This is a Forge or Fabric library and needs to be downloaded from Maven.
+            if (library.serverreq && !library.clientreq) {
+                // This is a forge library and specifically a server lib, so we dont need it.
+                sendCallback();
+                continue;
             }
 
-            // Send callback
-            index++;
-            if (callback)
-                callback({
-                    name: library.name,
-                    index, count,
-                });
-            if (count === index)
-                resolve(count);
-        });
-    });
+            await downloadMavenArtifact(library);
+            sendCallback();
+        } else {
+            // This is a Vanilla library which provides the download link, but there are some native ones.
+            const global = library.downloads.artifact;
+            const native = library.natives == null ? null : library.downloads.classifiers[aliases[platform]];
+
+            if (global != null) {
+                await downloadLibraryArtifact(global);
+                sendCallback();
+            }
+            if (native != null) {
+                await downloadLibraryArtifact(global);
+                sendCallback();
+            }
+            //todo catch download fails and try again.
+        }
+    }
 };
 
-const downloadLibraryArtifact = (artifact) => {
-    return new Promise((resolve, reject) => {
-        if (artifact == null)
-            return resolve(true);
-        const file = path.join(libDir, artifact.path);
-        return fs.pathExists(file)
-            .then(exists => {
-                if (exists)
-                    return resolve(true);
-                return fs.ensureFile(file)
-                    .then(() => {
-                        return this.download(artifact.url, file)
-                            .then(() => resolve(false))
-                            .catch(reject);
-                    }).catch(reject);
-            }).catch(reject);
-    });
+
+const downloadLibraryArtifact = async (artifact) => {
+    if (artifact == null)
+        return;
+    const file = path.join(libDir, artifact.path);
+    if (await fs.pathExists(file))
+        return;
+    await this.download(artifact.url, file);
 };
 
-const downloadMavenArtifact = (artifact) => {
+const downloadMavenArtifact = async (artifact) => {
+    const baseUrl = artifact.url == null ? 'https://repo1.maven.org/maven2/' : artifact.url;
+    const name = artifact.name.split(':');
+    const url = `${baseUrl}${name[0].split('.').join('/')}/${name[1]}/${name[2]}/${name[1]}-${name[2]}.jar`;
+    const file = path.join(libDir, name[0].split('.').join('/'), name[1], name[2], `${name[1]}-${name[2]}.jar`);
 
+    if (await fs.pathExists(file))
+        return;
+    await this.download(url, file);
 };
