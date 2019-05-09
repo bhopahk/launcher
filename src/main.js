@@ -26,6 +26,8 @@ const { autoUpdater } = require('electron-updater');
 const path = require('path');
 const isDev = require('electron-is-dev');
 
+require('./module/profile');
+
 let mainWindow;
 let tray;
 
@@ -118,10 +120,12 @@ app.on('ready', () => {
         if (process.platform === 'win32')
             createContextMenu();
         registerUriListeners();
-        
+
+
         if (!isDev) {
             autoUpdater.autoDownload = true; //todo set allowPrerelease to true if they enable dev builds in settings.
-            autoUpdater.checkForUpdates();
+            autoUpdater.checkForUpdates()
+                .then(a => console.log('CHECKED FOR UPDATES // ' + a));
         }
     }, 100);
 });

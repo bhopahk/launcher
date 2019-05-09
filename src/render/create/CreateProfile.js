@@ -21,16 +21,55 @@ SOFTWARE.
 */
 
 import React from 'react';
+import Snackbar from '../snackbar/Snackbar';
 import './create.css';
 
 export default class CreateProfile extends React.Component {
     constructor(props) {
         super(props);
 
+        fetch('https://addons-ecs.forgesvc.net/api/minecraft/version', { //todo this should probably be cached somewhere instead of being pulled every time.
+            headers: { "User-Agent": "Launcher (https://github.com/bhopahk/launcher/)" }
+        }).then(resp => resp.json()).then( json => {
+            this.setState({
+                vanilla: json.map(ver => ver.versionString),
+                loading: false,
+            }, async () => {
+                await this.loadVersion(this.state.vanilla[this.state.vanilla.length - 1]);
+            });
+        });
+
+        this.vanillaRef = React.createRef();
+        this.forgeRef = React.createRef();
+        this.fabricMappingRef = React.createRef();
+        this.fabricLoaderRef = React.createRef();
+        this.forgeCache = null;
+
         this.state = {
             active: 'vanilla',
-            disabled: []
+            disabled: [],
+            loading: true,
+            vanilla: [],
+            forge: [],
+            fabricMapping: [],
+            fabricLoader: [],
         };
+
+        window.ipc.on('profile:custom', (event, message) => {
+            switch (message.result) {
+                case 'SUCCESS':
+                    Snackbar.sendSnack({
+                        body: `Creating ${message.profile.name} - ${message.profile.platform}`,
+                        action: 'cancel',
+                        onAction: () => alert('Cancelling profile creation.'),
+                    });
+                    break;
+                case 'ERROR':
+                    break;
+                default:
+                    break;
+            }
+        });
     }
 
     componentWillUpdate(nextProps, nextState, nextContext) {
@@ -56,43 +95,69 @@ export default class CreateProfile extends React.Component {
         });
     }
 
-    handleVersion(newVersion) {
-        switch (newVersion) {
-            case '1.14':
-                this.setState({
-                    disabled: ['forge'],
-                });
-                break;
-            case '1.13':
-                this.setState({
-                    disabled: ['forge', 'fabric'],
-                });
-                break;
-            case '1.12':
-                this.setState({
-                    disabled: ['fabric'],
-                });
-                break;
-            default:
-                this.setState({
-                    disabled: [],
-                });
-                break;
+    async loadVersion(newVersion) {
+        this.setState({
+            loading: true,
+        });
+
+        let newState = {
+            active: newVersion,
+            disabled: ['fabric'],
+            loading: false,
+        };
+
+        const forgeVersions = await this.getForgeVersions(newVersion);
+        if (forgeVersions == null)
+            newState.disabled.push('forge');
+        else {
+            newState.forge = [];
+            newState.forge.push(forgeVersions.recommended);
+            newState.forge = newState.forge.concat(forgeVersions.versions);
         }
+
+        this.setState(newState);
+    }
+
+    async getForgeVersions(version) {
+        if (this.forgeCache == null) {
+            const json = await fetch(`https://addons-ecs.forgesvc.net/api/minecraft/modloader`, {
+                headers: {"User-Agent": "Launcher (https://github.com/bhopahk/launcher/)"}
+            }).then(resp => resp.json());
+            this.forgeCache = {};
+            json.forEach(forge => {
+                if (this.forgeCache[forge.gameVersion] == null)
+                    this.forgeCache[forge.gameVersion] = {versions: [], count: 0};
+                if (forge.latest)
+                    this.forgeCache[forge.gameVersion].latest = forge.name;
+                if (forge.recommended)
+                    this.forgeCache[forge.gameVersion].recommended = forge.name;
+                this.forgeCache[forge.gameVersion].versions[this.forgeCache[forge.gameVersion].count] = forge.name;
+                this.forgeCache[forge.gameVersion].count++;
+            });
+        }
+        return this.forgeCache[version];
+    }
+
+    sendCreationRequest() {
+        // this.setState({
+        //     loading: true,
+        // });
+
+        window.ipc.send('profile:custom', 'a');
     }
 
     render() {
         return (
             <div className="create-profile-wrapper">
+                <div className={`create-profile-cover ${this.state.loading ? '' : 'hidden'}`}>
+                    <div className="lds-dual-ring"></div>
+                </div>
                 <div className="create-profile">
                     <h1>Create Custom Profile</h1>
-                    <select onChange={e => this.handleVersion(e.target.value)}>
-                        <option>1.14</option>
-                        <option>1.13.2</option>
-                        <option>1.13</option>
-                        <option>1.12.2</option>
-                        <option>1.12.1</option>
-                        <option>1.12</option>
+                    <select onChange={e => this.loadVersion(e.target.value)} ref={this.vanillaRef}>
+                        {this.state.vanilla.map(ver => {
+                            return (<option key={ver}>{ver}</option>);
+                        })}
                     </select>
                     <div className="create-profile-types">
                         <div className={`create-profile-type ${this.state.active === 'vanilla' ? 'active' : ''} ${this.isDisabled('vanilla') ? 'disabled' : ''}`} onClick={() => this.setActive('vanilla')}>
@@ -104,25 +169,25 @@ export default class CreateProfile extends React.Component {
                             <i className="fas fa-info-circle" onClick={() => window.ipc.send('open-external', 'https://www.minecraftforge.net/')}></i>
                             <h2>FORGE</h2>
                             <p>Minecraft Forge is a free, open-source modding API and loader designed to simplify compatibility between community-created mods.</p>
-                            <select>
-                                <option>FORGE_VERSION_1</option>
-                                <option>FORGE_VERSION_2</option>
-                                <option>FORGE_VERSION_3</option>
+                            <select ref={this.forgeRef}>
+                                {this.state.forge.map(ver => {
+                                    return (<option key={ver}>{ver}</option>);
+                                })}
                             </select>
                         </div>
                         <div className={`create-profile-type ${this.state.active === 'fabric' ? 'active' : ''} ${this.isDisabled('fabric') ? 'disabled' : ''}`} onClick={() => this.setActive('fabric')}>
                             <i className="fas fa-info-circle" onClick={() => window.ipc.send('open-external', 'https://fabricmc.net/')}></i>
                             <h2>FABRIC<i className="fas fa-info-circle"></i></h2>
                             <p>Fabric is a lightweight, experimental modding toolchain for Minecraft. THIS SHOULD BE FLAGGED AS IN EARLY DEV STAGE!</p>
-                            <select>
+                            <select ref={this.fabricMappingRef}>
                                 <option>MAPPINGS_VERSION_1</option>
                                 <option>MAPPINGS_VERSION_2</option>
                                 <option>MAPPINGS_VERSION_3</option>
                             </select>
-                            <select>
-                                <option>API_VERSION_1</option>
-                                <option>API_VERSION_2</option>
-                                <option>API_VERSION_3</option>
+                            <select ref={this.fabricLoaderRef}>
+                                <option>LOADER_VERSION_1</option>
+                                <option>LOADER_VERSION_2</option>
+                                <option>LOADER_VERSION_3</option>
                             </select>
                         </div>
                     </div>
@@ -131,7 +196,7 @@ export default class CreateProfile extends React.Component {
                         <i className="fas fa-pencil-alt"></i>
                     </div>
                     <br/>
-                    <button>Create Profile</button>
+                    <button onClick={() => this.sendCreationRequest()}>Create Profile</button>
                 </div>
             </div>
         );

@@ -18,3 +18,8 @@ User-Agent: Launcher (https://github.com/bhopahk/launcher)
 
 ###
 
+GET https://addons-ecs.forgesvc.net/api/minecraft/version
+User-Agent: Launcher (https://github.com/bhopahk/launcher)
+
+###
+
