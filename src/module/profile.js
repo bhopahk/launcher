@@ -21,6 +21,11 @@ SOFTWARE.
 */
 
 const { app, ipcMain } = require('electron');
+const fs = require('fs-extra');
+const path = require('path');
+
+const baseDir = app.getPath('userData');
+const instanceDir = path.join(baseDir, 'Instances');
 
 let mainWindow = null;
 
@@ -30,11 +35,54 @@ app.on('ready', () => {
             mainWindow = event.sender;
         switch (payload.action) {
             case 'CREATE':
+                this.createBaseProfile(payload).then(code => {
+
+
+                });
                 break;
             case 'CANCEL':
+                console.log(payload);
+                break;
+            case 'OVERWRITE':
+
                 break;
             default:
                 break;
         }
     });
 });
+
+exports.createBaseProfile = async (data, overwrite) => {
+    const dir = path.join(instanceDir, data.name);
+
+    if (await fs.pathExists(dir))
+        return 2; //todo check the profile data file instead
+    await fs.mkdirs(dir);
+
+};
+
+const handleResponseCode = code => {
+    switch (code) {
+        // Successfully created.
+        case 0:
+            //todo send notification
+            console.log('FINISHED INSTALLING PROFILE, THIS SHOULD SEND A SYSTEM NOTIFICATION.');
+            break;
+        // Profile already exists.
+        case 2:
+            mainWindow.send('profile:custom', {
+                result: 'ERROR',
+                type: 'arbitrary',
+                value: 'A profile with that name already exists!'
+            });
+            break;
+        // Assume error if nothing else.
+        default:
+            mainWindow.send('profile:custom', {
+                result: 'ERROR',
+                type: 'arbitrary',
+                value: 'An unknown error has occurred, please try again.'
+            });
+            break;
+    }
+};

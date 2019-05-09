@@ -39,10 +39,12 @@ export default class CreateProfile extends React.Component {
             });
         });
 
+        //todo replace these with state changes.
         this.vanillaRef = React.createRef();
         this.forgeRef = React.createRef();
         this.fabricMappingRef = React.createRef();
         this.fabricLoaderRef = React.createRef();
+        this.nameRef = React.createRef();
         this.forgeCache = null;
 
         this.state = {
@@ -65,6 +67,11 @@ export default class CreateProfile extends React.Component {
                     });
                     break;
                 case 'ERROR':
+                    if (message.type === 'arbitrary')
+                        Snackbar.sendSnack({ body: message.value });
+                    this.setState({
+                        loading: false,
+                    });
                     break;
                 default:
                     break;
@@ -139,11 +146,43 @@ export default class CreateProfile extends React.Component {
     }
 
     sendCreationRequest() {
-        // this.setState({
-        //     loading: true,
-        // });
+        if (this.state.active !== 'vanilla' && this.state.active !== 'forge' && this.state.active !== 'fabric') {
+            Snackbar.sendSnack({ body: `Please select a profile type!` });
+            return;
+        }
+        const name = this.nameRef.current.value;
+        if (name.trim().length === 0) {
+            Snackbar.sendSnack({ body: `Please enter a profile name!` });
+            return;
+        }
+        let version = '';
+        switch (this.state.active) {
+            case 'vanilla':
+                version = this.vanillaRef.current.value;
+                break;
+            case 'forge':
+                version = this.forgeRef.current.value;
+                break;
+            case 'fabric':
+                version = {
+                    mappings: this.fabricMappingRef.current.value,
+                    loader: this.fabricLoaderRef.current.value,
+                };
+                break;
+            default:
+                Snackbar.sendSnack({ body: 'An error has occurred, please try again.' });
+                return;
+        }
 
-        window.ipc.send('profile:custom', 'a');
+        this.setState({
+            loading: true,
+        });
+
+        window.ipc.send('profile:custom', {
+            action: 'CREATE',
+            flavor: this.state.active,
+            version, name,
+        });
     }
 
     render() {
@@ -192,7 +231,7 @@ export default class CreateProfile extends React.Component {
                         </div>
                     </div>
                     <div className="create-profile-name">
-                        <input id="createProfileName" type="text" placeholder="Profile Name" />
+                        <input ref={this.nameRef} type="text" placeholder="Profile Name" />
                         <i className="fas fa-pencil-alt"></i>
                     </div>
                     <br/>
