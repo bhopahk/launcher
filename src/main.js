@@ -31,6 +31,9 @@ require('./module/profile');
 let mainWindow;
 let tray;
 
+if (process.platform === 'win32')
+    app.setAppUserModelId(isDev ? process.execPath : 'me.bhop.proton');
+
 const createWindow = () => {
     mainWindow = new BrowserWindow({
         width: 1280,
@@ -111,9 +114,6 @@ const registerUriListeners = () => {
 
 app.on('ready', () => {
     setTimeout(() => {
-        if (process.platform === 'win32')
-            app.setAppUserModelId(isDev ? process.execPath : 'me.bhop.proton');
-
         require('./module/installer').installBaseGame(process.platform).then(() => {
             console.log(`Installed native launcher for ${process.platform}`);
         });

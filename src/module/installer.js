@@ -40,10 +40,10 @@ const aliases = {
     aix: 'natives-linux',
 };
 
-exports.download = (url, location, http) => {
-    let https = http
-        ? require('follow-redirects').http
-        : require('follow-redirects').https;
+exports.download = (url, location) => {
+    let https = url.startsWith('https')
+        ? require('follow-redirects').https
+        : require('follow-redirects').http;
     return new Promise((resolve, reject) => {
         if (fs.existsSync(location))
             return resolve(location);

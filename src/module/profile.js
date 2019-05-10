@@ -25,7 +25,7 @@ SOFTWARE.
 // Creative Commons Attribution Noncommercial 3.0 Unported License.
 const defaultFavicon = 'http://iconbug.com/data/10/512/a024a1ed8a16e9ff5667bd97127d7a8a.png';
 
-const { app, ipcMain } = require('electron');
+const { app, ipcMain, Notification } = require('electron');
 const fs = require('fs-extra');
 const path = require('path');
 const installer = require('./installer');
@@ -93,8 +93,6 @@ exports.createProfile = async (data, onApproved, overwrite) => {
 
     await fs.mkdirs(dir);
     onApproved();
-    let icon = data.icon == null ? defaultFavicon : data.icon;
-    await installer.download(icon, path.join(dir, 'favicon.png'), !icon.startsWith('https'));
 
     const onLibraryInstall = data => { //todo send to renderer for download progress.
         console.log(`Library Installed: ${data.name} ~ ${data.index}/${data.count}`);
@@ -104,6 +102,7 @@ exports.createProfile = async (data, onApproved, overwrite) => {
         name: data.name,
         flavor: data.flavor,
         version: data.version,
+        icon: data.icon == null ? defaultFavicon : data.icon,
         directory: dir,
     };
 
@@ -196,7 +195,7 @@ exports.renderProfiles = async () => {
     Object.keys(loaded).forEach(key => {
         profiles.push({
             name: loaded[key].name,
-            icon: 'https://via.placeholder.com/200',
+            icon: loaded[key].icon,
             version: loaded[key].modpackVersion == null ? loaded[key].version : loaded[key].modpackVersion,
             played: loaded[key].launched,
         });
@@ -209,9 +208,14 @@ const handleResponseCode = (code, data) => {
     switch (code) {
         // Successfully created.
         case 0:
-            //todo send notification
-            console.log('FINISHED INSTALLING PROFILE, THIS SHOULD SEND A SYSTEM NOTIFICATION.');
+            console.log(`Finished installing '${data.name}'!`);
 
+            const notification = new Notification({
+                title: `Profile installed!`,
+                body: `${data.name} has finished installing!`,
+                icon: 'https://github.com/bhopahk/launcher/blob/master/public/icon.png',
+            });
+            notification.show();
 
             break;
         // Profile already exists.

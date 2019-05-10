@@ -1,8 +1,9 @@
 import React from 'react';
 import "./sidebar.css";
 import "./content.css";
-import "../download/downloads.css";
 import logo from '../static/LauncherNoText.png'
+
+import { Downloads } from '../download/Downloads';
 
 class Sidebar extends React.Component {
     constructor(props) {
@@ -108,41 +109,19 @@ const SidebarHeader = (props) => {
     );
 };
 
-class SidebarFooter extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-
-            totalProgress: 0.7,
-        }
-    }
-
-
-    render() {
-        const percentage = 100 * (1 - this.state.totalProgress);
-
-        return (
-            <div className="sidebar-footer">
-                <button onClick={(event) => {event.target.classList.toggle('active')}}>
-                    <i className="fas fa-cog flip"></i>
-                </button>
-                <button onClick={() => {window.ipc.send('open-external', 'https://github.com/bhopahk/launcher')}}><i className="fab fa-github"></i></button>
-                <button onClick={() => {window.ipc.send('open-external', 'https://www.google.com/search?q=this+will+be+a+discord+link+eventually')}}><i className="fab fa-discord"></i></button>
-                <button id="downloads-button"> {/*arrow-alt-circle-down*/}
-                    <i className="fas fa-cloud-download-alt" style={{
-                        background: `linear-gradient(#b5b3b3 ${percentage}%, #185cc9 ${percentage}%)`,
-                        WebkitBackgroundClip: `text`
-                    }} onClick={() => { document.getElementById('downloads-button').classList.toggle('active') }}></i>
-                    <div className="downloads">
-                        <p>Hello</p>
-                    </div>
-                </button>
-                <button onClick={() => {alert('showing changelog')}}>v1.2.3</button>
-            </div>
-        );
-    }
-}
+const SidebarFooter = (props) => {
+    return (
+        <div className="sidebar-footer">
+            <button onClick={(event) => {event.target.classList.toggle('active')}}>
+                <i className="fas fa-cog flip"></i>
+            </button>
+            <button onClick={() => {window.ipc.send('open-external', 'https://github.com/bhopahk/launcher')}}><i className="fab fa-github"></i></button>
+            <button onClick={() => {window.ipc.send('open-external', 'https://www.google.com/search?q=this+will+be+a+discord+link+eventually')}}><i className="fab fa-discord"></i></button>
+            <Downloads />
+            <button onClick={() => {alert('showing changelog')}}>v1.2.3</button>
+        </div>
+    );
+};
 
 const SidebarGroup = () => {};
 

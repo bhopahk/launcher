@@ -52,7 +52,7 @@ const Profile = (props) => {
                 <div className="profile-blur"></div>
                 <div className="profile-details">
                     <h1>{props.name}</h1>
-                    {props.played === 0 ? (<p>{props.version}</p>) : (<p>{props.version}<span>•</span>{new Date(props.played).toLocaleDateString()}</p>)}
+                    {props.played === 0 ? (<p>{props.version.indexOf('-') !== -1 ? props.version.split('-')[1] : props.version}</p>) : (<p>{props.version.indexOf('-') !== -1 ? props.version.split('-')[1] : props.version}<span>•</span>{new Date(props.played).toLocaleDateString()}</p>)}
                 </div>
                 <div className="profile-play" onClick={() => props.onLaunch(props.name)}>
                     <i className="fas fa-play"></i>

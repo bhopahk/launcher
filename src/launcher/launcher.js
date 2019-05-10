@@ -46,7 +46,7 @@ exports.selectProfile = async (name) => {
     await fs.writeJson(profileJson, profilesJson, { spaces: 4 });
 };
 
-const updateLastLaunched = async (name) => {
+const updateLastLaunched = async (name) => { //todo this should also update stuff like resolution and memory.
     let loaded = await profile.getProfile(name);
     loaded.launched = new Date().getTime();
     await profile.saveProfile(name, loaded);
