@@ -58,20 +58,27 @@ export default class CreateProfile extends React.Component {
         };
 
         window.ipc.on('profile:custom', (event, message) => {
+            this.setState({
+                loading: false,
+            });
             switch (message.result) {
                 case 'SUCCESS':
                     Snackbar.sendSnack({
-                        body: `Creating ${message.profile.name} - ${message.profile.platform}`,
+                        body: `Creating ${message.name}!`,
                         action: 'cancel',
-                        onAction: () => alert('Cancelling profile creation.'),
+                        onAction: () => alert('This function has not been implemented, please stay tuned!'),
                     });
+
                     break;
                 case 'ERROR':
                     if (message.type === 'arbitrary')
                         Snackbar.sendSnack({ body: message.value });
-                    this.setState({
-                        loading: false,
-                    });
+                    if (message.type === 'existing')
+                        Snackbar.sendSnack({
+                            body: message.value,
+                            action: 'overwrite',
+                            onAction: () => window.ipc.send('profile:custom', message.callback),
+                        });
                     break;
                 default:
                     break;

@@ -20,7 +20,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-const { app, BrowserWindow, shell, ipcMain, Tray, Menu } = require('electron');
+const { app, BrowserWindow, shell, ipcMain, Tray, Menu, Notification } = require('electron');
 const { autoUpdater } = require('electron-updater');
 
 const path = require('path');
@@ -112,7 +112,11 @@ const registerUriListeners = () => {
 app.on('ready', () => {
     setTimeout(() => {
         if (process.platform === 'win32')
-            app.setAppUserModelId(isDev ? 'launcher' : 'launcher-dev');
+            app.setAppUserModelId(isDev ? process.execPath : 'me.bhop.proton');
+
+        require('./module/installer').installBaseGame(process.platform).then(() => {
+            console.log(`Installed native launcher for ${process.platform}`);
+        });
 
         createWindow();
 
@@ -140,9 +144,9 @@ app.on('activate', () => {
     }
 });
 
-app.on('open-url', (event, data) => {
+app.on('open-url', async (event, data) => {
     event.preventDefault();
-    shell.openExternal(data);
+    await shell.openExternal(data);
 });
 
 ipcMain.on('titlebar', (event, arg) => {
@@ -165,6 +169,12 @@ ipcMain.on('titlebar', (event, arg) => {
 });
 
 ipcMain.on('open-external', (event, arg) => {
+    let nt = new Notification({
+        title: 'Hello, World',
+        body: "Hello, Body",
+    });
+    nt.show();
+
     shell.openExternal(arg);
 });
 
