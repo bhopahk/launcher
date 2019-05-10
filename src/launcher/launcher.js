@@ -24,12 +24,14 @@ const NativeLauncher = require('../launcher/NativeLauncher');
 
 const fs = require('fs-extra');
 const path = require('path');
+const profile = require('../module/profile');
 
 const baseDir = require('electron').app.getPath('userData');
 const installDir = path.join(baseDir, 'Install');
 
 exports.launchProfile = async (profile) => {
     await this.selectProfile(profile.name);
+    await updateLastLaunched(profile.name);
     const game = new NativeLauncher();
 };
 
@@ -42,4 +44,11 @@ exports.selectProfile = async (name) => {
     let profilesJson = await fs.readJson(profileJson);
     profilesJson.profiles[name].lastUsed = new Date().toISOString();
     await fs.writeJson(profileJson, profilesJson, { spaces: 4 });
+};
+
+const updateLastLaunched = async (name) => {
+    let loaded = await profile.getProfile(name);
+    loaded.launched = new Date().getTime();
+    await profile.saveProfile(name, loaded);
+    await profile.renderProfiles();
 };

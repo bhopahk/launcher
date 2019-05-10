@@ -5,28 +5,19 @@ class Profiles extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = {
-            profiles: [
-                // {
-                //     id: 12345,
-                //     name: 'All the Mods 3',
-                //     icon: 'https://media.forgecdn.net/avatars/thumbnails/196/458/256/256/636885406042747877.png',
-                //     version: 'v1.2.3',
-                //     played: 1557109303000,
-                // },
-                // {
-                //     id: 54321,
-                //     name: 'All the Mods 4',
-                //     icon: 'https://media.forgecdn.net/avatars/thumbnails/196/458/256/256/636885406042747877.png',
-                //     version: 'v1.2.3',
-                //     played: 1557109303000,
-                // }
-            ]
-        };
+        window.ipc.on('profiles', (event, payload) => {
+            this.setState({
+                profiles: payload,
+            });
+        });
+
+        window.ipc.send('profiles', { action: 'LIST' });
+
+        this.state = { profiles: [ ] };
     }
 
     handleLaunch(profile) {
-        alert('launching ' + profile);
+        window.ipc.send('profile:launch', profile);
     }
 
     render() {
@@ -46,7 +37,7 @@ class Profiles extends React.Component {
         return (
             <div className="profiles">
                 {this.state.profiles.map(profile => {
-                    return (<Profile key={profile.id} {...profile} onLaunch={() => this.handleLaunch(profile.props.id)} />)
+                    return (<Profile key={profile.name} {...profile} onLaunch={(name) => this.handleLaunch(name)} />)
                 })}
             </div>
         );
@@ -61,9 +52,9 @@ const Profile = (props) => {
                 <div className="profile-blur"></div>
                 <div className="profile-details">
                     <h1>{props.name}</h1>
-                    <p>{props.version}<span>•</span>{new Date(props.played).toLocaleDateString()}</p>
+                    {props.played === 0 ? (<p>{props.version}</p>) : (<p>{props.version}<span>•</span>{new Date(props.played).toLocaleDateString()}</p>)}
                 </div>
-                <div className="profile-play" onClick={() => props.onLaunch()}>
+                <div className="profile-play" onClick={() => props.onLaunch(props.name)}>
                     <i className="fas fa-play"></i>
                 </div>
             </div>

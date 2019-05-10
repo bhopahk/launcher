@@ -20,6 +20,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+//todo create a default image. This is ok for non-commercial use, but needs attribution.
+// http://iconbug.com/detail/icon/8235/minecraft-dirt/
+// Creative Commons Attribution Noncommercial 3.0 Unported License.
+const defaultFavicon = 'http://iconbug.com/data/10/512/a024a1ed8a16e9ff5667bd97127d7a8a.png';
+
 const { app, ipcMain } = require('electron');
 const fs = require('fs-extra');
 const path = require('path');
@@ -28,10 +33,11 @@ const installer = require('./installer');
 const baseDir = app.getPath('userData');
 const installDir = path.join(baseDir, 'Install');
 const instanceDir = path.join(baseDir, 'Instances');
+const launcherProfiles = path.join(baseDir, 'profiles.json');
 
 let mainWindow = null;
 
-app.on('ready', () => {
+app.on('ready', async () => {
     ipcMain.on('profile:custom', (event, payload) => {
         if (mainWindow == null)
             mainWindow = event.sender;
@@ -43,7 +49,7 @@ app.on('ready', () => {
         };
         switch (payload.action) {
             case 'CREATE':
-                this.createBaseProfile(payload, onSuccess).then(code => {
+                this.createProfile(payload, onSuccess).then(code => {
                     payload.action = 'OVERWRITE';
                     handleResponseCode(code, payload);
                 });
@@ -58,25 +64,45 @@ app.on('ready', () => {
                 break;
         }
     });
+    ipcMain.on('profiles', async event => {
+        if (mainWindow == null)
+            mainWindow = event.sender;
+        await this.renderProfiles();
+    });
+    ipcMain.on('profile:launch', (event, payload) => {
+        require('../launcher/launcher').launchProfile({
+            name: payload,
+        }).then(() => {
+            console.log('Launched');
+        });
+    });
+
+    if (!await fs.pathExists(launcherProfiles)) {
+        await fs.ensureFile(launcherProfiles);
+        await fs.writeJson(launcherProfiles, {}, { spaces: 4 });
+    }
 });
 
-exports.createBaseProfile = async (data, onApproved, overwrite) => {
+exports.createProfile = async (data, onApproved, overwrite) => {
     const dir = path.join(instanceDir, data.name);
 
-    if (overwrite) {
+    if (overwrite)
         await fs.remove(dir);
-    } else if (await fs.pathExists(dir))
-        return 2; //todo check the profile data file instead
+    else if (await this.profileExists(data.name))
+        return 2;
 
     await fs.mkdirs(dir);
     onApproved();
+    let icon = data.icon == null ? defaultFavicon : data.icon;
+    await installer.download(icon, path.join(dir, 'favicon.png'), !icon.startsWith('https'));
 
-    const onLibraryInstall = data => {
+    const onLibraryInstall = data => { //todo send to renderer for download progress.
         console.log(`Library Installed: ${data.name} ~ ${data.index}/${data.count}`);
     };
 
     const profileOptions = {
         name: data.name,
+        flavor: data.flavor,
         version: data.version,
         directory: dir,
     };
@@ -84,7 +110,6 @@ exports.createBaseProfile = async (data, onApproved, overwrite) => {
     switch (data.flavor) {
         case 'vanilla':
             await installer.installVersion(data.version, onLibraryInstall);
-            await this.createGameProfile(profileOptions);
             break;
         case 'forge':
             await installer.installForge(data.version, onLibraryInstall);
@@ -95,10 +120,35 @@ exports.createBaseProfile = async (data, onApproved, overwrite) => {
         default:
             return 1;
     }
-
+    await this.createLauncherProfile(profileOptions);
     return 0;
 };
+exports.createLauncherProfile = async (profile) => {
+    profile.type = 'custom';
+    profile.resolution = { //todo from config
+        width: 1280,
+        height: 720,
+    };
+    profile.memory = { //todo from config
+        min: '1024',
+        max: '4096',
+    };
+    const now = new Date().getTime();
+    profile.created = now;
+    profile.modified = now;
+    profile.launched = 0;
+    profile.javaArgs = ''; //todo from config
 
+    await this.saveProfile(profile.name, profile);
+    await this.createGameProfile({
+        name: profile.name,
+        version: profile.version,
+        directory: profile.directory,
+        resolution: profile.resolution,
+        memory: profile.memory,
+        javaArgs: profile.javaArgs,
+    });
+};
 exports.createGameProfile = async (options) => {
     const profileJson = path.join(installDir, 'launcher_profiles.json');
 
@@ -113,17 +163,46 @@ exports.createGameProfile = async (options) => {
         created: new Date().toISOString(),
         lastUsed: '1970-01-01T00:00:00.000Z',
         lastVersionId: options.version,
-        resolution: {
-            width: 1024,
-            height: 768 //todo these should come from a default, so should memory.
-        },
+        resolution: options.resolution,
         gameDir: options.directory,
-        javaArgs: `-Xmx${'4096'}m -Xms${'1024'}m -Dminecraft.applet.TargetDirectory="${options.directory}" -Dfml.ignorePatchDiscrepancies=true -Dfml.ignoreInvalidMinecraftCertificates=true -Duser.language=en -Duser.country=US`
+        javaArgs: `-Xmx${options.memory.max}m -Xms${options.memory.min}m -Dminecraft.applet.TargetDirectory="${options.directory}" -Dfml.ignorePatchDiscrepancies=true -Dfml.ignoreInvalidMinecraftCertificates=true -Duser.language=en -Duser.country=US ${options.javaArgs}`
     };
 
     let profilesJson = await fs.readJson(profileJson);
     profilesJson.profiles[options.name] = profile;
     await fs.writeJson(profileJson, profilesJson, { spaces: 4 });
+};
+
+exports.getProfile = async (name) => {
+    const profiles = await fs.readJson(launcherProfiles);
+    return profiles[name];
+};
+exports.getProfiles = async () => {
+    return await fs.readJson(launcherProfiles);
+};
+exports.profileExists = async (name) => {
+    return await this.getProfile(name) !== undefined;
+};
+exports.saveProfile = async (name, newProfile) => {
+    const profiles = await fs.readJson(launcherProfiles);
+    profiles[name] = newProfile;
+    await fs.writeJson(launcherProfiles, profiles, { spaces: 4 });
+};
+
+exports.renderProfiles = async () => {
+    const loaded = await this.getProfiles();
+    const profiles = [];
+
+    Object.keys(loaded).forEach(key => {
+        profiles.push({
+            name: loaded[key].name,
+            icon: 'https://via.placeholder.com/200',
+            version: loaded[key].modpackVersion == null ? loaded[key].version : loaded[key].modpackVersion,
+            played: loaded[key].launched,
+        });
+    });
+
+    mainWindow.send('profiles', profiles);
 };
 
 const handleResponseCode = (code, data) => {
@@ -133,11 +212,7 @@ const handleResponseCode = (code, data) => {
             //todo send notification
             console.log('FINISHED INSTALLING PROFILE, THIS SHOULD SEND A SYSTEM NOTIFICATION.');
 
-            require('../launcher/launcher').launchProfile({
-                name: data.name,
-            }).then(() => {
-                console.log('Launched');
-            });
+
             break;
         // Profile already exists.
         case 2:
