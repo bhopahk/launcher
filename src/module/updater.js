@@ -42,14 +42,14 @@ ipcMain.on('updater:check', async event => {
     if (isDev) {
         this.mainWindow.send('updater:checking', {});
 
-        await setTimeout(() => {}, 3000);
-
-        this.available = true;
-        this.mainWindow.send('updater:checked', {
-            version: autoUpdater.currentVersion.version,
-            nextVersion: '0.0.0',
-            available: this.available,
-        });
+        await setTimeout(() => {
+            this.available = true;
+            this.mainWindow.send('updater:checked', {
+                version: autoUpdater.currentVersion.version,
+                nextVersion: '0.0.0',
+                available: this.available,
+            });
+        }, 3000);
         return;
     }
     clearTimeout(this.checkForUpdatesTask);
@@ -67,6 +67,13 @@ ipcMain.on('updater:status', event => {
     };
 });
 ipcMain.on('updater:update', () => {
+    if (isDev) {
+        this.available = false;
+        this.mainWindow.send('updater:checked', {
+            version: autoUpdater.currentVersion.version,
+            available: this.available,
+        });
+    }
     if (this.available && !isDev)
         autoUpdater.quitAndInstall();
 });

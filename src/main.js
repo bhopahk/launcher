@@ -28,6 +28,7 @@ const isDev = require('electron-is-dev');
 
 require('./module/profile');
 require('./module/updater');
+require('./module/rpc');
 
 let mainWindow;
 let tray;
@@ -150,8 +151,9 @@ app.on('activate', () => {
 });
 
 app.on('open-url', async (event, data) => {
-    event.preventDefault();
-    await shell.openExternal(data);
+    console.log('open url');
+    // event.preventDefault();
+    // await shell.openExternal(data);
 });
 
 ipcMain.on('titlebar', (event, arg) => {
@@ -173,14 +175,8 @@ ipcMain.on('titlebar', (event, arg) => {
     }
 });
 
-ipcMain.on('open-external', (event, arg) => {
-    let nt = new Notification({
-        title: 'Hello, World',
-        body: "Hello, Body",
-    });
-    nt.show();
-
-    shell.openExternal(arg);
+ipcMain.on('open-external', async (event, arg) => {
+    await shell.openExternal(arg);
 });
 
 ipcMain.on('argv', event => {
