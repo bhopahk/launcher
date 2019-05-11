@@ -29,6 +29,7 @@ const { app, ipcMain, Notification } = require('electron');
 const fs = require('fs-extra');
 const path = require('path');
 const installer = require('./installer');
+const sendSync = require('./ipcMainSync').sendSync;
 
 const baseDir = app.getPath('userData');
 const installDir = path.join(baseDir, 'Install');
@@ -38,14 +39,16 @@ const launcherProfiles = path.join(baseDir, 'profiles.json');
 let mainWindow = null;
 
 app.on('ready', async () => {
-    ipcMain.on('profile:custom', (event, payload) => {
+    ipcMain.on('profile:custom', async (event, payload) => {
         if (mainWindow == null)
             mainWindow = event.sender;
-        const onSuccess = () => {
+
+        const onSuccess = async () => {
             mainWindow.send('profile:custom', {
                 result: 'SUCCESS',
                 name: payload.name,
             });
+            return await sendSync(mainWindow, 'tasks:create', { name: payload.name });
         };
         switch (payload.action) {
             case 'CREATE':
@@ -92,10 +95,15 @@ exports.createProfile = async (data, onApproved, overwrite) => {
         return 2;
 
     await fs.mkdirs(dir);
-    onApproved();
+    const tId = await onApproved();
 
-    const onLibraryInstall = data => { //todo send to renderer for download progress.
-        console.log(`Library Installed: ${data.name} ~ ${data.index}/${data.count}`);
+    const onLibraryInstall = data => {
+        if (tId)
+            mainWindow.send('tasks:update', {
+                tId,
+                task: 'downloading libraries',
+                progress: data.index/data.count,
+            });
     };
 
     const profileOptions = {
@@ -120,6 +128,8 @@ exports.createProfile = async (data, onApproved, overwrite) => {
             return 1;
     }
     await this.createLauncherProfile(profileOptions);
+    if (tId)
+        mainWindow.send('tasks:delete', { tId });
     return 0;
 };
 exports.createLauncherProfile = async (profile) => {
@@ -210,6 +220,7 @@ const handleResponseCode = (code, data) => {
         case 0:
             console.log(`Finished installing '${data.name}'!`);
 
+            // Send system notification
             const notification = new Notification({
                 title: `Profile installed!`,
                 body: `${data.name} has finished installing!`,

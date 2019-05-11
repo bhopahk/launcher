@@ -23,9 +23,38 @@ class App extends React.Component {
     constructor(props) {
         super(props);
 
+        this.registerAppWideIpcListeners();
+
         window.ipc.on('argv', (event, arg) => {
             alert(arg);
         })
+    }
+
+    registerAppWideIpcListeners() {
+        window.ipc.on('profile:custom', (event, message) => {
+            switch (message.result) {
+                case 'SUCCESS':
+                    Snackbar.sendSnack({
+                        body: `Creating ${message.name}!`,
+                        action: 'cancel',
+                        onAction: () => alert('This function has not been implemented, please stay tuned!'),
+                    });
+
+                    break;
+                case 'ERROR':
+                    if (message.type === 'arbitrary')
+                        Snackbar.sendSnack({ body: message.value });
+                    if (message.type === 'existing')
+                        Snackbar.sendSnack({
+                            body: message.value,
+                            action: 'overwrite',
+                            onAction: () => window.ipc.send('profile:custom', message.callback),
+                        });
+                    break;
+                default:
+                    break;
+            }
+        });
     }
 
     render() {

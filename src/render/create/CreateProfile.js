@@ -57,39 +57,25 @@ export default class CreateProfile extends React.Component {
             fabricLoader: [],
         };
 
-        window.ipc.on('profile:custom', (event, message) => {
+        this.stopLoading = (event, message) => {
             this.setState({
                 loading: false,
             });
-            switch (message.result) {
-                case 'SUCCESS':
-                    Snackbar.sendSnack({
-                        body: `Creating ${message.name}!`,
-                        action: 'cancel',
-                        onAction: () => alert('This function has not been implemented, please stay tuned!'),
-                    });
-
-                    break;
-                case 'ERROR':
-                    if (message.type === 'arbitrary')
-                        Snackbar.sendSnack({ body: message.value });
-                    if (message.type === 'existing')
-                        Snackbar.sendSnack({
-                            body: message.value,
-                            action: 'overwrite',
-                            onAction: () => window.ipc.send('profile:custom', message.callback),
-                        });
-                    break;
-                default:
-                    break;
-            }
-        });
+        };
     }
 
     componentWillUpdate(nextProps, nextState, nextContext) {
         if (!this.isDisabled(nextState.active, nextState.disabled))
             return;
         nextState.active = 'vanilla';
+    }
+
+    componentWillMount() {
+        window.ipc.on('profile:custom', this.stopLoading);
+    }
+
+    componentWillUnmount() {
+        window.ipc.removeListener('profile:custom', this.stopLoading);
     }
 
     isDisabled(type, ref) {
