@@ -31,6 +31,10 @@ class App extends React.Component {
     }
 
     registerAppWideIpcListeners() {
+        window.ipc.on('message', (event, arg) => {
+            console.log(arg);
+        });
+
         window.ipc.on('profile:custom', (event, message) => {
             switch (message.result) {
                 case 'SUCCESS':

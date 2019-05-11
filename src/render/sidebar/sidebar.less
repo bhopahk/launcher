@@ -143,4 +143,28 @@
       color: @offWhite;
     }
   }
+
+  .active {
+    color: @primary;
+
+    &:hover {
+      color: @secondary;
+    }
+  }
+
+  .fa-sync-alt {
+    text-shadow: none;
+
+    animation: test 2s infinite;
+    transform: rotateZ(90deg);
+  }
+
+  @keyframes test {
+    0% {
+      transform: rotateZ(90deg);
+    }
+    100% {
+      transform: rotateZ(450deg);
+    }
+  }
 }

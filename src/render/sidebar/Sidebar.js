@@ -109,19 +109,61 @@ const SidebarHeader = (props) => {
     );
 };
 
-const SidebarFooter = (props) => {
-    return (
-        <div className="sidebar-footer">
-            <button onClick={(event) => {event.target.classList.toggle('active')}}>
-                <i className="fas fa-cog flip"></i>
-            </button>
-            <button onClick={() => {window.ipc.send('open-external', 'https://github.com/bhopahk/launcher')}}><i className="fab fa-github"></i></button>
-            <button onClick={() => {window.ipc.send('open-external', 'https://www.google.com/search?q=this+will+be+a+discord+link+eventually')}}><i className="fab fa-discord"></i></button>
-            <Downloads />
-            <button onClick={() => {alert('showing changelog')}}>v1.2.3</button>
-        </div>
-    );
-};
+class SidebarFooter extends React.Component {
+    constructor(props) {
+        super(props);
+
+        const version = window.ipc.sendSync('updater:status', {});
+
+        this.state = {
+            current: version.version,
+            available: version.available,
+            checking: false,
+        };
+
+        window.ipc.on('updater:checking', () => {
+            this.setState({ checking: true });
+        });
+        window.ipc.on('updater:checked', (event, data) => {
+            this.setState({
+                current: data.version,
+                available: data.available,
+                next: data.nextVersion,
+                checking: false,
+            });
+        });
+    }
+
+    handleUpdateClick() {
+        if (this.state.available)
+            window.ipc.send('updater:update', {});
+        else window.ipc.send('updater:check', {})
+    }
+
+    getVersionButton() {
+        if (this.state.checking)
+            return (
+                <button onClick={() => {this.handleUpdateClick()}}><i className="fas fa-sync-alt"></i></button>
+            );
+        else return (
+            <button className={this.state.available ? 'active' : ''} onClick={() => {this.handleUpdateClick()}}>v{this.state.current}</button>
+        );
+    }
+
+    render() {
+        return (
+            <div className="sidebar-footer">
+                <button onClick={(event) => {event.target.classList.toggle('active')}}>
+                    <i className="fas fa-cog flip"></i>
+                </button>
+                <button onClick={() => {window.ipc.send('open-external', 'https://github.com/bhopahk/launcher')}}><i className="fab fa-github"></i></button>
+                <button onClick={() => {window.ipc.send('open-external', 'https://www.google.com/search?q=this+will+be+a+discord+link+eventually')}}><i className="fab fa-discord"></i></button>
+                <Downloads />
+                {this.getVersionButton()}
+            </div>
+        );
+    }
+}
 
 const SidebarGroup = () => {};
 

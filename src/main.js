@@ -21,15 +21,27 @@ SOFTWARE.
 */
 
 const { app, BrowserWindow, shell, ipcMain, Tray, Menu, Notification } = require('electron');
-const { autoUpdater } = require('electron-updater');
+const log = require('electron-log');
 
 const path = require('path');
 const isDev = require('electron-is-dev');
 
 require('./module/profile');
+require('./module/updater');
 
 let mainWindow;
 let tray;
+
+// electron log config
+log.transports.console.format = '[{h}:{i}:{s} {level}] {text}';
+log.transports.file.format = '[{m}/{d}/{y} {h}:{i}:{s} {level}] {text}';
+log.transports.file.maxSize = 10 * 1024 * 1024;
+log.transports.file.file = app.getPath('userData') + "/launcher_log.log";
+
+// Use electron log for console.log calls.
+console.log = (message) => {
+    log.info(message);
+};
 
 if (process.platform === 'win32')
     app.setAppUserModelId(isDev ? process.execPath : 'me.bhop.proton');
@@ -124,13 +136,6 @@ app.on('ready', () => {
         if (process.platform === 'win32')
             createContextMenu();
         registerUriListeners();
-
-
-        if (!isDev) {
-            autoUpdater.autoDownload = true; //todo set allowPrerelease to true if they enable dev builds in settings.
-            autoUpdater.checkForUpdates()
-                .then(a => console.log('CHECKED FOR UPDATES // ' + a));
-        }
     }, 100);
 });
 
@@ -182,35 +187,4 @@ ipcMain.on('argv', event => {
     event.sender.send('argv', process.argv);
     event.sender.send('argv', app.getAppPath());
     event.sender.send('argv', path.join(require('electron').app.getPath('userData'), 'Install'));
-});
-
-// Auto Update
-autoUpdater.on('checking-for-updates', () => {
-    mainWindow.webContents.send('message', 'checking for updates!');
-});
-
-autoUpdater.on('update-available', info => {
-    mainWindow.webContents.send('message', 'update available!');
-    mainWindow.webContents.send('message', info);
-    autoUpdater.downloadUpdate();
-});
-
-autoUpdater.on('update-not-available', info => {
-    mainWindow.webContents.send('message', 'no update');
-    mainWindow.webContents.send('message', info);
-});
-
-autoUpdater.on('error', err => {
-    mainWindow.webContents.send('message', err);
-});
-
-autoUpdater.on('download-progress', progress => {
-    mainWindow.webContents.send('message', 'download progress: ' + progress);
-});
-
-autoUpdater.on('update-download', info => {
-    mainWindow.webContents.send('message', 'downloaded update');
-    mainWindow.webContents.send('message', info);
-
-    autoUpdater.quitAndInstall();
 });
