@@ -1,6 +1,6 @@
 {
   "name": "launcher",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "A custom minecraft launcher",
   "private": false,
   "author": "Matt Worzala <bhop.me>",
