@@ -72,10 +72,9 @@ app.on('ready', async () => {
             mainWindow = event.sender;
         await this.renderProfiles();
     });
-    ipcMain.on('profile:launch', (event, payload) => {
-        require('../launcher/launcher').launchProfile({
-            name: payload,
-        }).then(() => {
+    ipcMain.on('profile:launch', async (event, payload) => {
+        const profile = await this.getProfile(payload);
+        require('../launcher/launcher').launchProfile(profile).then(() => {
             console.log('Launched');
         });
     });

@@ -32,7 +32,7 @@ class LegacyLauncher extends EventEmitter {
     constructor() {
         super();
 
-        this.process = spawn(launcherFile, ['--workDir', installDir], {
+        this.process = spawn(`java`, ['-jar', launcherFile, '--workDir', installDir], {
             stdio: [ 'ignore', 'pipe', 'pipe' ]
         });
 
