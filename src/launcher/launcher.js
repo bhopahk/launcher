@@ -21,6 +21,7 @@ SOFTWARE.
 */
 
 const NativeLauncher = require('../launcher/NativeLauncher');
+const LegacyLauncher = require('../launcher/LegacyLauncher');
 
 const fs = require('fs-extra');
 const path = require('path');
@@ -28,14 +29,19 @@ const profile = require('../module/profile');
 
 const baseDir = require('electron').app.getPath('userData');
 const installDir = path.join(baseDir, 'Install');
+const isNative = process.platform === 'win32'; //todo this should come from config in the future.
 
 exports.launchProfile = async (profile) => {
     await this.selectProfile(profile.name);
     await updateLastLaunched(profile.name);
-    const game = new NativeLauncher();
+
+    let game;
+    if (isNative)
+        game = new NativeLauncher();
+    else game = new LegacyLauncher();
 };
 
-exports.selectProfile = async (name) => {
+exports.selectProfile = async (profile) => {
     const profileJson = path.join(installDir, 'launcher_profiles.json');
 
     if (!await fs.pathExists(profileJson))

@@ -22,13 +22,14 @@ SOFTWARE.
 
 const fs = require('fs-extra');
 const path = require('path');
+const lzma = require('lzma-purejs');
 const fetch = require('./fetch');
 const platform = process.platform;
 
 const baseDir = require('electron').app.getPath('userData');
+const tempDir = path.join(baseDir, 'temp');
 const installDir = path.join(baseDir, 'Install');
 const libDir = path.join(installDir, 'libraries');
-const instanceDir = path.join(baseDir, 'Instances');
 
 const aliases = {
     win32: 'natives-windows',
@@ -40,7 +41,9 @@ const aliases = {
     aix: 'natives-linux',
 };
 
-exports.download = (url, location) => {
+fs.mkdirs(tempDir);
+
+exports.download = (url, location, lastTry) => {
     let https = url.startsWith('https')
         ? require('follow-redirects').https
         : require('follow-redirects').http;
@@ -56,7 +59,8 @@ exports.download = (url, location) => {
                 resolve(location);
             });
         }).on('error', error => {
-            console.log('ERRORROROWAROORORORORO');
+            if (!lastTry)
+                return this.download(url, location, true);
             fs.unlink(target);
             reject(error);
         });
@@ -74,12 +78,29 @@ exports.unzip = (file) => {
 };
 
 exports.installBaseGame = async (platform = 'win32', modern = true) => {
-    if (platform !== 'win32' || !modern) {
-        console.log('Cannot install minecraft launcher for any os other than windows!');
-        return;
+    const launcherPath = path.join(installDir, `minecraft.${platform === 'win32' ? 'exe' : 'jar'}`);
+    if (await fs.pathExists(launcherPath))
+        return false;
+
+    if (platform !== 'win32' && modern) {
+        console.log('Cannot install native minecraft launcher for any os other than windows!');
+        return false;
     }
 
-    await this.download('https://launcher.mojang.com/download/Minecraft.exe', path.join(installDir, 'minecraft.exe'))
+    if (!modern) {
+        console.log('Installing legacy Minecraft launcher.');
+        const compressedPath = path.join(tempDir, 'launcher.jar.lzma');
+        await this.download('http://launcher.mojang.com/mc/launcher/jar/fa896bd4c79d4e9f0d18df43151b549f865a3db6/launcher.jar.lzma', compressedPath);
+        fs.writeFileSync(launcherPath, lzma.decompressFile(fs.readFileSync(compressedPath)));
+        await fs.remove(compressedPath);
+        return true;
+    }
+
+    if (platform === 'win32') {
+        console.log('Installing native Minecraft launcher.');
+        await this.download('https://launcher.mojang.com/download/Minecraft.exe', launcherPath);
+        return true;
+    }
 };
 
 exports.installVersion = async (version, libCallback) => { //todo proper error handling

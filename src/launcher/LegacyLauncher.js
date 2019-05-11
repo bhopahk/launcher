@@ -20,3 +20,44 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+const EventEmitter = require('events').EventEmitter;
+
+const spawn = require('child_process').spawn;
+const path = require('path');
+
+const installDir = path.join(require('electron').app.getPath('userData'), 'Install');
+const launcherFile = path.join(installDir, 'minecraft.jar');
+
+class LegacyLauncher extends EventEmitter {
+    constructor() {
+        super();
+
+        this.process = spawn(launcherFile, ['--workDir', installDir], {
+            stdio: [ 'ignore', 'pipe', 'pipe' ]
+        });
+
+        this.process.stdout.setEncoding('UTF-8');
+        this.process.stderr.setEncoding('UTF-8');
+
+        this.process.stdout.on('data', data => {
+            this.emit('log', data.trim());
+        });
+
+        this.process.stderr.on('data', data => {
+            this.emit('log', data.trim());
+        });
+
+        this.process.on('close', code => this.emit('stop', code));
+    }
+
+    unlink() {
+        this.emit('disconnect');
+        this.process.disconnect();
+    }
+
+    destroy() {
+        this.process.abort();
+    }
+}
+
+module.exports = LegacyLauncher;

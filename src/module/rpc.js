@@ -21,6 +21,7 @@ SOFTWARE.
 */
 
 const DiscordRPC = require('discord-rpc');
+const isDev = require('electron-is-dev');
 
 const launcherVersion = require('electron-updater').autoUpdater.currentVersion.version;
 const clientId = '576737903904817152';
@@ -30,7 +31,7 @@ const rpc = new DiscordRPC.Client({ transport: 'ipc' });
 
 rpc.on('ready', () => {
     this.state = {
-        title: 'Idle'
+        title: isDev ? 'Developing the launcher' : 'Idle'
     };
 
     setActivity();

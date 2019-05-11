@@ -1,6 +1,6 @@
 {
   "name": "launcher",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "A custom minecraft launcher",
   "private": false,
   "author": "Matt Worzala <bhop.me>",
@@ -23,6 +23,7 @@
     "extract-zip": "^1.6.7",
     "follow-redirects": "^1.7.0",
     "fs-extra": "^7.0.1",
+    "lzma-purejs": "^0.9.3",
     "react": "^16.8.6",
     "react-dom": "^16.8.6"
   },

@@ -125,10 +125,11 @@ const registerUriListeners = () => {
     })
 };
 
-app.on('ready', () => {
+app.on('ready',  () => {
     setTimeout(() => {
-        require('./module/installer').installBaseGame(process.platform).then(() => {
-            console.log(`Installed native launcher for ${process.platform}`);
+        require('./module/installer').installBaseGame(process.platform, process.platform === 'win32').then(result => {
+            if (result)
+                console.log('Installed Minecraft launcher.');
         });
 
         createWindow();
