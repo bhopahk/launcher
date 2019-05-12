@@ -1,36 +1,74 @@
 import React from 'react';
 import './modpack.css';
 
-export const ModpackBrowser = (props) => {
-    if (props.error) {
+export class ModpackBrowser extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            active: null,
+        }
+    }
+
+    handleSetActive(nextActive) {
+        if (this.state.active === null && nextActive == null)
+            return;
+        if (this.state.active === nextActive)
+            nextActive = null;
+        this.setState({
+            active: nextActive,
+        })
+    }
+
+    handleGlobalClick(event) {
+        const buttons = document.getElementsByClassName('modpack-install');
+        for (let i = 0; i < buttons.length; i++)
+            if (buttons[i].contains(event.target))
+                return;
+
+        this.handleSetActive(null);
+    };
+
+    componentWillMount() {
+        document.addEventListener('click', this.handleGlobalClick.bind(this));
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener('click', this.handleGlobalClick.bind(this));
+    }
+
+    render() {
+        if (this.props.error) {
+            return (
+                <div className="bug">
+                    <h1><i className="fas fa-bug"></i></h1>
+                    <p>An error has occurred, please <span onClick={() => this.props.onRefresh()}>refresh</span> the page.</p>
+                </div>
+            );
+        }
+        if (this.props.modpacks.length === 0 && this.props.loading)
+            return (
+                <div className="bug">
+                    <h1 className="small"><i className="fas fa-frown"></i></h1>
+                    <p>No modpacks were found, please edit your search!</p>
+                </div>
+            );
         return (
-            <div className="bug">
-                <h1><i className="fas fa-bug"></i></h1>
-                <p>An error has occurred, please <span onClick={() => props.onRefresh()}>refresh</span> the page.</p>
+            <div className="modpack-browser" onScroll={e => {
+                if ((e.target.scrollHeight - e.target.offsetHeight) <= (e.target.scrollTop + 10))
+                    this.props.onScrollBottom();
+            }}>
+                {[...this.props.modpacks].map(modpack => {
+                    return (<Modpack key={modpack.id} dropped={this.state.active === modpack.id} {...modpack}
+                                     onInstall={(version) => this.props.onModpackInstall(modpack.id, version)}
+                                     onShowVersions={() => this.props.onModpackFetchVersions(modpack.id)}
+                                     onSetActive={() => this.handleSetActive(modpack.id)} />)
+                })}
+                {/*{props.loading ? (<p>LOADING</p>) : (<div></div>)}*/}
             </div>
         );
     }
-    if (props.modpacks.length === 0 && props.loading)
-        return (
-            <div className="bug">
-                <h1 className="small"><i className="fas fa-frown"></i></h1>
-                <p>No modpacks were found, please edit your search!</p>
-            </div>
-        );
-    return (
-        <div className="modpack-browser" onScroll={e => {
-            if ((e.target.scrollHeight - e.target.offsetHeight) <= (e.target.scrollTop + 10))
-                props.onScrollBottom();
-        }}>
-            {[...props.modpacks].map(modpack => {
-                return (<Modpack key={modpack.id} {...modpack}
-                                 onInstall={(version) => props.onModpackInstall(modpack.id, version)}
-                                 onShowVersions={() => props.onModpackFetchVersions(modpack.id)} />)
-            })}
-            {/*{props.loading ? (<p>LOADING</p>) : (<div></div>)}*/}
-        </div>
-    );
-};
+}
 
 const Modpack = (props) => {
     return (
@@ -63,15 +101,61 @@ const Modpack = (props) => {
                 </div>
             </div>
             <div className="modpack-install">
-                <div>
-                    <button onClick={() => props.onInstall(props.defaultFile)}><i className="fas fa-file-download"></i> Install</button>
+                <div className={props.disabled ? 'disabled' : ''}>
+                    <button onClick={() => {if (!props.disabled) props.onInstall(props.defaultFile)}}><i className="fas fa-file-download"></i> Install</button>
                     <div></div>
-                    <button onClick={() => props.onShowVersions()}><i className="fas fa-caret-down"></i></button>
+                    <button onClick={() => {if (!props.disabled) props.onSetActive()}}><i className="fas fa-caret-down"></i>{props.dropped ? (<VersionDropdown id={props.id} onInstall={(fileId) => props.onInstall(fileId)} />) : (<div></div>)}</button>
                 </div>
             </div>
         </div>
     );
 };
+
+class VersionDropdown extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            versions: []
+        };
+
+        fetch(`https://addons-ecs.forgesvc.net/api/addon/${this.props.id}/files`, {
+            headers: { "User-Agent": "Launcher (https://github.com/bhopahk/launcher/)" }
+        }).then(resp => resp.json()).then(json => {
+            let versions = [];
+            json.forEach(ver => {
+                versions.push({
+                    id: ver.id,
+                    name: ver.fileName,
+                    type: ver.releaseType,
+                });
+            });
+            this.setState({
+                versions: versions.reverse()
+            });
+        });
+    }
+
+
+    render() {
+        if (this.state.versions.length === 0) {
+            return (
+                <div className="modpack-versions">
+                    <p>temp // loading...</p>
+                </div>
+            )
+        }
+        return (
+            <div className="modpack-versions">
+                <ul>
+                    {this.state.versions.map(ver => {
+                        return (<li onClick={() => {this.props.onInstall(ver.id)}}><span className="version-name">{ver.name}</span><span className="version-type">{ver.type === 1 ? 'Release' : ver.type === 2 ? 'Beta' : 'Alpha'}</span></li>)
+                    })}
+                </ul>
+            </div>
+        );
+    }
+}
 
 const truncateString = (str) => {
     // 158 chars
@@ -104,5 +188,6 @@ const truncateNumber = (number, decPlaces) => {
 };
 
 export {
-    Modpack
+    Modpack,
+    VersionDropdown
 }

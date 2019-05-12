@@ -31,7 +31,7 @@ const rpc = new DiscordRPC.Client({ transport: 'ipc' });
 
 rpc.on('ready', () => {
     this.state = {
-        title: isDev ? 'Developing the launcher' : 'Idle'
+        title: isDev ? `Development v${launcherVersion}` : 'Idle'
     };
 
     setActivity();

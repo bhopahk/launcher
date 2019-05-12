@@ -65,7 +65,7 @@ class App extends React.Component {
         return (
             <div>
                 <Actions />
-                <Sidebar default="profiles">
+                <Sidebar default="curse">
                     <SidebarHeader />
                     <SidebarGroup index={0} title="library">
                         <Page id="profiles" icon="list" display="Profiles">

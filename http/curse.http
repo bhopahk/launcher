@@ -23,3 +23,8 @@ User-Agent: Launcher (https://github.com/bhopahk/launcher)
 
 ###
 
+GET https://addons-ecs.forgesvc.net/api/addon/269708/files
+User-Agent: Launcher (https://github.com/bhopahk/launcher)
+
+### ATM 3 Default File
+

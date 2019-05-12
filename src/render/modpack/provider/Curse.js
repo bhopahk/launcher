@@ -7,7 +7,6 @@ class CurseModpackListing extends React.Component {
         super(props);
 
         this.page = 0;
-        this.canLoadMore = true;
         this.searchRefreshTimeout = null;
 
         // noinspection SpellCheckingInspection
@@ -16,7 +15,8 @@ class CurseModpackListing extends React.Component {
             search: '',
             category: 0,
             mcVersion: '-',
-            modpacks: [ ]
+            modpacks: [ ],
+            loading: true,
         };
 
         setTimeout(() => {
@@ -25,7 +25,7 @@ class CurseModpackListing extends React.Component {
     }
 
     fetchNextPage() {
-        this.canLoadMore = false;
+        this.setState({ loading: true });
         let oldModpacks = this.state.modpacks.slice();
         fetch(`https://addons-ecs.forgesvc.net/api/addon/search?gameId=432&pageSize=20&index=${this.page * 20}&sort=${this.state.sort}&searchFilter=${encodeURI(this.state.search)}&categoryId=${this.state.category}&sectionId=4471&sortDescending=${this.state.sort === 'Name' || this.state.sort === 'Author' ? 'false' : true}`, {
             headers: { "User-Agent": "Launcher (https://github.com/bhopahk/launcher/)" }
@@ -88,8 +88,8 @@ class CurseModpackListing extends React.Component {
 
             this.setState({
                 modpacks: oldModpacks,
+                loading: false,
             }, () => {
-                this.canLoadMore = true;
                 this.page++;
             });
         });
@@ -111,10 +111,6 @@ class CurseModpackListing extends React.Component {
         this.clearRefresh();
     }
 
-    fetchVersions(id) {
-        alert(`fetching versions for ${id}`)
-    }
-
     installModpack(id, version) {
         let cp = this.state.modpacks.slice();
         for (let i = 0; i < cp.length; i++) {
@@ -125,12 +121,16 @@ class CurseModpackListing extends React.Component {
         this.setState({
             modpacks: cp,
         });
+        window.ipc.send('')
         alert(`installing ${id} // ${version}`)
     }
 
     render() {
         return (
-            <div>
+            <div className="modpack-browser-wrapper">
+                <div className={`create-profile-cover ${this.state.loading ? '' : 'hidden'}`}>
+                    <div className="lds-dual-ring"></div>
+                </div>
                 <div className="modpack-filter">
                     <div className="search">
                         <input id="curseSearch" type="text" placeholder="Search..." onChange={(e) => {
@@ -185,7 +185,7 @@ class CurseModpackListing extends React.Component {
                         <i className="fas fa-redo flip"></i>
                     </div>
                 </div>
-                <ModpackBrowser modpacks={this.state.modpacks} loading={!this.canLoadMore} onRefresh={() => this.onRefresh()} onScrollBottom={() => {
+                <ModpackBrowser modpacks={this.state.modpacks} loading={!this.state.loading} onRefresh={() => this.onRefresh()} onScrollBottom={() => {
                     if (this.canLoadMore)
                         this.fetchNextPage();
                 }} onModpackInstall={(id, version) => {this.installModpack(id, version)}} onModpackFetchVersions={(id) => {this.fetchVersions(id)}} />

@@ -26,6 +26,7 @@ const LegacyLauncher = require('../launcher/LegacyLauncher');
 const fs = require('fs-extra');
 const path = require('path');
 const profile = require('../module/profile');
+const rpc = require('../module/rpc');
 
 const baseDir = require('electron').app.getPath('userData');
 const installDir = path.join(baseDir, 'Install');
@@ -41,6 +42,16 @@ exports.launchProfile = async (profile) => {
     if (isNative)
         game = new NativeLauncher();
     else game = new LegacyLauncher();
+
+    rpc.setToPlaying({
+        name: profile.name,
+        type: profile.type,
+        gameVersion: profile.version,
+        status: 'Launching...',
+    });
+    game.on('stop', code => {
+        rpc.setToIdle();
+    });
 };
 
 exports.selectProfile = async (profile) => {

@@ -167,12 +167,12 @@ exports.installLibraries = async (libraries, callback) => {
             const global = library.downloads.artifact;
             const native = library.natives == null ? null : library.downloads.classifiers[aliases[platform]];
 
-            if (global != null) {
+            if (global !== undefined) {
                 await downloadLibraryArtifact(global);
                 sendCallback();
             }
-            if (native != null) {
-                await downloadLibraryArtifact(global);
+            if (native !== undefined) {
+                await downloadLibraryArtifact(native);
                 sendCallback();
             }
             //todo catch download fails and try again.
@@ -184,7 +184,12 @@ exports.installLibraries = async (libraries, callback) => {
 const downloadLibraryArtifact = async (artifact) => {
     if (artifact == null)
         return;
-    const file = path.join(libDir, artifact.path);
+    let filePath = artifact.path;
+    if (filePath === undefined) {
+        let tmp = artifact.url.replace('https://libraries.minecraft.net/', '');
+        filePath = tmp.substring(0, tmp.lastIndexOf('/'));
+    }
+    const file = path.join(libDir, filePath);
     if (await fs.pathExists(file))
         return;
     await this.download(artifact.url, file);
