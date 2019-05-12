@@ -71,7 +71,7 @@ class App extends React.Component {
                         <Page id="profiles" icon="list" display="Profiles">
                             <Profiles />
                         </Page>
-                        <Page id="profiles2" icon="lock" display="Coming Soon" disabled={true}>
+                        <Page id="profiles2" icon="lock" display="Accounts" disabled={true}>
                             <p>Profiles Alt</p>
                         </Page>
                         <Page id="profiles3" icon="lock" display="Coming Soon" disabled={true}>

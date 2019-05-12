@@ -111,7 +111,7 @@ class CurseModpackListing extends React.Component {
         this.clearRefresh();
     }
 
-    installModpack(id, version) {
+    async installModpack(id, version) {
         let cp = this.state.modpacks.slice();
         for (let i = 0; i < cp.length; i++) {
             if (cp[i].id !== id)
@@ -121,7 +121,10 @@ class CurseModpackListing extends React.Component {
         this.setState({
             modpacks: cp,
         });
-        window.ipc.send('')
+        window.ipc.send('profile:curse', {
+            modpack: id,
+            file: version,
+        });
         alert(`installing ${id} // ${version}`)
     }
 

@@ -39,34 +39,9 @@ const launcherProfiles = path.join(baseDir, 'profiles.json');
 let mainWindow = null;
 
 app.on('ready', async () => {
-    ipcMain.on('profile:custom', async (event, payload) => {
-        if (mainWindow == null)
-            mainWindow = event.sender;
+    ipcMain.on('profile:custom', installCustomProfile);
+    ipcMain.on('profile:curse', installCurseProfile);
 
-        const onSuccess = async () => {
-            mainWindow.send('profile:custom', {
-                result: 'SUCCESS',
-                name: payload.name,
-            });
-            return await sendSync(mainWindow, 'tasks:create', { name: payload.name });
-        };
-        switch (payload.action) {
-            case 'CREATE':
-                this.createProfile(payload, onSuccess).then(code => {
-                    payload.action = 'OVERWRITE';
-                    handleResponseCode(code, payload);
-                });
-                break;
-            case 'CANCEL':
-                console.log(payload);
-                break;
-            case 'OVERWRITE':
-                this.createBaseProfile(payload, onSuccess, true).then(code => handleResponseCode(code, payload));
-                break;
-            default:
-                break;
-        }
-    });
     ipcMain.on('profiles', async event => {
         if (mainWindow == null)
             mainWindow = event.sender;
@@ -211,6 +186,72 @@ exports.renderProfiles = async () => {
     });
 
     mainWindow.send('profiles', profiles);
+};
+
+const installCustomProfile = async (event, payload) => {
+    if (mainWindow == null)
+        mainWindow = event.sender;
+
+    const onSuccess = async () => {
+        mainWindow.send('profile:custom', {
+            result: 'SUCCESS',
+            name: payload.name,
+        });
+        return await sendSync(mainWindow, 'tasks:create', { name: payload.name });
+    };
+    switch (payload.action) {
+        case 'CREATE':
+            this.createProfile(payload, onSuccess).then(code => {
+                payload.action = 'OVERWRITE';
+                handleResponseCode(code, payload);
+            });
+            break;
+        case 'CANCEL':
+            console.log(payload);
+            break;
+        case 'OVERWRITE':
+            this.createBaseProfile(payload, onSuccess, true).then(code => handleResponseCode(code, payload));
+            break;
+        default:
+            break;
+    }
+};
+const installCurseProfile = async (event, payload) => {
+    if (mainWindow == null)
+        mainWindow = event.sender;
+    switch (payload.action) {
+        case 'CREATE':
+
+
+
+
+
+
+            // mainWindow.send('profile:custom', {
+            //     result: 'SUCCESS',
+            //     name: payload.name,
+            // });
+            // const tId = await sendSync(mainWindow, 'tasks:create', { name: payload.name });
+            //
+            // payload.packName = payload.name;
+            //
+            // let code;
+            // let i = 0;
+            // do {
+            //     payload.name = payload.packName + ` ${i === 0 ? '' : i}`;
+            //     code = await this.createProfile(payload, () => { return tId; });
+            //     i++;
+            // } while (code === 2);
+
+
+
+            break;
+        case 'CANCEL':
+            console.log(payload);
+            break;
+        default:
+            break;
+    }
 };
 
 const handleResponseCode = (code, data) => {
