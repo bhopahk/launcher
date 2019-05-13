@@ -32,22 +32,23 @@ export default class CreateProfile extends React.Component {
             window.ipc.send('cache:versions:keys');
             window.ipc.once('cache:versions:keys', (event, data) => resolve(data));
         }).then(keys => {
+            const versions = window.ipc.sendSync('cache:versions:fabric');
+            let fabric = [];
+            Object.keys(versions).forEach(key => {
+                versions[key].reverse().forEach(ver => {
+                    ver.id = key;
+                    fabric.push(ver);
+                });
+            });
             const selected = window.ipc.sendSync('cache:versions', keys[0]);
             this.setState({
                 loading: false,
                 versions: keys,
                 selected: selected,
+                fabric: fabric.reverse(),
                 input_snapshot: selected.url == null ? selected.snapshots[0].name : 'release',
             });
         });
-
-        //todo replace these with state changes.
-        this.vanillaRef = React.createRef();
-        this.forgeRef = React.createRef();
-        this.fabricMappingRef = React.createRef();
-        this.fabricLoaderRef = React.createRef();
-        this.nameRef = React.createRef();
-        this.forgeCache = null;
 
         this.state = {
             loading: true,
@@ -59,8 +60,10 @@ export default class CreateProfile extends React.Component {
                 forge: [],
                 fabric: [],
             },
+            fabric: [],
 
             input_snapshot: 'release',
+            input_name: '',
         };
 
         this.stopLoading = () => {
@@ -73,8 +76,14 @@ export default class CreateProfile extends React.Component {
     componentWillUpdate(nextProps, nextState, nextContext) {
         if (this.state.selected !== nextState.selected) {
             nextState.input_snapshot = nextState.selected.url == null ? nextState.selected.snapshots[0].name : 'release';
+            nextState.input_forge = nextState.selected.forge.length === 0 ? null : nextState.selected.forge[0].id;
+            nextState.input_fabric_loader = nextState.fabric[0].raw;
+
             if (this.isDisabled(this.state.active, nextState))
                 nextState.active = 'vanilla';
+        }
+        if (this.state.selected !== nextState.selected || this.state.input_snapshot !== nextState.input_snapshot) {
+            nextState.input_fabric_mappings = this.getFabricMappings(nextState).length === 0 ? null : this.getFabricMappings(nextState)[0].version;
         }
     }
 
@@ -115,39 +124,6 @@ export default class CreateProfile extends React.Component {
             if (state.selected.snapshots[i].name === state.input_snapshot)
                 return state.selected.snapshots[i].fabric;
         return [];
-    }
-
-    getFabricLoaderVersions() {
-        const versions = window.ipc.sendSync('cache:versions:fabric');
-        let all = [];
-        Object.keys(versions).forEach(key => {
-            versions[key].forEach(ver => {
-                ver.id = key;
-                all.push(ver);
-            });
-        });
-        return all;
-    }
-
-
-    async getForgeVersions(version) {
-        if (this.forgeCache == null) {
-            const json = await fetch(`https://addons-ecs.forgesvc.net/api/minecraft/modloader`, {
-                headers: {"User-Agent": "Launcher (https://github.com/bhopahk/launcher/)"}
-            }).then(resp => resp.json());
-            this.forgeCache = {};
-            json.forEach(forge => {
-                if (this.forgeCache[forge.gameVersion] == null)
-                    this.forgeCache[forge.gameVersion] = {versions: [], count: 0};
-                if (forge.latest)
-                    this.forgeCache[forge.gameVersion].latest = forge.name;
-                if (forge.recommended)
-                    this.forgeCache[forge.gameVersion].recommended = forge.name;
-                this.forgeCache[forge.gameVersion].versions[this.forgeCache[forge.gameVersion].count] = forge.name;
-                this.forgeCache[forge.gameVersion].count++;
-            });
-        }
-        return this.forgeCache[version];
     }
 
     sendCreationRequest() {
@@ -200,7 +176,7 @@ export default class CreateProfile extends React.Component {
                 </div>
                 <div className="create-profile">
                     <h1>Create Custom Profile</h1>
-                    <select onChange={e => this.setState({ selected: window.ipc.sendSync('cache:versions', e.target.value) })} ref={this.vanillaRef}>
+                    <select onChange={e => this.handleInput('selected', window.ipc.sendSync('cache:versions', e.target.value))} ref={this.vanillaRef}>
                         {this.state.versions.map(ver => {
                             return (<option key={ver}>{ver}</option>);
                         })}
@@ -221,7 +197,7 @@ export default class CreateProfile extends React.Component {
                             <i className="fas fa-info-circle" onClick={() => window.ipc.send('open-external', 'https://www.minecraftforge.net/')}></i>
                             <h2>FORGE</h2>
                             <p>Minecraft Forge is a free, open-source modding API and loader designed to simplify compatibility between community-created mods.</p>
-                            <select ref={this.forgeRef}>
+                            <select onChange={e => this.handleInput('input_forge', e.target.value)}>
                                 {this.state.selected.forge.map(ver => {
                                     return (<option key={ver.id}>{ver.id}</option>);
                                 })}
@@ -231,21 +207,21 @@ export default class CreateProfile extends React.Component {
                             <i className="fas fa-info-circle" onClick={() => window.ipc.send('open-external', 'https://fabricmc.net/')}></i>
                             <h2>FABRIC<i className="fas fa-info-circle"></i></h2>
                             <p>Fabric is a lightweight, experimental modding toolchain for Minecraft. THIS SHOULD BE FLAGGED AS IN EARLY DEV STAGE!</p>
-                            <select ref={this.fabricMappingRef}>
+                            <select onChange={e => this.handleInput('input_fabric_mappings', e.target.value)}>
                                 {this.getFabricMappings().map(ver => {
                                     return (<option key={ver.version}>{`${ver.game} build ${ver.mappings}`}</option>)
                                 })}
                             </select>
                             <br/>
-                            <select ref={this.fabricLoaderRef}>
-                                {this.getFabricLoaderVersions().map(ver => {
+                            <select onChange={e => this.handleInput('input_fabric_loader', e.target.value)}>
+                                {this.state.fabric.map(ver => {
                                     return (<option key={ver.raw}>{`${ver.id} build ${ver.build}`}</option>)
                                 })}
                             </select>
                         </div>
                     </div>
                     <div className="create-profile-name">
-                        <input ref={this.nameRef} type="text" placeholder="Profile Name" />
+                        <input onChange={e => this.handleInput('input_name', e.target.value)} type="text" placeholder="Profile Name" />
                         <i className="fas fa-pencil-alt"></i>
                     </div>
                     <br/>
