@@ -4,6 +4,7 @@ import "./content.css";
 import logo from '../static/LauncherNoText.png'
 
 import { Downloads } from '../download/Downloads';
+import {ModalConductor} from "../modal/Modal";
 
 class Sidebar extends React.Component {
     constructor(props) {
@@ -157,11 +158,7 @@ class SidebarFooter extends React.Component {
     render() {
         return (
             <div className="sidebar-footer">
-                <button onClick={(event) => {event.target.classList.toggle('active')}}>
-                    <i className="fas fa-cog flip"></i>
-                </button>
-                <button onClick={() => {window.ipc.send('open-external', 'https://github.com/bhopahk/launcher')}}><i className="fab fa-github"></i></button>
-                <button onClick={() => {window.ipc.send('open-external', 'https://www.google.com/search?q=this+will+be+a+discord+link+eventually')}}><i className="fab fa-discord"></i></button>
+                <button onClick={() => {ModalConductor.openModal('settingsModal')}}><i className="fas fa-cog"></i></button>
                 <Downloads />
                 {this.getVersionButton()}
             </div>

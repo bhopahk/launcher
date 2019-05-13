@@ -16,6 +16,8 @@ import CurseModpackListing from '../modpack/provider/Curse';
 import { ModpackBrowser } from '../modpack/Modpack';
 import CreateProfile from "../create/CreateProfile";
 
+import { SettingsWrapper, Settings, SettingsSeparator } from "../settings/Settings";
+
 class App extends React.Component {
     static snackbar = React.createRef();
     static modals = React.createRef();
@@ -65,7 +67,7 @@ class App extends React.Component {
         return (
             <div>
                 <Actions />
-                <Sidebar default="curse">
+                <Sidebar default="profiles">
                     <SidebarHeader />
                     <SidebarGroup index={0} title="library">
                         <Page id="profiles" icon="list" display="Profiles">
@@ -109,6 +111,86 @@ class App extends React.Component {
                     </Modal>
                     <Modal id="test2">
                         <p>Hello Modal 2</p>
+                    </Modal>
+                    <Modal id="settingsModal" className="settings">
+                        <SettingsWrapper default="profile">
+                            <Settings id="profile" display="Profile">
+                                <p>B</p>
+                                <p>A</p>
+                                <p>B</p>
+                                <p>A</p>
+                                <p>B</p>
+                                <p>A</p>
+                                <p>B</p>
+                                <p>A</p>
+                                <p>B</p>
+                                <p>A</p>
+                                <p>B</p>
+                                <p>A</p>
+                                <p>B</p>
+                                <p>A</p>
+                                <p>B</p>
+                                <p>A</p>
+                                <p>B</p>
+                                <p>A</p>
+                                <p>B</p>
+                                <p>A</p>
+                                <p>B</p>
+                                <p>A</p>
+                                <p>B</p>
+                                <p>A</p>
+                                <p>B</p>
+                                <p>A</p>
+                                <p>B</p>
+                                <p>A</p>
+                                <p>B</p>
+                                <p>A</p>
+                                <p>B</p>
+                                <p>A</p>
+                                <p>B</p>
+                                <p>A</p>
+                                <p>B</p>
+                                <p>A</p>
+                                <p>B</p>
+                            </Settings>
+                            <Settings id="account" display="Account">
+                                <p>A</p>
+                                <p>B</p>
+                            </Settings>
+                            <Settings id="email" display="Emails">
+                                <p>A</p>
+                                <p>B</p>
+                            </Settings>
+                            <Settings id="notifications" display="Notifications">
+                                <p>A</p>
+                                <p>B</p>
+                            </Settings>
+                            <Settings id="keys" display="SSH & GPG keys">
+                                <p>A</p>
+                                <p>B</p>
+                            </Settings>
+                            <Settings id="these" display="These are">
+                                <p>A</p>
+                                <p>B</p>
+                            </Settings>
+                            <Settings id="copied" display="Copied from">
+                                <p>A</p>
+                                <p>B</p>
+                            </Settings>
+                            <Settings id="github" display="GitHub">
+                                <p>A</p>
+                                <p>B</p>
+                            </Settings>
+                            <SettingsSeparator/>
+                            <Settings id="dev" display="Developer Settings">
+                                <p>A</p>
+                                <p>B</p>
+                            </Settings>
+                            <Settings id="danger" display="Danger Zone">
+                                <h1>Danger Zone</h1>
+                                <p>D</p>
+                            </Settings>
+                        </SettingsWrapper>
                     </Modal>
                 </ModalConductor>
             </div>

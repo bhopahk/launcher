@@ -82,6 +82,15 @@ const createWindow = () => {
     mainWindow.once('ready-to-show', () => {
         mainWindow.show();
     });
+
+    let moveTimeout = null;
+    mainWindow.on('move', () => {
+        clearTimeout(moveTimeout);
+        moveTimeout = setTimeout(() => {
+            mainWindow.setSize(mainWindow.getSize()[0] + 1, mainWindow.getSize()[1] + 1);
+            mainWindow.setSize(mainWindow.getSize()[0] - 1, mainWindow.getSize()[1] - 1);
+        }, 50);
+    });
 };
 
 const createTrayMenu = () => {
@@ -181,6 +190,7 @@ ipcMain.on('open-external', async (event, arg) => {
 });
 
 ipcMain.on('argv', event => {
+
     event.sender.send('argv', process.argv);
     event.sender.send('argv', app.getAppPath());
     event.sender.send('argv', path.join(require('electron').app.getPath('userData'), 'Install'));

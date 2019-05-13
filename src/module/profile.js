@@ -163,6 +163,9 @@ exports.getProfile = async (name) => {
 exports.getProfiles = async () => {
     return await fs.readJson(launcherProfiles);
 };
+exports.createProfile = async () => {
+    //todo add creation stuff here and move everything else to installer. This should be usable for all types of profile.
+};
 exports.profileExists = async (name) => {
     return await this.getProfile(name) !== undefined;
 };
@@ -191,6 +194,10 @@ exports.renderProfiles = async () => {
 const installCustomProfile = async (event, payload) => {
     if (mainWindow == null)
         mainWindow = event.sender;
+    if (payload.name) {
+        console.log(payload);
+        return;
+    }
 
     const onSuccess = async () => {
         mainWindow.send('profile:custom', {

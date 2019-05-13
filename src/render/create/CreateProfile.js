@@ -130,39 +130,35 @@ export default class CreateProfile extends React.Component {
         if (this.state.active !== 'vanilla' && this.state.active !== 'forge' && this.state.active !== 'fabric') {
             Snackbar.sendSnack({ body: `Please select a profile type!` });
             return;
-        }
-        const name = this.nameRef.current.value;
-        if (name.trim().length === 0) {
+        } else if (this.state.input_name.trim().length === 0) {
             Snackbar.sendSnack({ body: `Please enter a profile name!` });
             return;
-        }
-        let version = '';
+        } else
+            this.setState({ loading: true });
+
+        let version = {
+            version: this.state.input_snapshot === 'release' ? this.state.selected.name : this.state.input_snapshot,
+            flavor: this.state.active
+        };
         switch (this.state.active) {
             case 'vanilla':
-                version = this.vanillaRef.current.value;
                 break;
             case 'forge':
-                version = this.forgeRef.current.value;
+                version.forge = this.state.input_forge;
                 break;
             case 'fabric':
-                version = {
-                    mappings: this.fabricMappingRef.current.value,
-                    loader: this.fabricLoaderRef.current.value,
-                };
+                version.mappings = this.state.input_fabric_mappings;
+                version.loader = this.state.input_fabric_loader;
                 break;
             default:
                 Snackbar.sendSnack({ body: 'An error has occurred, please try again.' });
                 return;
         }
 
-        this.setState({
-            loading: true,
-        });
-
         window.ipc.send('profile:custom', {
             action: 'CREATE',
-            flavor: this.state.active,
-            version, name,
+            version,
+            name: this.state.input_name.trim(),
         });
     }
 
