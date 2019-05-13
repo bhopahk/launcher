@@ -23,7 +23,7 @@ SOFTWARE.
 const fs = require('fs-extra');
 const path = require('path');
 const lzma = require('lzma-purejs');
-const fetch = require('./fetch');
+const fetch = require('./fetch/fetch');
 const platform = process.platform;
 
 const baseDir = require('electron').app.getPath('userData');

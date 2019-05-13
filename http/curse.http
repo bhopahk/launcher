@@ -18,7 +18,12 @@ User-Agent: Launcher (https://github.com/bhopahk/launcher)
 
 ###
 
-GET https://addons-ecs.forgesvc.net/api/minecraft/version
+GET https://addons-ecs.forgesvc.net/api/minecraft/modloader
+User-Agent: Launcher (https://github.com/bhopahk/launcher)
+
+###
+
+GET https://addons-ecs.forgesvc.net/api/minecraft/modloader/forge-25.0.205
 User-Agent: Launcher (https://github.com/bhopahk/launcher)
 
 ###

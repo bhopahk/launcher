@@ -20,17 +20,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-module.exports = (url, headers = {}, http = false) => {
-    let https = http
-        ? require('follow-redirects').http
-        : require('follow-redirects').https;
+const xmlJs = require('xml-js');
+
+module.exports = (url, headers = {}) => {
+    let https = url.startsWith('https')
+        ? require('follow-redirects').https
+        : require('follow-redirects').http;
     headers['User-Agent'] = 'Launcher (https://github.com/bhopahk/launcher)';
 
     return new Promise((resolve, reject) => {
         https.get(url, { headers }, resp => {
             let body = '';
             resp.on('data', data => body += data);
-            resp.on('end', () => resolve(JSON.parse(body)));
+            resp.on('end', () => resolve(xmlJs.xml2js(body, { compact: true })));
             resp.on('error', reject);
         });
     });

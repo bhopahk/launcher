@@ -20,14 +20,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-const { app, BrowserWindow, shell, ipcMain, Tray, Menu, Notification } = require('electron');
+const { app, BrowserWindow, shell, ipcMain, Tray, Menu } = require('electron');
 const log = require('electron-log');
 
 const path = require('path');
 const isDev = require('electron-is-dev');
 
-require('./module/profile');
 require('./module/updater');
+require('./module/profile');
+require('./module/versionCache');
 require('./module/rpc');
 
 let mainWindow;
@@ -37,8 +38,7 @@ let tray;
 log.transports.console.format = '[{h}:{i}:{s} {level}] {text}';
 log.transports.file.format = '[{m}/{d}/{y} {h}:{i}:{s} {level}] {text}';
 log.transports.file.maxSize = 10 * 1024 * 1024;
-log.transports.file.file = app.getPath('userData') + "/launcher_log.log";
-
+log.transports.file.file = app.getPath('userData') + `/launcher_log${isDev ? '_dev' : ''}.log`;
 // Use electron log for console.log calls.
 console.log = (message) => {
     log.info(message);
