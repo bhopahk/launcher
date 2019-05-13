@@ -40,8 +40,12 @@ class Sidebar extends React.Component {
         document.addEventListener('click', e => {
             if (downloads == null)
                 downloads = document.getElementById('downloads-button');
-            if (!downloads.contains(e.target))
-                document.getElementById('downloads-button').classList.remove('active');
+            try {
+                if (!downloads.contains(e.target))
+                    downloads.classList.remove('active');
+            } catch (e) {
+
+            }
         })
     }
 

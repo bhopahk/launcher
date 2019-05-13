@@ -32,17 +32,27 @@ const FABRIC_MAPPINGS_META = `${FABRIC_MAPPINGS}maven-metadata.xml`;
 const FABRIC_LOADER = 'https://maven.fabricmc.net/net/fabricmc/fabric-loader/';
 const FABRIC_LOADER_META = `${FABRIC_LOADER}maven-metadata.xml`;
 
-app.on('ready', async () => {
-    await loadVanilla();
-    await loadForge();
-    await loadFabric();
+let loaded = false;
 
-    await fs.writeJson('C:\\dev\\RandomOutput\\ver.json', {
-        mc: this.minecraft,
-        old: this.minecraftOld,
-        fabric: this.fabric,
-    }, { spaces: 4 });
-    console.log('done');
+ipcMain.on('cache:versions:keys', async event => {
+    if (!loaded) {
+        await loadVanilla();
+        await loadForge();
+        await loadFabric();
+        loaded = true;
+    }
+
+    event.sender.send('cache:versions:keys', Object.keys(this.minecraft));
+});
+
+ipcMain.on('cache:versions', async (event, version) => {
+    event.returnValue = this.minecraft[version];
+});
+
+ipcMain.on('cache:versions:fabric', async event => {
+    if (!loaded)
+        event.returnValue = {};
+    else event.returnValue = this.fabric;
 });
 
 const loadVanilla = async() => {
@@ -68,6 +78,8 @@ const loadVanilla = async() => {
             if (!current.hasOwnProperty('name')) {
                 current.name = version.id.split(' ')[0];
                 current.snapshots = [];
+                current.forge = [];
+                current.fabric = [];
             }
             current.snapshots.push({
                 name: version.id,
