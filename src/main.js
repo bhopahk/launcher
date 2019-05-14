@@ -34,6 +34,9 @@ require('./module/rpc');
 let mainWindow;
 let tray;
 
+// Fix to https://github.com/electron/electron/issues/13186
+process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = true;
+
 // electron log config
 log.transports.console.format = '[{h}:{i}:{s} {level}] {text}';
 log.transports.file.format = '[{m}/{d}/{y} {h}:{i}:{s} {level}] {text}';

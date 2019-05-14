@@ -120,6 +120,9 @@ class App extends React.Component {
                             <Settings id="app" display="App Settings">
                                 <h1>App Settings</h1>
                                 <h1>Advanced</h1>
+                                <SettingsField title="End on Close" switch description="Stops the launcher from keeping a background process in the background when the window is not shown. This will disable all background features.">
+                                    <SettingsSwitch id="endOnClose" />
+                                </SettingsField>
                                 <SettingsField title="Prerelease Builds" switch description="Enables pre release builds. They are potentially buggy, however they contain the most up-to-date fixes and features.">
                                     <SettingsSwitch id="prerelease" />
                                 </SettingsField>
