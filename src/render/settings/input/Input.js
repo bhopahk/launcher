@@ -139,10 +139,12 @@ class Dropdown extends React.Component {
     }
 
     componentWillMount() {
+        this._ismounted = true;
         document.addEventListener('click', this.onClickAnywhere.bind(this))
     }
 
     componentWillUnmount() {
+        this._ismounted = false;
         document.removeEventListener('click', this.onClickAnywhere.bind(this))
     }
 
@@ -160,6 +162,9 @@ class Dropdown extends React.Component {
         for (let i = 0; i < dropdowns.length; i++)
             if (dropdowns[i].contains(e.target))
                 return;
+
+        if (!this._ismounted)
+            return;
         this.setState({
             shown: false,
         });
