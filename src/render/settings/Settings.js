@@ -49,11 +49,9 @@ class SettingsWrapper extends React.Component {
                     <h1>Settings</h1>
                     <hr/>
                     {this.props.children.map(child => {
-                        return React.cloneElement(child, {
-                            key: child.props.id ? child.props.id : Math.random(),
-                            active: child.props.id === this.state.active,
-                            onSelect: () => this.setState({ active: child.props.id }),
-                        });
+                        return (<button key={child.props.id ? child.props.id : Math.random()}
+                                        className={child.props.id === this.state.active ? 'active' : ''}
+                                        onClick={() => this.setState({ active: child.props.id })}>{child.props.display}</button>)
                     })}
                     <hr/>
                     <div className="settings-links">
@@ -61,9 +59,11 @@ class SettingsWrapper extends React.Component {
                         <i className="fab fa-discord" onClick={() => {window.ipc.send('open-external', 'https://www.google.com/search?q=this+will+be+a+discord+link+eventually')}}></i>
                     </div>
                 </div>
-                <div className="settings-page">
-                    {this.getRenderedPage()}
-                </div>
+                {this.props.children.map(child => {
+                    if (child.props.id === this.state.active)
+                        return child;
+                    return null;
+                })}
             </div>
         );
     }
@@ -71,9 +71,14 @@ class SettingsWrapper extends React.Component {
 
 const Settings = (props) => {
     return (
-        <button className={props.active ? 'active' : ''} onClick={() => props.onSelect()}>
-            {props.display}
-        </button>
+        <div className="settings-page">
+            {props.children.map(child => {
+                return React.cloneElement(child, {
+                    key: child.props.title ? child.props.title : Math.random(),
+                    parentId: props.id,
+                });
+            })}
+        </div>
     );
 };
 
@@ -81,8 +86,13 @@ const Separator = () => {
     return (<hr/>);
 };
 
+const Title = (props) => {
+    return (<h1>{props.children}</h1>)
+};
+
 export {
     SettingsWrapper,
     Settings,
     Separator,
+    Title,
 }

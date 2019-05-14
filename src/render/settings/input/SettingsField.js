@@ -30,7 +30,12 @@ const SettingsField = (props) => {
         <div className="settings-field">
             <h2>{props.title}</h2>
             <h3 className={props.switch ? 'short' : ''}>{props.description}&nbsp;{props.note ? (<span>{props.note}</span>) : null}</h3>
-            {props.children}
+            {React.Children.map(props.children, child => {
+                return React.cloneElement(child, {
+                    getValue: () => getConfigValue(`${props.parentId}/${child.props.id}`),
+                    setValue: value => setConfigValue(`${props.parentId}/${child.props.id}`, value),
+                });
+            })}
         </div>
     );
 };
@@ -47,3 +52,13 @@ export {
     SettingsField,
     SettingsSwitch,
 }
+
+const getConfigValue = path => {
+    return window.ipc.sendSync('config:get', path);
+};
+
+const setConfigValue = (path, value) => {
+    window.ipc.send('config:set', {
+        path, value,
+    })
+};

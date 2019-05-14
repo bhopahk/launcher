@@ -16,7 +16,7 @@ import CurseModpackListing from '../modpack/provider/Curse';
 import { ModpackBrowser } from '../modpack/Modpack';
 import CreateProfile from "../create/CreateProfile";
 
-import { SettingsWrapper, Settings, Separator } from "../settings/Settings";
+import { SettingsWrapper, Settings, Separator, Title } from "../settings/Settings";
 import { SettingsField, SettingsSwitch } from '../settings/input/SettingsField';
 
 import { Checkbox, Check, FolderSelect, Button, Dropdown, Option } from '../settings/input/Input';
@@ -118,40 +118,40 @@ class App extends React.Component {
                     <Modal id="settingsModal" className="settings">
                         <SettingsWrapper default="app">
                             <Settings id="app" display="App Settings">
-                                <h1>App Settings</h1>
-                                <h1>Advanced</h1>
+                                <Title>App Settings</Title>
+                                <Title>Advanced</Title>
                                 <SettingsField title="End on Close" switch description="Stops the launcher from keeping a background process in the background when the window is not shown. This will disable all background features.">
                                     <SettingsSwitch id="endOnClose" />
                                 </SettingsField>
                                 <SettingsField title="Prerelease Builds" switch description="Enables pre release builds. They are potentially buggy, however they contain the most up-to-date fixes and features.">
-                                    <SettingsSwitch id="prerelease" />
+                                    <SettingsSwitch id="preRelease" />
                                 </SettingsField>
                                 <SettingsField title="Developer Mode" switch description="Enables some extra options and menus for testing. This should not be enabled unless confident or instructed by a developer.">
                                     <SettingsSwitch id="developerMode" />
                                 </SettingsField>
                             </Settings>
                             <Settings id="defaults" display="Profile Defaults">
-                                <h1>Profile Defaults</h1>
+                                <Title>Profile Defaults</Title>
                                 <SettingsField title="Resolution" description="The resolution for profiles to start with. This can be changed in any individual profiles settings.">
-                                    <Dropdown small>
+                                    <Dropdown id="resolution" small>
                                         <Option value="1920x1080" display="1920x1080" description="Recommended" />
                                         <Option value="1280x720" display="1280x720" />
                                     </Dropdown>
                                 </SettingsField>
                             </Settings>
                             <Settings id="minecraft" display="Minecraft">
-                                <h1>Minecraft</h1>
+                                <Title>Minecraft</Title>
                                 <SettingsField title="Launcher Preference" description="Choose which game launcher variety (or none) will be used when launching a profile.">
-                                    <Checkbox>
+                                    <Checkbox id="launcherPref">
                                         <Check value="native" display="Native Launcher" description="The modern 'native' Mojang launcher." />
                                         <Check value="legacy" display="Legacy Launcher" description="The legacy Java based Mojang launcher." />
                                         <Check value="direct" display="Direct Launch" description="Who needs a Mojang launcher anyway?" />
                                     </Checkbox>
                                 </SettingsField>
                                 <SettingsField title="Instance Directory" description="The location for profiles to be installed. Your account must have access to the folder.">
-                                    <FolderSelect/>
+                                    <FolderSelect id="instanceDir" />
                                 </SettingsField>
-                                <h1>Advanced</h1>
+                                <Title>Advanced</Title>
                                 <SettingsField title="Install Assets" description="Installs version assets such as required libraries and sound files.">
                                     <SettingsSwitch id="installAssets" />
                                 </SettingsField>
@@ -161,7 +161,7 @@ class App extends React.Component {
                             </Settings>
                             <Separator/>
                             <Settings id="notifications" display="Notifications">
-                                <h1>Notifications</h1>
+                                <Title>Notifications</Title>
                                 <SettingsField title="Enabled" description="System notifications will be sent on certain events such as profile installation finishing.">
                                     <SettingsSwitch id="sendNotifications" />
                                 </SettingsField>
@@ -177,16 +177,16 @@ class App extends React.Component {
                                 </SettingsField>
                             </Settings>
                             <Settings id="personalization" display="Personalization">
-                                <h1>Personalization</h1>
+                                <Title>Personalization</Title>
                                 <SettingsField title="Coming Soon..." description="This will be added in a later version of the launcher, hold tight!" />
                             </Settings>
                             <Settings id="language" display="Language">
-                                <h1>Language</h1>
+                                <Title>Language</Title>
                                 <SettingsField title="Coming Soon..." description="This will be added in a later version of the launcher, hold tight!" />
                             </Settings>
                             <Separator/>
                             <Settings id="privacy" display="Privacy">
-                                <h1>Privacy</h1>
+                                <Title>Privacy</Title>
                                 <SettingsField title="Recommendations"
                                                description="Some data about modpack preferences must be stored for recommendations to be generated."
                                                note="If anonymous statistics are disabled, this data is only stored locally.">
@@ -199,7 +199,7 @@ class App extends React.Component {
                                 </SettingsField>
                             </Settings>
                             <Settings id="dangerZone" display="Danger Zone">
-                                <h1>Danger Zone</h1>
+                                <Title>Danger Zone</Title>
 
                             </Settings>
                         </SettingsWrapper>

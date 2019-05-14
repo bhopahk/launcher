@@ -68,14 +68,31 @@ const Check = (props) => {
     )
 };
 
-const Switch = (props) => {
-    return (
-        <div className="switch">
-            <input id={props.id} type="checkbox" />
-            <label htmlFor={props.id}></label>
-        </div>
-    );
-};
+class Switch extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            value: this.props.getValue(),
+        }
+    }
+
+    handleChange(e) {
+        this.props.setValue(e.target.checked);
+        this.setState({
+            value: this.props.getValue()
+        })
+    }
+
+    render() {
+        return (
+            <div className="switch">
+                <input id={this.props.id} type="checkbox" onChange={this.handleChange.bind(this)} checked={this.state.value} />
+                <label htmlFor={this.props.id}></label>
+            </div>
+        );
+    }
+}
 
 class FolderSelect extends React.Component {
     constructor(props) {
