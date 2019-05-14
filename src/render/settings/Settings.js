@@ -50,7 +50,7 @@ class SettingsWrapper extends React.Component {
                     <hr/>
                     {this.props.children.map(child => {
                         return React.cloneElement(child, {
-                            key: child.props.id,
+                            key: child.props.id ? child.props.id : Math.random(),
                             active: child.props.id === this.state.active,
                             onSelect: () => this.setState({ active: child.props.id }),
                         });

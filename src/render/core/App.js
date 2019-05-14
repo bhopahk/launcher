@@ -19,7 +19,7 @@ import CreateProfile from "../create/CreateProfile";
 import { SettingsWrapper, Settings, Separator } from "../settings/Settings";
 import { SettingsField, SettingsSwitch } from '../settings/input/SettingsField';
 
-import { Checkbox, Check, FolderSelect, Button } from '../settings/input/Input';
+import { Checkbox, Check, FolderSelect, Button, Dropdown, Option } from '../settings/input/Input';
 
 class App extends React.Component {
     static snackbar = React.createRef();
@@ -132,7 +132,12 @@ class App extends React.Component {
                             </Settings>
                             <Settings id="defaults" display="Profile Defaults">
                                 <h1>Profile Defaults</h1>
-
+                                <SettingsField title="Resolution" description="The resolution for profiles to start with. This can be changed in any individual profiles settings.">
+                                    <Dropdown small>
+                                        <Option value="1920x1080" display="1920x1080" description="Recommended" />
+                                        <Option value="1280x720" display="1280x720" />
+                                    </Dropdown>
+                                </SettingsField>
                             </Settings>
                             <Settings id="minecraft" display="Minecraft">
                                 <h1>Minecraft</h1>
@@ -163,16 +168,21 @@ class App extends React.Component {
                                 <SettingsField title="Taskbar" description="The system task bar will reflect notifications through a discrete flashing.">
                                     <SettingsSwitch id="sendNotifications" />
                                 </SettingsField>
-
-                                <p>Sounds</p>
+                                <SettingsField title="Sounds" description="Choose which actions will make sounds.">
+                                    <Checkbox multiple>
+                                        <Check value="native" display="Native Launcher" description="The modern 'native' Mojang launcher." />
+                                        <Check value="legacy" display="Legacy Launcher" description="The legacy Java based Mojang launcher." />
+                                        <Check value="direct" display="Direct Launch" description="Who needs a Mojang launcher anyway?" />
+                                    </Checkbox>
+                                </SettingsField>
                             </Settings>
                             <Settings id="personalization" display="Personalization">
                                 <h1>Personalization</h1>
-
+                                <SettingsField title="Coming Soon..." description="This will be added in a later version of the launcher, hold tight!" />
                             </Settings>
                             <Settings id="language" display="Language">
                                 <h1>Language</h1>
-
+                                <SettingsField title="Coming Soon..." description="This will be added in a later version of the launcher, hold tight!" />
                             </Settings>
                             <Separator/>
                             <Settings id="privacy" display="Privacy">
