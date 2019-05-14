@@ -16,7 +16,10 @@ import CurseModpackListing from '../modpack/provider/Curse';
 import { ModpackBrowser } from '../modpack/Modpack';
 import CreateProfile from "../create/CreateProfile";
 
-import { SettingsWrapper, Settings, SettingsSeparator } from "../settings/Settings";
+import { SettingsWrapper, Settings, Separator } from "../settings/Settings";
+import { SettingsField, SettingsSwitch } from '../settings/input/SettingsField';
+
+import { Checkbox, Check, FolderSelect, Button } from '../settings/input/Input';
 
 class App extends React.Component {
     static snackbar = React.createRef();
@@ -113,82 +116,78 @@ class App extends React.Component {
                         <p>Hello Modal 2</p>
                     </Modal>
                     <Modal id="settingsModal" className="settings">
-                        <SettingsWrapper default="profile">
-                            <Settings id="profile" display="Profile">
-                                <p>B</p>
-                                <p>A</p>
-                                <p>B</p>
-                                <p>A</p>
-                                <p>B</p>
-                                <p>A</p>
-                                <p>B</p>
-                                <p>A</p>
-                                <p>B</p>
-                                <p>A</p>
-                                <p>B</p>
-                                <p>A</p>
-                                <p>B</p>
-                                <p>A</p>
-                                <p>B</p>
-                                <p>A</p>
-                                <p>B</p>
-                                <p>A</p>
-                                <p>B</p>
-                                <p>A</p>
-                                <p>B</p>
-                                <p>A</p>
-                                <p>B</p>
-                                <p>A</p>
-                                <p>B</p>
-                                <p>A</p>
-                                <p>B</p>
-                                <p>A</p>
-                                <p>B</p>
-                                <p>A</p>
-                                <p>B</p>
-                                <p>A</p>
-                                <p>B</p>
-                                <p>A</p>
-                                <p>B</p>
-                                <p>A</p>
-                                <p>B</p>
+                        <SettingsWrapper default="app">
+                            <Settings id="app" display="App Settings">
+                                <h1>App Settings</h1>
+                                <h1>Advanced</h1>
+                                <SettingsField title="Prerelease Builds" switch description="Enables pre release builds. They are potentially buggy, however they contain the most up-to-date fixes and features.">
+                                    <SettingsSwitch id="prerelease" />
+                                </SettingsField>
+                                <SettingsField title="Developer Mode" switch description="Enables some extra options and menus for testing. This should not be enabled unless confident or instructed by a developer.">
+                                    <SettingsSwitch id="developerMode" />
+                                </SettingsField>
                             </Settings>
-                            <Settings id="account" display="Account">
-                                <p>A</p>
-                                <p>B</p>
+                            <Settings id="defaults" display="Profile Defaults">
+                                <h1>Profile Defaults</h1>
+
                             </Settings>
-                            <Settings id="email" display="Emails">
-                                <p>A</p>
-                                <p>B</p>
+                            <Settings id="minecraft" display="Minecraft">
+                                <h1>Minecraft</h1>
+                                <SettingsField title="Launcher Preference" description="Choose which game launcher variety (or none) will be used when launching a profile.">
+                                    <Checkbox>
+                                        <Check value="native" display="Native Launcher" description="The modern 'native' Mojang launcher." />
+                                        <Check value="legacy" display="Legacy Launcher" description="The legacy Java based Mojang launcher." />
+                                        <Check value="direct" display="Direct Launch" description="Who needs a Mojang launcher anyway?" />
+                                    </Checkbox>
+                                </SettingsField>
+                                <SettingsField title="Instance Directory" description="The location for profiles to be installed. Your account must have access to the folder.">
+                                    <FolderSelect/>
+                                </SettingsField>
+                                <h1>Advanced</h1>
+                                <SettingsField title="Install Assets" description="Installs version assets such as required libraries and sound files.">
+                                    <SettingsSwitch id="installAssets" />
+                                </SettingsField>
+                                <SettingsField title="Save Files" description="Files of deleted profiles will be kept until a new profile is created with the same name.">
+                                    <SettingsSwitch id="deleteFiles" />
+                                </SettingsField>
                             </Settings>
+                            <Separator/>
                             <Settings id="notifications" display="Notifications">
-                                <p>A</p>
-                                <p>B</p>
+                                <h1>Notifications</h1>
+                                <SettingsField title="Enabled" description="System notifications will be sent on certain events such as profile installation finishing.">
+                                    <SettingsSwitch id="sendNotifications" />
+                                </SettingsField>
+                                <SettingsField title="Taskbar" description="The system task bar will reflect notifications through a discrete flashing.">
+                                    <SettingsSwitch id="sendNotifications" />
+                                </SettingsField>
+
+                                <p>Sounds</p>
                             </Settings>
-                            <Settings id="keys" display="SSH & GPG keys">
-                                <p>A</p>
-                                <p>B</p>
+                            <Settings id="personalization" display="Personalization">
+                                <h1>Personalization</h1>
+
                             </Settings>
-                            <Settings id="these" display="These are">
-                                <p>A</p>
-                                <p>B</p>
+                            <Settings id="language" display="Language">
+                                <h1>Language</h1>
+
                             </Settings>
-                            <Settings id="copied" display="Copied from">
-                                <p>A</p>
-                                <p>B</p>
+                            <Separator/>
+                            <Settings id="privacy" display="Privacy">
+                                <h1>Privacy</h1>
+                                <SettingsField title="Recommendations"
+                                               description="Some data about modpack preferences must be stored for recommendations to be generated."
+                                               note="If anonymous statistics are disabled, this data is only stored locally.">
+                                    <Button display="View Perceived Preferences" />
+                                </SettingsField>
+                                <SettingsField title="Anonymous Statistics" switch
+                                               description="Allows anonymous data collection about the launcher. This information will be used for improving Proton's features and user experience."
+                                               note="We will not distribute any data.">
+                                    <SettingsSwitch id="collectData" />
+                                </SettingsField>
                             </Settings>
-                            <Settings id="github" display="GitHub">
-                                <p>A</p>
-                                <p>B</p>
-                            </Settings>
-                            <SettingsSeparator/>
-                            <Settings id="dev" display="Developer Settings">
-                                <p>A</p>
-                                <p>B</p>
-                            </Settings>
-                            <Settings id="danger" display="Danger Zone">
+                            <Settings id="dangerZone" display="Danger Zone">
                                 <h1>Danger Zone</h1>
-                                <p>D</p>
+
                             </Settings>
                         </SettingsWrapper>
                     </Modal>

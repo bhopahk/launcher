@@ -29,6 +29,7 @@
 
 .settings-selector {
   box-sizing: border-box;
+  user-select: none;
 
   width: 250px;
   max-width: 250px;
@@ -115,12 +116,13 @@
 
 .settings-page {
   box-sizing: border-box;
+  user-select: none;
 
   width: 750px;
   height: 100%;
 
   margin: 0;
-  padding: 30px 5px 30px 30px;
+  padding: 0 5px 20px 30px;
 
   overflow-x: hidden;
   text-overflow: clip;
@@ -148,7 +150,8 @@
   }
 
   h1 {
-    padding-bottom: 10px;
+    margin-top: 30px;
+    margin-bottom: 20px;
 
     font-size: 17px;
     text-transform: uppercase;
@@ -156,5 +159,60 @@
     color: @offWhite;
 
     text-shadow: 2px 2px @offBlack;
+  }
+
+  hr {
+    width: calc(100% - 25px - 160px);
+    height: 1px;
+
+    margin-right: 95px;
+    margin-left: 80px;
+    margin-bottom: 20px;
+    padding: 0;
+
+    border: none;
+    background-color: @offGrey;
+  }
+
+  .settings-field {
+    position: relative;
+    padding-right: 25px;
+
+    width: calc(100% - 30px);
+    margin: 10px 0 20px;
+
+    h2 {
+      margin-bottom: 5px;
+      padding: 0;
+
+      font-size: 14px;
+      font-family: Raleway, sans-serif;
+      text-transform: uppercase;
+      color: @superOffWhite
+    }
+
+    h3 {
+      margin-bottom: 10px;
+
+      font-size: 13px;
+      font-family: "Source Sans Pro", sans-serif;
+      color: @offGrey;
+
+      &.short {
+        width: calc(90%)
+      }
+
+      span {
+        color: @superOffWhite;
+      }
+    }
+
+
+  }
+
+  .absolute-switch {
+    position: absolute;
+    top: 3px;
+    right: -40px;
   }
 }

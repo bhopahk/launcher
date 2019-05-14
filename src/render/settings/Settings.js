@@ -50,6 +50,7 @@ class SettingsWrapper extends React.Component {
                     <hr/>
                     {this.props.children.map(child => {
                         return React.cloneElement(child, {
+                            key: child.props.id,
                             active: child.props.id === this.state.active,
                             onSelect: () => this.setState({ active: child.props.id }),
                         });
@@ -76,12 +77,12 @@ const Settings = (props) => {
     );
 };
 
-const SettingsSeparator = () => {
+const Separator = () => {
     return (<hr/>);
 };
 
 export {
     SettingsWrapper,
     Settings,
-    SettingsSeparator,
+    Separator,
 }
