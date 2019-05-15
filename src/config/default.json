@@ -6,6 +6,7 @@
   },
   "defaults": {
     "resolution": "1280x720",
+    "maxMemory": "2048",
     "javaArgs": ""
   },
   "minecraft": {

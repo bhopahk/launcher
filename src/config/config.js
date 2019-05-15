@@ -23,6 +23,7 @@ SOFTWARE.
 // A simple JSON based config system. Subject to change in the future if needed.
 
 const { app, ipcMain } = require('electron');
+const os = require('os');
 const fs = require('fs-extra');
 const path = require('path');
 
@@ -93,9 +94,14 @@ exports.saveConfig = async () => {
 
 exports.loadConfig = async () => {
     console.log('Loading config...');
-    if (!await fs.pathExists(configFile))
+    const created = await fs.pathExists(configFile);
+    if (!created)
         await fs.copy(path.join(__dirname, 'default.json'), configFile);
     this.config = await fs.readJson(configFile);
+
+    const maxMem = os.totalmem()/1e6;
+    this.setValue('defaults/maxMemory', maxMem / 2);
+    this.setValue('minecraft/instanceDir', path.join(baseDir, 'Instances'));
 };
 
 exports.addEventListener = (target, callback) => {

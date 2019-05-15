@@ -265,6 +265,24 @@ class TextField extends React.Component {
     }
 }
 
+class Slider extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            value: this.props.getValue(),
+        }
+    }
+
+    render() {
+        return (
+            <div className="slider">
+
+            </div>
+        );
+    }
+}
+
 export {
     Checkbox,
     Check,

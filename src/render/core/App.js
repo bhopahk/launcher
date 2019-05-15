@@ -66,6 +66,16 @@ class App extends React.Component {
         });
     }
 
+    static getConfigValue(path) {
+        return window.ipc.sendSync('config:get', path);
+    }
+
+    static setConfigValue(path, value) {
+        window.ipc.send('config:set', {
+            path, value
+        })
+    }
+
     render() {
         return (
             <div>
