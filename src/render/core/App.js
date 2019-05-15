@@ -19,7 +19,7 @@ import CreateProfile from "../create/CreateProfile";
 import { SettingsWrapper, Settings, Separator, Title } from "../settings/Settings";
 import { SettingsField, SettingsSwitch } from '../settings/input/SettingsField';
 
-import { Checkbox, Check, FolderSelect, Button, Dropdown, Option, TextField } from '../settings/input/Input';
+import { Checkbox, Check, FolderSelect, Button, Dropdown, Option, TextField, Slider } from '../settings/input/Input';
 
 class App extends React.Component {
     static snackbar = React.createRef();
@@ -148,6 +148,9 @@ class App extends React.Component {
                                         <Option value="1280x720" display="1280x720" />
                                     </Dropdown>
                                 </SettingsField>
+                                <SettingsField title="Memory" description="The amount of memory for profiles to start with. This can be changed for individual profiles.">
+                                    <Slider id="maxMemory" step={128} min={256} max={16384} />
+                                </SettingsField>
                                 <SettingsField title="Java Arguments" description="Any additional Java arguments which will be passed into every profile by default. These can be changed for individual profiles separately.">
                                     <TextField id="javaArgs" placeholder="Enter arguments..." />
                                 </SettingsField>
@@ -213,7 +216,8 @@ class App extends React.Component {
                             </Settings>
                             <Settings id="dangerZone" display="Danger Zone">
                                 <Title>Danger Zone</Title>
-
+                                <Title>Language</Title>
+                                <SettingsField title="Coming Soon..." description="This will be added in a later version of the launcher, hold tight!" />
                             </Settings>
                         </SettingsWrapper>
                     </Modal>

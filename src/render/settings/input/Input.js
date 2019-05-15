@@ -274,10 +274,18 @@ class Slider extends React.Component {
         }
     }
 
+    handleChange(e) {
+        this.props.setValue(e.target.value);
+        this.setState({
+            value: e.target.value,
+        })
+    }
+
     render() {
         return (
             <div className="slider">
-
+                <input type="number" value={this.state.value} min={this.props.min} max={this.props.max} step={this.props.step} onChange={this.handleChange.bind(this)} />
+                <input type="range" value={this.state.value} min={this.props.min} max={this.props.max} step={this.props.step} onChange={this.handleChange.bind(this)} />
             </div>
         );
     }
@@ -292,4 +300,5 @@ export {
     Dropdown,
     Option,
     TextField,
+    Slider,
 }

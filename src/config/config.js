@@ -99,9 +99,15 @@ exports.loadConfig = async () => {
         await fs.copy(path.join(__dirname, 'default.json'), configFile);
     this.config = await fs.readJson(configFile);
 
-    const maxMem = os.totalmem()/1e6;
-    this.setValue('defaults/maxMemory', maxMem / 2);
-    this.setValue('minecraft/instanceDir', path.join(baseDir, 'Instances'));
+    let maxMem = Math.round(os.totalmem()/1024/1024);
+
+    while (maxMem % 128 !== 0)
+        maxMem++;
+
+    if (!created) {
+        this.setValue('defaults/maxMemory', maxMem / 2);
+        this.setValue('minecraft/instanceDir', path.join(baseDir, 'Instances'));
+    }
 };
 
 exports.addEventListener = (target, callback) => {
