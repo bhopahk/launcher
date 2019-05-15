@@ -19,7 +19,7 @@ import CreateProfile from "../create/CreateProfile";
 import { SettingsWrapper, Settings, Separator, Title } from "../settings/Settings";
 import { SettingsField, SettingsSwitch } from '../settings/input/SettingsField';
 
-import { Checkbox, Check, FolderSelect, Button, Dropdown, Option } from '../settings/input/Input';
+import { Checkbox, Check, FolderSelect, Button, Dropdown, Option, TextField } from '../settings/input/Input';
 
 class App extends React.Component {
     static snackbar = React.createRef();
@@ -137,6 +137,9 @@ class App extends React.Component {
                                         <Option value="1920x1080" display="1920x1080" description="Recommended" />
                                         <Option value="1280x720" display="1280x720" />
                                     </Dropdown>
+                                </SettingsField>
+                                <SettingsField title="Java Arguments" description="Any additional Java arguments which will be passed into every profile by default. These can be changed for individual profiles separately.">
+                                    <TextField id="javaArgs" placeholder="Enter arguments..." />
                                 </SettingsField>
                             </Settings>
                             <Settings id="minecraft" display="Minecraft">

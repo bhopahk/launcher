@@ -319,3 +319,38 @@
     text-overflow: ellipsis;
   }
 }
+
+.textfield {
+  box-sizing: border-box;
+  //cursor: pointer;
+
+  width: 100%;
+  height: 30px;
+
+  border: none;
+  border-radius: 3px;
+  background-color: @backgroundVibrant;
+
+  input {
+    box-sizing: border-box;
+    outline: none;
+
+    width: 100%;
+    height: 100%;
+
+    padding: 0 10px;
+
+    border: none;
+    background-color: transparent;
+
+    font-size: 15px;
+    font-family: Raleway, sans-serif;
+    color: @superOffWhite;
+
+    &::placeholder {
+      font-size: 15px;
+      font-family: Raleway, sans-serif;
+      color: @offGrey;
+    }
+  }
+}

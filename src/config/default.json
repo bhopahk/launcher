@@ -5,7 +5,8 @@
     "developerMode": false
   },
   "defaults": {
-    "resolution": "1280x720"
+    "resolution": "1280x720",
+    "javaArgs": ""
   },
   "minecraft": {
     "launcherPref": "native",

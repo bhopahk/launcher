@@ -43,6 +43,8 @@ class SettingsWrapper extends React.Component {
                     <h1>Settings</h1>
                     <hr/>
                     {this.props.children.map(child => {
+                        if (!child.props.id)
+                            return child;
                         return (<button key={child.props.id ? child.props.id : Math.random()}
                                         className={child.props.id === this.state.active ? 'active' : ''}
                                         onClick={() => this.setState({ active: child.props.id })}>{child.props.display}</button>)

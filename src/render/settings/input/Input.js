@@ -239,6 +239,32 @@ const Option = (props) => {
     );
 };
 
+class TextField extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            value: this.props.getValue(),
+        };
+
+        this.saveTask = setTimeout(() => {}, 1);
+    }
+
+    handleInput(e) {
+        clearTimeout(this.saveTask);
+        this.saveTask = setTimeout(() => this.props.setValue(this.state.value), 750);
+        this.setState({ value: e.target.value });
+    }
+
+    render() {
+        return (
+            <div className="textfield">
+                <input type="text" id={this.props.id} placeholder={this.props.placeholder} value={this.state.value} onChange={this.handleInput.bind(this)} />
+            </div>
+        );
+    }
+}
+
 export {
     Checkbox,
     Check,
@@ -247,4 +273,5 @@ export {
     Button,
     Dropdown,
     Option,
+    TextField,
 }
