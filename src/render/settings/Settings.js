@@ -33,12 +33,6 @@ class SettingsWrapper extends React.Component {
         };
     }
 
-    getRenderedPage() {
-        for (let i = 0; i < this.props.children.length; i++)
-            if (this.props.children[i].props.id === this.state.active)
-                return this.props.children[i].props.children;
-    }
-
     render() {
         return (
             <div className="settings-wrapper">
@@ -72,7 +66,7 @@ class SettingsWrapper extends React.Component {
 const Settings = (props) => {
     return (
         <div className="settings-page">
-            {props.children.map(child => {
+            {React.Children.map(props.children, child => {
                 return React.cloneElement(child, {
                     key: child.props.title ? child.props.title : Math.random(),
                     parentId: props.id,

@@ -5,15 +5,33 @@
     "developerMode": false
   },
   "defaults": {
-    "resolution": {
-      "width": 1280,
-      "height": 720
-    }
+    "resolution": "1280x720"
   },
   "minecraft": {
     "launcherPref": "native",
     "instanceDir": "",
     "installAssets": true,
     "deleteFiles": false
+  },
+  "notifications": {
+    "sendNotifications": true,
+    "showTaskbar": true,
+    "sounds": [
+      "native",
+      "legacy",
+      "direct"
+    ]
+  },
+  "personalization": {
+
+  },
+  "language": {
+
+  },
+  "privacy": {
+    "collectData": true
+  },
+  "dangerZone": {
+
   }
 }

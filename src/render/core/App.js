@@ -149,7 +149,7 @@ class App extends React.Component {
                                     </Checkbox>
                                 </SettingsField>
                                 <SettingsField title="Instance Directory" description="The location for profiles to be installed. Your account must have access to the folder.">
-                                    <FolderSelect id="instanceDir" />
+                                    <FolderSelect id="instanceDir" onMoreAction={value => window.ipc.send('open-folder', value)} />
                                 </SettingsField>
                                 <Title>Advanced</Title>
                                 <SettingsField title="Install Assets" description="Installs version assets such as required libraries and sound files.">
@@ -166,10 +166,10 @@ class App extends React.Component {
                                     <SettingsSwitch id="sendNotifications" />
                                 </SettingsField>
                                 <SettingsField title="Taskbar" description="The system task bar will reflect notifications through a discrete flashing.">
-                                    <SettingsSwitch id="sendNotifications" />
+                                    <SettingsSwitch id="showTaskbar" />
                                 </SettingsField>
                                 <SettingsField title="Sounds" description="Choose which actions will make sounds.">
-                                    <Checkbox multiple>
+                                    <Checkbox id="sounds" multiple>
                                         <Check value="native" display="Native Launcher" description="The modern 'native' Mojang launcher." />
                                         <Check value="legacy" display="Legacy Launcher" description="The legacy Java based Mojang launcher." />
                                         <Check value="direct" display="Direct Launch" description="Who needs a Mojang launcher anyway?" />

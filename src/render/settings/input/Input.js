@@ -28,8 +28,33 @@ class Checkbox extends React.Component {
         super(props);
 
         this.state = {
-            active: ''
+            active: this.props.getValue(),
+        };
+
+        this.isActive.bind(this);
+        this.toggleActive.bind(this);
+    }
+
+    isActive(id) {
+        if (this.state.active === id)
+            return true;
+        for (let i = 0; i < this.state.active.length; i++)
+            if (this.state.active[i] === id)
+                return true;
+        return false;
+    }
+
+    toggleActive(id) {
+        let active = this.props.multiple ? this.state.active.slice() : null;
+        if (this.isActive(id) && this.props.multiple) {
+            active = active.filter(val => val !== id);
+        } else {
+            if (this.props.multiple)
+                active.push(id);
+            else active = id;
         }
+        this.props.setValue(active);
+        this.setState({ active });
     }
 
     render() {
@@ -38,15 +63,9 @@ class Checkbox extends React.Component {
                 {this.props.children.map(child => {
                     return React.cloneElement(child, {
                         key: child.props.value,
-                        active: this.state.active === child.props.value || this.state[child.props.value] === true,
+                        active: this.isActive(child.props.value),
                         onSelect: () => {
-                            if (!this.props.multiple)
-                                this.setState({ active: child.props.value });
-                            else {
-                                let newState = {};
-                                newState[child.props.value] = !this.state[child.props.value];
-                                this.setState(newState);
-                            }
+                            this.toggleActive(child.props.value);
                         }
                     });
                 })}
@@ -80,7 +99,7 @@ class Switch extends React.Component {
     handleChange(e) {
         this.props.setValue(e.target.checked);
         this.setState({
-            value: this.props.getValue()
+            value: e.target.checked
         })
     }
 
@@ -101,7 +120,7 @@ class FolderSelect extends React.Component {
         this.input = React.createRef();
 
         this.state = {
-            active: '',
+            active: this.props.getValue(),
         };
     }
 
@@ -111,12 +130,21 @@ class FolderSelect extends React.Component {
         this.input.current.webkitdirectory = true;
     }
 
+    handleChange(e) {
+        this.props.setValue(e.target.files[0].path);
+        this.setState({ active: e.target.files[0].path });
+    }
+
     render() {
         return (
             <div className="folder" onClick={() => this.input.current.click()}>
-                <input type="file" ref={this.input} onChange={e => this.setState({ active: e.target.files[0].path })} hidden />
+                <input type="file" ref={this.input} onChange={this.handleChange.bind(this)} hidden />
                 <p>{this.state.active === '' ? 'Select a folder...' : this.state.active}</p>
-                <i className="fas fa-ellipsis-v"></i>
+                <i className="fas fa-ellipsis-v" onClick={e => {
+                    e.stopPropagation();
+                    if (this.props.onMoreAction)
+                        this.props.onMoreAction(this.state.active);
+                }}></i>
             </div>
         );
     }
@@ -133,7 +161,7 @@ class Dropdown extends React.Component {
         super(props);
 
         this.state = {
-            active: props.default ? props.default : props.children[0].props.value,
+            active: this.props.getValue(),
             shown: false,
         }
     }
@@ -187,10 +215,13 @@ class Dropdown extends React.Component {
                         return React.cloneElement(child, {
                             key: child.props.value,
                             active: child.props.value === this.state.active,
-                            onSelect: () => {this.setState({
-                                active: child.props.value,
-                                shown: false,
-                            })}
+                            onSelect: () => {
+                                this.props.setValue(child.props.value);
+                                this.setState({
+                                    active: child.props.value,
+                                    shown: false,
+                                })
+                            }
                         });
                     })}
                 </div>

@@ -30,6 +30,7 @@ const baseDir = app.getPath('userData');
 const configFile = path.join(baseDir, 'launcher_config.json');
 
 let saveTask = null;
+let listeners = {};
 
 app.on('ready', async () => {
     await this.loadConfig();
@@ -45,7 +46,6 @@ app.on('quit', () => {
 });
 
 exports.getValue = (target) => {
-    console.log('getting: ' + target);
     let path = target.split('/');
     let value = this.config;
     try {
@@ -58,7 +58,21 @@ exports.getValue = (target) => {
 };
 
 exports.setValue = (target, value) => {
-    console.log(`setting ${target} to ${value}`);
+    const oldValue = this.getValue(target);
+
+    let cancelled = false;
+    if (listeners.hasOwnProperty(target)) {
+        const callbacks = listeners[target];
+        for (let i = 0; i < callbacks.length; i++) {
+            const result = callbacks[i](oldValue, value);
+            if (result)
+                cancelled = result;
+        }
+    }
+    if (cancelled)
+        return;
+
+    console.log(`'${target}' has been changed from '${oldValue}' to '${value}'`);
     let path = target.split('/');
     let current = this.config;
     try {
@@ -82,4 +96,10 @@ exports.loadConfig = async () => {
     if (!await fs.pathExists(configFile))
         await fs.copy(path.join(__dirname, 'default.json'), configFile);
     this.config = await fs.readJson(configFile);
+};
+
+exports.addEventListener = (target, callback) => {
+    if (!listeners.hasOwnProperty(target))
+        listeners[target] = [];
+    listeners.push(callback);
 };
