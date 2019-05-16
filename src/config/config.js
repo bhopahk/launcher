@@ -34,8 +34,6 @@ let saveTask = null;
 let listeners = {};
 
 app.on('ready', async () => {
-    await this.loadConfig();
-
     ipcMain.on('config:get', (event, args) => event.returnValue = this.getValue(args));
     ipcMain.on('config:set', (event, args) => this.setValue(args.path, args.value));
 });

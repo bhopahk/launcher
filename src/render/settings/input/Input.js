@@ -269,13 +269,19 @@ class Slider extends React.Component {
     constructor(props) {
         super(props);
 
+        this.saveTask = setTimeout(() => {}, 1);
+
         this.state = {
             value: this.props.getValue(),
         }
     }
 
     handleChange(e) {
-        this.props.setValue(e.target.value);
+        const val = e.target.value;
+        clearTimeout(this.saveTask);
+        this.saveTask = setTimeout(function() {
+            this.props.setValue(val);
+        }.bind(this), 1000);
         this.setState({
             value: e.target.value,
         })

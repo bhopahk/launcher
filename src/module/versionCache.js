@@ -20,10 +20,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-const { app, ipcMain } = require('electron');
+const { ipcMain } = require('electron');
 const fetch = require('./fetch/fetch');
 const fetchXml = require('./fetch/fetchXml');
-const fs = require('fs-extra');
 
 const VANILLA_META = 'https://launchermeta.mojang.com/mc/game/version_manifest.json';
 const FORGE_META = 'https://addons-ecs.forgesvc.net/api/minecraft/modloader';

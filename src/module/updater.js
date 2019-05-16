@@ -25,16 +25,18 @@ const { autoUpdater } = require('electron-updater');
 const isDev = require('electron-is-dev');
 
 app.on('ready', async () => { //todo allow for configurable update timer
-    this.available = false;
-    autoUpdater.autoDownload = false;
 
-    if (isDev)
-        return;
-    this.checkForUpdatesTask = setTimeout(async () => {
-        await autoUpdater.checkForUpdates();
-    }, 3600000);
-    await autoUpdater.checkForUpdates();
 });
+
+this.available = false;
+autoUpdater.autoDownload = false;
+
+if (isDev)
+    return;
+this.checkForUpdatesTask = setTimeout(async () => {
+    await autoUpdater.checkForUpdates();
+}, 3600000);
+autoUpdater.checkForUpdates();
 
 ipcMain.on('updater:check', async event => {
     if (this.mainWindow == null)

@@ -31,6 +31,9 @@ const path = require('path');
 const installer = require('./installer');
 const sendSync = require('./ipcMainSync').sendSync;
 
+const test = require('../config/config').getValue('minecraft/instanceDir');
+console.log('TEST: ' + test);
+
 const baseDir = app.getPath('userData');
 const installDir = path.join(baseDir, 'Install');
 const instanceDir = path.join(baseDir, 'Instances');
@@ -38,26 +41,26 @@ const launcherProfiles = path.join(baseDir, 'profiles.json');
 
 let mainWindow = null;
 
-app.on('ready', async () => {
-    ipcMain.on('profile:custom', installCustomProfile);
-    ipcMain.on('profile:curse', installCurseProfile);
+fs.pathExists(launcherProfiles).then(async exists => {
+    if (exists)
+        return;
+    await fs.ensureFile(launcherProfiles);
+    await fs.writeJson(launcherProfiles, {}, { spaces: 4 });
+});
 
-    ipcMain.on('profiles', async event => {
-        if (mainWindow == null)
-            mainWindow = event.sender;
-        await this.renderProfiles();
-    });
-    ipcMain.on('profile:launch', async (event, payload) => {
-        const profile = await this.getProfile(payload);
-        require('../launcher/launcher').launchProfile(profile).then(() => {
-            console.log('Launched');
-        });
-    });
+ipcMain.on('profile:custom', installCustomProfile.bind(this));
+ipcMain.on('profile:curse', installCurseProfile.bind(this));
 
-    if (!await fs.pathExists(launcherProfiles)) {
-        await fs.ensureFile(launcherProfiles);
-        await fs.writeJson(launcherProfiles, {}, { spaces: 4 });
-    }
+ipcMain.on('profiles', async event => {
+    if (mainWindow == null)
+        mainWindow = event.sender;
+    await this.renderProfiles();
+});
+ipcMain.on('profile:launch', async (event, payload) => {
+    const profile = await this.getProfile(payload);
+    require('../launcher/launcher').launchProfile(profile).then(() => {
+        console.log('Launched');
+    });
 });
 
 exports.createProfile = async (data, onApproved, overwrite) => {
@@ -191,7 +194,7 @@ exports.renderProfiles = async () => {
     mainWindow.send('profiles', profiles);
 };
 
-const installCustomProfile = async (event, payload) => {
+async function installCustomProfile(event, payload) {
     if (mainWindow == null)
         mainWindow = event.sender;
     if (payload.name) {
@@ -222,8 +225,8 @@ const installCustomProfile = async (event, payload) => {
         default:
             break;
     }
-};
-const installCurseProfile = async (event, payload) => {
+}
+async function installCurseProfile(event, payload) {
     if (mainWindow == null)
         mainWindow = event.sender;
     switch (payload.action) {
@@ -259,7 +262,7 @@ const installCurseProfile = async (event, payload) => {
         default:
             break;
     }
-};
+}
 
 const handleResponseCode = (code, data) => {
     switch (code) {

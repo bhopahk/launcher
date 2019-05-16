@@ -26,11 +26,7 @@ const log = require('electron-log');
 const path = require('path');
 const isDev = require('electron-is-dev');
 
-require('./config/config');
-require('./module/updater');
-require('./module/profile');
-require('./module/versionCache');
-require('./module/rpc');
+const config = require('./config/config');
 
 let mainWindow;
 let tray;
@@ -138,7 +134,14 @@ const registerUriListeners = () => {
     })
 };
 
-app.on('ready',  () => {
+app.on('ready',  async () => {
+    await config.loadConfig();
+
+    require('./module/updater');
+    require('./module/profile');
+    require('./module/versionCache');
+    require('./module/rpc');
+
     setTimeout(() => {
         require('./module/installer').installBaseGame(process.platform, process.platform === 'win32').then(result => {
             if (result)
