@@ -139,6 +139,7 @@ app.on('ready',  async () => {
 
     require('./module/updater');
     require('./module/profile');
+    require('./module/accounts');
     require('./module/versionCache');
     require('./module/rpc');
 

@@ -11,6 +11,7 @@ import {
     Page, Link
 } from '../sidebar/Sidebar';
 import { Profiles } from '../profiles/Profiles';
+import { AccountManager } from '../account/AccountManager';
 import CurseModpackListing from '../modpack/provider/Curse';
 
 import { ModpackBrowser } from '../modpack/Modpack';
@@ -80,14 +81,14 @@ class App extends React.Component {
         return (
             <div>
                 <Actions />
-                <Sidebar default="profiles">
+                <Sidebar default="technic">
                     <SidebarHeader />
                     <SidebarGroup index={0} title="library">
                         <Page id="profiles" icon="list" display="Profiles">
                             <Profiles />
                         </Page>
                         <Page id="profiles2" icon="user" display="Accounts">
-                            <p>Account Manager</p>
+                            <AccountManager />
                         </Page>
                         <Page id="profiles3" icon="lock" display="Coming Soon" disabled={true}>
                             <p>Profiles Alt Alt</p>
@@ -105,7 +106,7 @@ class App extends React.Component {
                             <button onClick={() => ModalConductor.openModal('test1')}>Open Modal 1</button>
                             <button onClick={() => ModalConductor.openModal('test2')}>Open Modal 2</button>
                             <button onClick={() => window.ipc.send('argv', 'twonk')}>argv</button>
-                            {/*<ModpackBrowser error />*/}
+                            <button onClick={() => window.ipc.send('accounts:newUser', {})}>Login Window</button>
                         </Page>
                         <Page id="custom" icon="tools" display="Custom Profile">
                             <CreateProfile />
