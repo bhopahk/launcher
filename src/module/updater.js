@@ -31,12 +31,12 @@ app.on('ready', async () => { //todo allow for configurable update timer
 this.available = false;
 autoUpdater.autoDownload = false;
 
-if (isDev)
-    return;
-this.checkForUpdatesTask = setTimeout(async () => {
-    await autoUpdater.checkForUpdates();
-}, 3600000);
-autoUpdater.checkForUpdates();
+if (!isDev) {
+    this.checkForUpdatesTask = setTimeout(async () => {
+        await autoUpdater.checkForUpdates();
+    }, 3600000);
+    autoUpdater.checkForUpdates();
+}
 
 ipcMain.on('updater:check', async event => {
     if (this.mainWindow == null)

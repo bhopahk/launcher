@@ -86,8 +86,8 @@ class App extends React.Component {
                         <Page id="profiles" icon="list" display="Profiles">
                             <Profiles />
                         </Page>
-                        <Page id="profiles2" icon="lock" display="Accounts" disabled={true}>
-                            <p>Profiles Alt</p>
+                        <Page id="profiles2" icon="user" display="Accounts">
+                            <p>Account Manager</p>
                         </Page>
                         <Page id="profiles3" icon="lock" display="Coming Soon" disabled={true}>
                             <p>Profiles Alt Alt</p>
@@ -129,12 +129,22 @@ class App extends React.Component {
                         <SettingsWrapper default="app">
                             <Settings id="app" display="App Settings">
                                 <Title>App Settings</Title>
+                                <Title>Updates</Title>
+                                <SettingsField title="Prerelease Builds" switch description="Enables pre release builds. They are potentially buggy, however they contain the most up-to-date fixes and features.">
+                                    <SettingsSwitch id="prerelease" />
+                                </SettingsField>
+                                <SettingsField title="Interval" description="The amount of time between automatic app update checks.">
+                                    <Dropdown id="checkInterval" small>
+                                        <Option value={0} display="Never" description="Only check on startup." />
+                                        <Option value={15} display="15" description="minutes" />
+                                        <Option value={30} display="30" description="minutes" />
+                                        <Option value={60} display="1" description="hour" />
+                                        <Option value={120} display="2" description="hours" />
+                                    </Dropdown>
+                                </SettingsField>
                                 <Title>Advanced</Title>
                                 <SettingsField title="End on Close" switch description="Stops the launcher from keeping a background process in the background when the window is not shown. This will disable all background features.">
                                     <SettingsSwitch id="endOnClose" />
-                                </SettingsField>
-                                <SettingsField title="Prerelease Builds" switch description="Enables pre release builds. They are potentially buggy, however they contain the most up-to-date fixes and features.">
-                                    <SettingsSwitch id="preRelease" />
                                 </SettingsField>
                                 <SettingsField title="Developer Mode" switch description="Enables some extra options and menus for testing. This should not be enabled unless confident or instructed by a developer.">
                                     <SettingsSwitch id="developerMode" />

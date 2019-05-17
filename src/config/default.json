@@ -1,7 +1,8 @@
 {
   "app": {
+    "checkInterval": 30,
+    "prerelease": false,
     "endOnClose": false,
-    "preRelease": false,
     "developerMode": false
   },
   "defaults": {

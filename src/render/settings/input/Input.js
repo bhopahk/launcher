@@ -297,6 +297,32 @@ class Slider extends React.Component {
     }
 }
 
+class NumberField extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            value: this.props.getValue(),
+        };
+
+        this.saveTask = setTimeout(() => {}, 1);
+    }
+
+    handleInput(e) {
+        clearTimeout(this.saveTask);
+        this.saveTask = setTimeout(() => this.props.setValue(this.state.value), 750);
+        this.setState({ value: e.target.value });
+    }
+
+    render() {
+        return (
+            <div className="textfield">
+                <input type="number" id={this.props.id} min={this.props.min} max={this.props.max} step={this.props.step} value={this.state.value} onChange={this.handleInput.bind(this)} />
+            </div>
+        );
+    }
+}
+
 export {
     Checkbox,
     Check,
@@ -307,4 +333,5 @@ export {
     Option,
     TextField,
     Slider,
+    NumberField,
 }
