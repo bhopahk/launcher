@@ -1,0 +1,85 @@
+@import "../core/colors";
+
+.am-statuses {
+  position: relative;
+  box-sizing: border-box;
+  user-select: none;
+
+  width: 300px;
+  height: 100%;
+
+  margin: 0;
+  padding: 30px;
+
+  background-color: @backgroundVibrant3;
+
+  text-align: center;
+
+  h1 {
+    font-size: 20px;
+    font-family: Raleway, sans-serif;
+    color: @offWhite;
+
+    margin-top: 10px;
+    margin-bottom: 15px;
+
+    text-shadow: 2px 2px @offBlack;
+  }
+
+  button {
+    position: absolute;
+    left: 100px;
+    bottom: 45px;
+    user-select: none;
+    cursor: pointer;
+    outline: none;
+
+    width: 100px;
+    height: 35px;
+
+    border: none;
+    border-radius: 5px;
+    background: transparent;
+
+    font-size: 15px;
+    font-family: Raleway, sans-serif;
+    color: @superOffWhite;
+
+    text-transform: uppercase;
+    transition: 0.1s;
+
+    &:hover {
+      background-color: @backgroundVibrant2;
+      color: @offWhite;
+    }
+  }
+}
+
+.am-status {
+  box-sizing: border-box;
+
+  width: 100%;
+
+  margin: 20px 0;
+  padding: 12px 0;
+
+  border: none;
+  border-radius: 5px;
+  background-color: @downloadsBackground;
+
+  p {
+    font-size: 18px;
+    font-family: "Source Sans Pro", sans-serif;
+    color: @superOffWhite;
+  }
+
+  &.green {
+    background-color: @SuccessVibrant;
+  }
+  &.yellow {
+    background-color: @WarningVibrant;
+  }
+  &.red {
+    background-color: @ErrorVibrant;
+  }
+}

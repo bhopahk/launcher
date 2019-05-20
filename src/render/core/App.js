@@ -81,13 +81,13 @@ class App extends React.Component {
         return (
             <div>
                 <Actions />
-                <Sidebar default="technic">
+                <Sidebar default="accounts">
                     <SidebarHeader />
                     <SidebarGroup index={0} title="library">
                         <Page id="profiles" icon="list" display="Profiles">
                             <Profiles />
                         </Page>
-                        <Page id="profiles2" icon="user" display="Accounts">
+                        <Page id="accounts" icon="user" display="Accounts">
                             <AccountManager />
                         </Page>
                         <Page id="profiles3" icon="lock" display="Coming Soon" disabled={true}>
@@ -141,6 +141,7 @@ class App extends React.Component {
                                         <Option value={30} display="30" description="minutes" />
                                         <Option value={60} display="1" description="hour" />
                                         <Option value={120} display="2" description="hours" />
+                                        <Option value={180} display="3" description="hours" />
                                     </Dropdown>
                                 </SettingsField>
                                 <Title>Advanced</Title>

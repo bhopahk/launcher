@@ -22,8 +22,7 @@ SOFTWARE.
 
 import React from 'react';
 import './accounts.css';
-
-//todo this should include mojang server statuses on the right hand side or something
+import './status.css';
 
 class AccountManager extends React.Component {
     constructor(props) {
@@ -37,7 +36,9 @@ class AccountManager extends React.Component {
     render() {
         return (
             <div className="account-manager">
-
+                <div className="am-content">
+                </div>
+                <ServerStatus />
             </div>
         );
     }
@@ -49,6 +50,74 @@ const Account = (props) => {
         </div>
     );
 };
+
+class ServerStatus extends React.Component {
+    constructor(props) {
+        super(props);
+
+        let startState = {};
+        // unknown, green, yellow, red
+        startState['minecraft.net'] = 'unknown';
+        startState['session.minecraft.net'] = 'unknown';
+        startState['account.mojang.com'] = 'unknown';
+        startState['authserver.mojang.com'] = 'unknown';
+        startState['sessionserver.mojang.com'] = 'unknown';
+        startState['api.mojang.com'] = 'unknown';
+        startState['textures.minecraft.net'] = 'unknown';
+        startState['mojang.com'] = 'unknown';
+
+        this.state = startState;
+    }
+
+    componentWillMount(verifier) {
+        this.refreshTask = setTimeout(async () => {
+            const result = await fetch('https://status.mojang.com/check').then(resp => resp.json());
+            let newState = {};
+
+            result.forEach(status => {
+                const name = Object.keys(status)[0];
+                newState[name] = status[name];
+            });
+
+            this.setState(newState);
+
+            this.componentWillMount(1);
+        }, verifier === 1 ? 60000 : 100);
+    }
+
+    componentWillUnmount() {
+        clearTimeout(this.refreshTask);
+    }
+
+    forceRefresh() {
+        let newState = {};
+        newState['minecraft.net'] = 'unknown';
+        newState['session.minecraft.net'] = 'unknown';
+        newState['account.mojang.com'] = 'unknown';
+        newState['authserver.mojang.com'] = 'unknown';
+        newState['sessionserver.mojang.com'] = 'unknown';
+        newState['api.mojang.com'] = 'unknown';
+        newState['textures.minecraft.net'] = 'unknown';
+        newState['mojang.com'] = 'unknown';
+        this.setState(newState);
+        clearTimeout(this.refreshTask);
+        this.componentWillMount(0);
+    }
+
+    render() {
+        return (
+            <div className="am-statuses">
+                <h1>Server Status</h1>
+                {Object.keys(this.state).map(key => {
+                    return (<div key={key} className={`am-status ${this.state[key]}`}>
+                        <p>{key}</p>
+                    </div>)
+                })}
+                <button onClick={this.forceRefresh.bind(this)}>refresh</button>
+            </div>
+        );
+    }
+}
 
 export {
     AccountManager,

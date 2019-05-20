@@ -24,6 +24,7 @@ const { ipcMain } = require('electron');
 const fetch = require('./fetch/fetch');
 const fetchXml = require('./fetch/fetchXml');
 
+// Fetch links - I would like to find a direct one for forge if possible.
 const VANILLA_META = 'https://launchermeta.mojang.com/mc/game/version_manifest.json';
 const FORGE_META = 'https://addons-ecs.forgesvc.net/api/minecraft/modloader';
 const FABRIC_MAPPINGS = 'https://maven.fabricmc.net/net/fabricmc/yarn/';
