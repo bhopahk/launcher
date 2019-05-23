@@ -24,19 +24,46 @@ import React from 'react';
 import './accounts.css';
 import './status.css';
 
+const HEAD_BASE_URL = 'https://mc-heads.net/avatar/';
+
 class AccountManager extends React.Component {
+
     constructor(props) {
         super(props);
 
         this.state = {
-            active: '',
+            active: 0,
+            accounts: [
+                {
+                    name: 'bhop_',
+                    uuid: 'd79d790a-8e90-4d78-958a-780c7fadeaab',
+                    lastUsed: 1558575841,
+                },
+                {
+                    name: '3640',
+                    uuid: 'aceb326f-da15-45bc-bf2f-11940c21780c',
+                    lastUsed: 1558575841,
+                }
+            ],
         };
     }
 
     render() {
+        const activeAccount = this.state.accounts[this.state.active];
         return (
             <div className="account-manager">
                 <div className="am-content">
+                    <div className="am-header">
+                        <img alt="User Head" src={`${HEAD_BASE_URL}${activeAccount.uuid}`} />
+                        <div className="am-header-info">
+                            <h1>{activeAccount.name}</h1>
+                            <h2>{activeAccount.uuid}</h2>
+                        </div>
+                        <div className="am-header-actions">
+                        </div>
+                    </div>
+                    <div className="am-accounts">
+                    </div>
                 </div>
                 <ServerStatus />
             </div>
@@ -54,6 +81,16 @@ const Account = (props) => {
 class ServerStatus extends React.Component {
     constructor(props) {
         super(props);
+
+        this.aliases = {};
+        this.aliases['minecraft.net'] = 'Minecraft Website';
+        this.aliases['session.minecraft.net'] = 'Session';
+        this.aliases['account.mojang.com'] = 'Accounts';
+        this.aliases['authserver.mojang.com'] = 'Auth Server';
+        this.aliases['sessionserver.mojang.com'] = 'Session Server';
+        this.aliases['api.mojang.com'] = 'Mojang API';
+        this.aliases['textures.minecraft.net'] = 'Textures';
+        this.aliases['mojang.com'] = 'Mojang Website';
 
         let startState = {};
         // unknown, green, yellow, red
@@ -110,7 +147,7 @@ class ServerStatus extends React.Component {
                 <h1>Server Status</h1>
                 {Object.keys(this.state).map(key => {
                     return (<div key={key} className={`am-status ${this.state[key]}`}>
-                        <p>{key}</p>
+                        <p>{this.aliases[key]}</p>
                     </div>)
                 })}
                 <button onClick={this.forceRefresh.bind(this)}>refresh</button>

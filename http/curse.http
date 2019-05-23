@@ -33,3 +33,14 @@ User-Agent: Launcher (https://github.com/bhopahk/launcher)
 
 ### ATM 3 Default File
 
+POST https://api.mojang.com/orders/statistics
+Content-Type: application/json
+
+{
+  "metricKeys": [
+    "item_sold_minecraft",
+    "prepaid_card_redeemed_minecraft"
+  ]
+}
+
+###
