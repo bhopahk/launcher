@@ -14,5 +14,114 @@
   height: 100%;
 
   margin: 0;
+  //padding: 30px;
+}
+
+.am-header {
+  box-sizing: border-box;
+  display: flex;
+
+  width: calc(100% - 60px);
+  height: 200px;
+
+  margin: 30px 30px 0;
+
+  background-color: green;
+}
+
+.am-accounts {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-gap: 30px;
+
+
+  width: 100%;
+  height: calc(100% - 200px - 30px);
+
+  margin: 0;
   padding: 30px;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  .am-account {
+    box-sizing: border-box;
+    position: relative;
+    display: flex;
+    //flex-direction: column;
+    //justify-content: space-between;
+
+    min-height: 72px;
+    max-height: 72px;
+
+    margin: 0;
+    padding: 11px;
+
+    border: none;
+    border-radius: 5px;
+    background-color: @backgroundVibrant;
+
+    img {
+      user-select: none;
+
+      width: 50px;
+      height: 50px;
+
+      border-radius: 3px;
+    }
+
+    div {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+
+      width: 100%;
+      padding-left: 10px;
+
+      h4 {
+        font-size: 20px;
+        font-family: Raleway, sans-serif;
+        color: @superOffWhite;
+
+      }
+
+      h5 {
+        font-size: 12px;
+        font-family: Source Sans Pro, sans-serif;
+        color: @offGrey;
+      }
+
+      button {
+        position: absolute;
+        top: 0;
+        right: 0;
+        outline: none;
+        user-select: none;
+        cursor: pointer;
+
+        border: 1px solid @Error;
+        border-radius: 3px;
+        background-color: @ErrorVibrant;
+
+        font-size: 15px;
+        font-family: Raleway, sans-serif;
+        color: @Error;
+
+        div {
+          position: absolute;
+          left: -1px;
+          top: -1px;
+
+          width: calc(100% + 2px);
+          height: calc(100% + 2px);
+
+          border: none;
+          border-radius: 3px;
+          background-color: rgba(0, 0, 0, 0.2);
+        }
+      }
+    }
+  }
 }

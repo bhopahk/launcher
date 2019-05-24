@@ -60,9 +60,13 @@ class AccountManager extends React.Component {
                             <h2>{activeAccount.uuid}</h2>
                         </div>
                         <div className="am-header-actions">
+
                         </div>
                     </div>
                     <div className="am-accounts">
+                        {this.state.accounts.map(acc => {
+                            return (<Account key={acc.uuid} {...acc} />);
+                        })}
                     </div>
                 </div>
                 <ServerStatus />
@@ -74,6 +78,12 @@ class AccountManager extends React.Component {
 const Account = (props) => {
     return (
         <div className="am-account">
+            <img alt="User Head" src={`${HEAD_BASE_URL}${props.uuid}`} />
+            <div>
+                <h4>{props.name}</h4>
+                <h5>{props.uuid}</h5>
+                <button className="am-account-remove">Remove<div></div></button>
+            </div>
         </div>
     );
 };
