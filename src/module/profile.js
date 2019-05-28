@@ -29,14 +29,12 @@ const { app, ipcMain, Notification } = require('electron');
 const fs = require('fs-extra');
 const path = require('path');
 const installer = require('./installer');
+const config = require('../config/config');
 const sendSync = require('./ipcMainSync').sendSync;
-
-const test = require('../config/config').getValue('minecraft/instanceDir');
-console.log('TEST: ' + test);
 
 const baseDir = app.getPath('userData');
 const installDir = path.join(baseDir, 'Install');
-const instanceDir = path.join(baseDir, 'Instances');
+const instanceDir = config.getValue('minecraft/instanceDir');
 const launcherProfiles = path.join(baseDir, 'profiles.json');
 
 let mainWindow = null;
@@ -111,19 +109,20 @@ exports.createProfile = async (data, onApproved, overwrite) => {
 };
 exports.createLauncherProfile = async (profile) => {
     profile.type = 'custom';
-    profile.resolution = { //todo from config
-        width: 1280,
-        height: 720,
+    const res = config.getValue('defaults/resolution').split('x');
+    profile.resolution = {
+        width: res[0],
+        height: res[1],
     };
-    profile.memory = { //todo from config
-        min: '1024',
-        max: '4096',
+    profile.memory = {
+        min: '512',
+        max: config.getValue('defaults/maxMemory'),
     };
     const now = new Date().getTime();
     profile.created = now;
     profile.modified = now;
     profile.launched = 0;
-    profile.javaArgs = ''; //todo from config
+    profile.javaArgs = config.getValue('defaults/javaArgs');
 
     await this.saveProfile(profile.name, profile);
     await this.createGameProfile({
@@ -166,9 +165,7 @@ exports.getProfile = async (name) => {
 exports.getProfiles = async () => {
     return await fs.readJson(launcherProfiles);
 };
-exports.createProfile = async () => {
-    //todo add creation stuff here and move everything else to installer. This should be usable for all types of profile.
-};
+
 exports.profileExists = async (name) => {
     return await this.getProfile(name) !== undefined;
 };
@@ -176,6 +173,9 @@ exports.saveProfile = async (name, newProfile) => {
     const profiles = await fs.readJson(launcherProfiles);
     profiles[name] = newProfile;
     await fs.writeJson(launcherProfiles, profiles, { spaces: 4 });
+};
+exports.deleteProfile = async (name) => {
+    //todo this
 };
 
 exports.renderProfiles = async () => {
@@ -197,34 +197,73 @@ exports.renderProfiles = async () => {
 async function installCustomProfile(event, payload) {
     if (mainWindow == null)
         mainWindow = event.sender;
-    if (payload.name) {
-        console.log(payload);
+
+    if (await this.profileExists(payload.name) && payload.action !== 'OVERRIDE') {
+        payload.action = 'OVERWRITE';
+        mainWindow.send('profile:custom', {
+            result: 'ERROR',
+            type: 'existing',
+            value: 'A profile with that name already exists!',
+            callback: payload,
+        });
         return;
     }
 
-    const onSuccess = async () => {
-        mainWindow.send('profile:custom', {
-            result: 'SUCCESS',
-            name: payload.name,
+    mainWindow.send('profile:custom', {
+        result: 'SUCCESS',
+        name: payload.name,
+    });
+
+    const tId = await sendSync(mainWindow, 'tasks:create', { name: payload.name });
+    const dir = path.join(instanceDir, payload.name);
+
+    mainWindow.send('tasks:update', {
+        tId,
+        task: 'cleaning old files',
+        progress: 1,
+    });
+    await fs.remove(dir);
+
+    await this.createLauncherProfile({
+        name: payload.name,
+        flavor: payload.version.flavor,
+        version: payload.version.flavor === 'forge' ? payload.version.forge : payload.forge.vanilla, //todo this needs ot be changed to support fabric.
+        icon: defaultFavicon,
+        directory: dir,
+    });
+
+    const callback = cb => {
+        mainWindow.send('tasks:update', {
+            tId,
+            task: 'downloading libraries',
+            progress: cb.index / cb.count,
         });
-        return await sendSync(mainWindow, 'tasks:create', { name: payload.name });
     };
-    switch (payload.action) {
-        case 'CREATE':
-            this.createProfile(payload, onSuccess).then(code => {
-                payload.action = 'OVERWRITE';
-                handleResponseCode(code, payload);
-            });
+    callback({ index: 0, count: 1 });
+    switch (payload.version.flavor) {
+        case 'vanilla':
+            await installer.installVersion(payload.version.version, callback);
             break;
-        case 'CANCEL':
-            console.log(payload);
+        case 'forge':
+            await installer.installForge(payload.version.forge, callback);
             break;
-        case 'OVERWRITE':
-            this.createBaseProfile(payload, onSuccess, true).then(code => handleResponseCode(code, payload));
+        case 'fabric':
+            await installer.installFabric(payload.version.version, payload.version.mappings, payload.version.loader, callback);
             break;
         default:
-            break;
+            await this.deleteProfile(payload.name);
+            throw 'This should not happen, but an invalid version has been provided.';
     }
+
+    console.log(`Finished installing '${payload.name}'!`);
+    // Send system notification
+    const notification = new Notification({
+        title: `Profile installed!`,
+        body: `${payload.name} has finished installing!`,
+        icon: 'https://github.com/bhopahk/launcher/blob/master/public/icon.png',
+    });
+    notification.show();
+    mainWindow.send('tasks:delete', { tId });
 }
 async function installCurseProfile(event, payload) {
     if (mainWindow == null)
@@ -263,38 +302,3 @@ async function installCurseProfile(event, payload) {
             break;
     }
 }
-
-const handleResponseCode = (code, data) => {
-    switch (code) {
-        // Successfully created.
-        case 0:
-            console.log(`Finished installing '${data.name}'!`);
-
-            // Send system notification
-            const notification = new Notification({
-                title: `Profile installed!`,
-                body: `${data.name} has finished installing!`,
-                icon: 'https://github.com/bhopahk/launcher/blob/master/public/icon.png',
-            });
-            notification.show();
-
-            break;
-        // Profile already exists.
-        case 2:
-            mainWindow.send('profile:custom', {
-                result: 'ERROR',
-                type: 'existing',
-                value: 'A profile with that name already exists!',
-                callback: data,
-            });
-            break;
-        // Assume error if nothing else.
-        default:
-            mainWindow.send('profile:custom', {
-                result: 'ERROR',
-                type: 'arbitrary',
-                value: 'An unknown error has occurred, please try again.',
-            });
-            break;
-    }
-};

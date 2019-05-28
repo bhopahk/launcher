@@ -107,12 +107,11 @@ exports.installVersion = async (version, libCallback) => { //todo proper error h
     const dir = path.join(installDir, 'versions', version);
 
     await fs.mkdirs(dir);
-    const vanilla = await fetch(`https://addons-ecs.forgesvc.net/api/minecraft/version/${version}`);
+    const vanilla = await fetch(require('./versionCache').findGameVersion(version).url);
 
-    await this.download(vanilla.jarDownloadUrl, path.join(dir, `${version}.jar`));
-    await this.download(vanilla.jsonDownloadUrl, path.join(dir, `${version}.json`));
-    const json = await fs.readJson(path.join(dir, `${version}.json`));
-    await this.installLibraries(json.libraries, libCallback);
+    await this.download(vanilla.downloads.client.url, path.join(dir, `${version}.jar`));
+    await this.download(vanilla.assetIndex.url, path.join(dir, `${version}.json`));
+    await this.installLibraries(vanilla.libraries, libCallback);
 };
 
 exports.installForge = async (version, libCallback) => {
@@ -128,8 +127,8 @@ exports.installForge = async (version, libCallback) => {
     await fs.writeJson(path.join(dir, `${forge.name}.json`), versionJson, { spaces: 4 });
 };
 
-exports.installFabric = async () => {
-
+exports.installFabric = async (version, mappings, loader, libCallback) => {
+    console.log(`INSTALLING FABRIC ${version} / ${mappings} / ${loader}`);
 };
 
 exports.installLibraries = async (libraries, callback) => {

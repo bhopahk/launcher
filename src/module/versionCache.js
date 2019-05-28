@@ -100,7 +100,7 @@ const loadVanilla = async() => {
 const loadForge = async () => {
     const versions = await fetch(FORGE_META);
     versions.forEach(version => {
-        findGameVersion(version.gameVersion).forge.push({
+        this.findGameVersion(version.gameVersion).forge.push({
             id: version.name,
             recommended: version.recommended,
             release: new Date(version.dateModified).getTime(),
@@ -135,11 +135,11 @@ const loadFabric = async () => {
     const mappingsVersion = await fetchXml(FABRIC_MAPPINGS_META);
     mappingsVersion.metadata.versioning.versions.version.reverse().forEach(ver => {
         const version = fabricify(ver._text, FABRIC_MAPPINGS, 'yarn');
-        findGameVersion(version.game).fabric.push(version);
+        this.findGameVersion(version.game).fabric.push(version);
     });
 };
 
-const findGameVersion = (version) => {
+exports.findGameVersion = (version) => {
     const keys = Object.keys(this.minecraft);
     for (let i = 0; i < keys.length; i++) {
         const key = keys[i];
