@@ -163,7 +163,7 @@ class Dropdown extends React.Component {
         this.state = {
             active: this.props.getValue(),
             shown: false,
-        }
+        };
     }
 
     componentWillMount() {
@@ -212,6 +212,7 @@ class Dropdown extends React.Component {
                 </div>
                 <div className={`dropdown-options ${this.state.shown ? '' : 'hidden'}`}>
                     {this.props.children.map(child => {
+                        alert(child);
                         return React.cloneElement(child, {
                             key: child.props.value,
                             active: child.props.value === this.state.active,

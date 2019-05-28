@@ -22,6 +22,7 @@ SOFTWARE.
 
 import React from 'react';
 import Snackbar from '../snackbar/Snackbar';
+import { Dropdown, Option } from '../settings/input/Input';
 import './create.css';
 
 export default class CreateProfile extends React.Component {
@@ -172,6 +173,16 @@ export default class CreateProfile extends React.Component {
                 </div>
                 <div className="create-profile">
                     <h1>Create Custom Profile</h1>
+                    <Dropdown getValue={() => {
+                        return 'test';
+                    }} setValue={nextValue => {
+                        this.handleInput('selected', window.ipc.sendSync('cache:versions', nextValue))
+                    }}>
+                        <Option value={"test"} display={"test"} />
+                        {this.state.versions.map(ver => {
+                            return (<Option value={ver} display={ver} />)
+                        })}
+                    </Dropdown>
                     <select onChange={e => this.handleInput('selected', window.ipc.sendSync('cache:versions', e.target.value))} ref={this.vanillaRef}>
                         {this.state.versions.map(ver => {
                             return (<option key={ver}>{ver}</option>);

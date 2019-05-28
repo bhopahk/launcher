@@ -270,7 +270,7 @@ async function installCurseProfile(event, payload) {
         mainWindow = event.sender;
     switch (payload.action) {
         case 'CREATE':
-
+            console.log(payload);
 
 
             break;

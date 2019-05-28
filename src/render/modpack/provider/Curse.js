@@ -116,7 +116,7 @@ class CurseModpackListing extends React.Component {
         for (let i = 0; i < cp.length; i++) {
             if (cp[i].id !== id)
                 continue;
-            cp[i].disabled = true;//todo this isnt working
+            cp[i].disabled = true;
         }
         this.setState({
             modpacks: cp,
