@@ -227,7 +227,7 @@ async function installCustomProfile(event, payload) {
     await this.createLauncherProfile({
         name: payload.name,
         flavor: payload.version.flavor,
-        version: payload.version.flavor === 'forge' ? payload.version.forge : payload.forge.vanilla, //todo this needs ot be changed to support fabric.
+        version: payload.version.flavor === 'forge' ? payload.version.forge : payload.version.flavor === 'fabric' ? `fabric-${payload.version.loader}-${payload.version.mappings}` : payload.version.version, //todo this needs ot be changed to support fabric.
         icon: defaultFavicon,
         directory: dir,
     });
@@ -270,27 +270,6 @@ async function installCurseProfile(event, payload) {
         mainWindow = event.sender;
     switch (payload.action) {
         case 'CREATE':
-
-
-
-
-
-
-            // mainWindow.send('profile:custom', {
-            //     result: 'SUCCESS',
-            //     name: payload.name,
-            // });
-            // const tId = await sendSync(mainWindow, 'tasks:create', { name: payload.name });
-            //
-            // payload.packName = payload.name;
-            //
-            // let code;
-            // let i = 0;
-            // do {
-            //     payload.name = payload.packName + ` ${i === 0 ? '' : i}`;
-            //     code = await this.createProfile(payload, () => { return tId; });
-            //     i++;
-            // } while (code === 2);
 
 
 

@@ -107,7 +107,6 @@ class Downloads extends React.Component {
                 <div className="downloads">
                     <h1>Tasks</h1>
                     <div className="tasks">
-                        <a href="https://google.com/">do i open external?</a>
                         {Object.keys(this.state.tasks).map(key => {
                             return (<Task key={key} {...this.state.tasks[key]} />);
                         })}

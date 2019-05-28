@@ -31,6 +31,8 @@ const tempDir = path.join(baseDir, 'temp');
 const installDir = path.join(baseDir, 'Install');
 const libDir = path.join(installDir, 'libraries');
 
+const FABRIC_LOADER = 'https://maven.fabricmc.net/net/fabricmc/fabric-loader/';
+
 const aliases = {
     win32: 'natives-windows',
     darwin: 'natives-osx',
@@ -128,7 +130,20 @@ exports.installForge = async (version, libCallback) => {
 };
 
 exports.installFabric = async (version, mappings, loader, libCallback) => {
-    console.log(`INSTALLING FABRIC ${version} / ${mappings} / ${loader}`);
+    const name = `fabric-${loader}-${mappings}`;
+    const dir = path.join(installDir, 'versions', name);
+
+    await fs.mkdirs(dir);
+
+    const url = `${FABRIC_LOADER}/${loader}/fabric-loader-${loader}.json`;
+    console.log(url);
+    const versionJson = await fetch(url);
+    versionJson.id = name;
+    versionJson.inheritsFrom = version;
+    await this.installVersion(version, libCallback);
+    await this.installLibraries(versionJson.libraries, libCallback);
+    await fs.ensureFile(path.join(dir, `${name}.jar`));
+    await fs.writeJson(path.join(dir, `${name}.json`), versionJson, { spaces: 4 });
 };
 
 exports.installLibraries = async (libraries, callback) => {
