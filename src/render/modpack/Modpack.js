@@ -1,6 +1,8 @@
 import React from 'react';
 import './modpack.css';
 
+import { Tooltip } from '../core/Tooltip';
+
 export class ModpackBrowser extends React.Component {
     constructor(props) {
         super(props);
@@ -79,7 +81,9 @@ const Modpack = (props) => {
                     <h1>{props.name}</h1>
                     <h2>by <span>{props.primaryAuthor}</span></h2>
                     <p>{truncateString(props.summary)}</p>
-                    <i className={`fas ${props.featured ? 'fa-star' : ''}`}></i>
+                    <Tooltip text="TOOLTIPS BOIS" top={15} left={0}>
+                        <i className={`fas ${props.featured ? 'fa-star' : ''}`}></i>
+                    </Tooltip>
                 </div>
                 <div className="modpack-details">
                     <div>
