@@ -59,6 +59,7 @@ exports.getValue = (target) => {
 exports.setValue = (target, value) => {
     const oldValue = this.getValue(target);
 
+    // Allows for cancellation
     let cancelled = false;
     if (listeners.hasOwnProperty(target)) {
         const callbacks = listeners[target];
@@ -71,6 +72,7 @@ exports.setValue = (target, value) => {
     if (cancelled)
         return;
 
+    // Actually save the new value.
     console.log(`'${target}' has been changed from '${oldValue}' to '${value}'`);
     let path = target.split('/');
     let current = this.config;
