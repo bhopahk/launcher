@@ -23,7 +23,7 @@ SOFTWARE.
 const fs = require('fs-extra');
 const path = require('path');
 const lzma = require('lzma-purejs');
-const fetch = require('./fetch/fetch');
+const fetch = require('node-fetch');
 const platform = process.platform;
 
 const baseDir = require('electron').app.getPath('userData');
@@ -109,7 +109,7 @@ exports.installVersion = async (version, libCallback) => { //todo proper error h
     const dir = path.join(installDir, 'versions', version);
 
     await fs.mkdirs(dir);
-    const vanilla = await fetch(require('./versionCache').findGameVersion(version).url);
+    const vanilla = await (await fetch(require('../game/versionCache').findGameVersion(version).url)).json();
 
     await this.download(vanilla.downloads.client.url, path.join(dir, `${version}.jar`));
     await this.download(vanilla.assetIndex.url, path.join(dir, `${version}.json`));
@@ -120,7 +120,7 @@ exports.installForge = async (version, libCallback) => {
     const dir = path.join(installDir, 'versions', version);
 
     await fs.mkdirs(dir);
-    const forge = await fetch(`https://addons-ecs.forgesvc.net/api/minecraft/modloader/${version}`);
+    const forge = await (await fetch(`https://addons-ecs.forgesvc.net/api/minecraft/modloader/${version}`)).json();
     let versionJson = JSON.parse(forge.versionJson);
     versionJson.jar = forge.minecraftVersion;
 
@@ -137,7 +137,7 @@ exports.installFabric = async (version, mappings, loader, libCallback) => {
 
     const url = `${FABRIC_LOADER}/${loader}/fabric-loader-${loader}.json`;
     console.log(url);
-    const versionJson = await fetch(url);
+    const versionJson = await (await fetch(url)).json();
     versionJson.id = name;
     versionJson.inheritsFrom = version;
     await this.installVersion(version, libCallback);

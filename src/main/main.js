@@ -137,14 +137,14 @@ const registerUriListeners = () => {
 app.on('ready',  async () => {
     await config.loadConfig();
 
-    require('./module/updater');
-    require('./module/profile');
-    require('./module/accounts');
-    require('./module/versionCache');
-    require('./module/rpc');
+    require('./app/updater');
+    require('./needsHome/profile');
+    require('./mojang/accounts');
+    require('./game/versionCache');
+    require('./app/rpc');
 
     setTimeout(() => {
-        require('./module/installer').installBaseGame(process.platform, process.platform === 'win32').then(result => {
+        require('./needsHome/installer').installBaseGame(process.platform, process.platform === 'win32').then(result => {
             if (result)
                 console.log('Installed Minecraft launcher.');
         });

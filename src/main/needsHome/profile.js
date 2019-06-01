@@ -30,7 +30,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const installer = require('./installer');
 const config = require('../config/config');
-const sendSync = require('./ipcMainSync').sendSync;
+const sendSync = require('../util/ipcMainSync').sendSync;
 
 const baseDir = app.getPath('userData');
 const installDir = path.join(baseDir, 'Install');

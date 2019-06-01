@@ -95,7 +95,7 @@ class ServerStatus extends React.Component {
         this.aliases = {};
         this.aliases['minecraft.net'] = 'Minecraft Website';
         this.aliases['session.minecraft.net'] = 'Session';
-        this.aliases['account.mojang.com'] = 'Accounts';
+        this.aliases['mojang.mojang.com'] = 'Accounts';
         this.aliases['authserver.mojang.com'] = 'Auth Server';
         this.aliases['sessionserver.mojang.com'] = 'Session Server';
         this.aliases['api.mojang.com'] = 'Mojang API';
@@ -106,7 +106,7 @@ class ServerStatus extends React.Component {
         // unknown, green, yellow, red
         startState['minecraft.net'] = 'unknown';
         startState['session.minecraft.net'] = 'unknown';
-        startState['account.mojang.com'] = 'unknown';
+        startState['mojang.mojang.com'] = 'unknown';
         startState['authserver.mojang.com'] = 'unknown';
         startState['sessionserver.mojang.com'] = 'unknown';
         startState['api.mojang.com'] = 'unknown';
@@ -140,7 +140,7 @@ class ServerStatus extends React.Component {
         let newState = {};
         newState['minecraft.net'] = 'unknown';
         newState['session.minecraft.net'] = 'unknown';
-        newState['account.mojang.com'] = 'unknown';
+        newState['mojang.mojang.com'] = 'unknown';
         newState['authserver.mojang.com'] = 'unknown';
         newState['sessionserver.mojang.com'] = 'unknown';
         newState['api.mojang.com'] = 'unknown';

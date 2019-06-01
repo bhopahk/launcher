@@ -25,8 +25,8 @@ const LegacyLauncher = require('./LegacyLauncher');
 
 const fs = require('fs-extra');
 const path = require('path');
-const profile = require('../module/profile');
-const rpc = require('../module/rpc');
+const profile = require('../needsHome/profile');
+const rpc = require('../app/rpc');
 
 const baseDir = require('electron').app.getPath('userData');
 const installDir = path.join(baseDir, 'Install');

@@ -1,4 +1,4 @@
-/*
+/* 
 Copyright (c) 2019 Matt Worzala <bhop.me>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,16 +19,3 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
-const querystring = require('querystring');
-
-module.exports = (url, payload, headers) => {
-    const http = url.startsWith('https') ?
-        require('follow-redirects').https :
-        require('follow-redirects').http;
-    return new Promise((resolve, reject) => {
-        const payloadData = querystring.stringify(payload);
-
-
-    });
-};

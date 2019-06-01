@@ -21,8 +21,8 @@ SOFTWARE.
 */
 
 const { ipcMain } = require('electron');
-const fetch = require('./fetch/fetch');
-const fetchXml = require('./fetch/fetchXml');
+const fetch = require('node-fetch');
+const xmlJs = require('xml-js');
 
 // Fetch links - I would like to find a direct one for forge if possible.
 const VANILLA_META = 'https://launchermeta.mojang.com/mc/game/version_manifest.json';
@@ -61,7 +61,7 @@ const loadVanilla = async() => {
 
     let current = {};
 
-    const response = await fetch(VANILLA_META);
+    const response = await (await fetch(VANILLA_META)).json();
     response.versions.forEach(version => {
         if (version.type === 'release') {
             if (current.hasOwnProperty('name')) {
@@ -98,7 +98,7 @@ const loadVanilla = async() => {
 };
 
 const loadForge = async () => {
-    const versions = await fetch(FORGE_META);
+    const versions = await (await fetch(FORGE_META)).json();
     versions.forEach(version => {
         this.findGameVersion(version.gameVersion).forge.push({
             id: version.name,
@@ -114,7 +114,7 @@ const loadFabric = async () => {
     let currentId = null;
     let current = [];
 
-    const loader = await fetchXml(FABRIC_LOADER_META);
+    const loader = xmlJs.xml2js(await (await fetch(FABRIC_LOADER_META)).text(), { compact: true });
     const release = loader.metadata.versioning.release._text;
     loader.metadata.versioning.versions.version.reverse().forEach(ver => {
         const version = fabricify(ver._text, FABRIC_LOADER, 'fabric-loader');
@@ -132,7 +132,7 @@ const loadFabric = async () => {
         });
     });
 
-    const mappingsVersion = await fetchXml(FABRIC_MAPPINGS_META);
+    const mappingsVersion = xmlJs.xml2js(await (await fetch(FABRIC_MAPPINGS_META)).text(), { compact: true });
     mappingsVersion.metadata.versioning.versions.version.reverse().forEach(ver => {
         const version = fabricify(ver._text, FABRIC_MAPPINGS, 'yarn');
         this.findGameVersion(version.game).fabric.push(version);
