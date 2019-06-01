@@ -62,7 +62,7 @@ exports.unzip = (file, cleanup = true) => {
 exports.dLzma = async (file, cleanup = true) => {
     const compressed = await fs.readFile(file);
     const decompressed = require('lzma-purejs').decompressFile(compressed);
-    await fs.writeFile(launcherPath, decompressed);
+    await fs.writeFile(file.substring(0, file.lastIndexOf('.')), decompressed);
     if (cleanup)
         await fs.remove(file);
 };
