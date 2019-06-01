@@ -2,7 +2,7 @@ import React from 'react';
 import './app.css';
 import Snackbar from '../snackbar/Snackbar';
 import { ModalConductor, Modal } from '../modal/Modal';
-import Actions from '../actions/Actions';
+import Actions from './actions/Actions';
 import {
     Sidebar,
     SidebarHeader,
@@ -18,9 +18,9 @@ import { ModpackBrowser } from '../modpack/Modpack';
 import CreateProfile from "../create/CreateProfile";
 
 import { SettingsWrapper, Settings, Separator, Title } from "../settings/Settings";
-import { SettingsField, SettingsSwitch } from '../settings/input/SettingsField';
+import { SettingsField, SettingsSwitch } from '../settings/SettingsInput';
 
-import { Checkbox, Check, FolderSelect, Button, Dropdown, Option, TextField, Slider } from '../settings/input/Input';
+import { Checkbox, Check, FolderSelect, Button, Dropdown, Option, TextField, Slider } from '../input/Input';
 
 class App extends React.Component {
     static snackbar = React.createRef();

@@ -21,9 +21,9 @@ SOFTWARE.
 */
 
 import React from 'react';
-import './input.css';
+// import './input/input.css';
 
-import { Switch } from './Input';
+import { Switch } from '../input/Input';
 
 const SettingsField = (props) => {
     return (

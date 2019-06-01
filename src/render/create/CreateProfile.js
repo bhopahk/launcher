@@ -22,8 +22,9 @@ SOFTWARE.
 
 import React from 'react';
 import Snackbar from '../snackbar/Snackbar';
-import { Dropdown, Option } from '../settings/input/Input';
 import './create.css';
+
+import { Dropdown, Option } from '../input/Input';
 
 export default class CreateProfile extends React.Component {
     constructor(props) {
@@ -173,11 +174,11 @@ export default class CreateProfile extends React.Component {
                 </div>
                 <div className="create-profile">
                     <h1>Create Custom Profile</h1>
-                    <select onChange={e => this.handleInput('selected', window.ipc.sendSync('cache:versions', e.target.value))} ref={this.vanillaRef}>
+                    <CPDropdown  onChange={next => this.handleInput('selected', window.ipc.sendSync('cache:versions', next))} ref={this.vanillaRef}>
                         {this.state.versions.map(ver => {
-                            return (<option key={ver}>{ver}</option>);
+                            return (<Option key={ver} value={ver}>{ver}</Option>);
                         })}
-                    </select>
+                    </CPDropdown>
                     <div className="create-profile-types">
                         <div className={`create-profile-type ${this.state.active === 'vanilla' ? 'active' : ''}`} onClick={() => this.setActive('vanilla')}>
                             <i className="fas fa-info-circle" onClick={() => window.ipc.send('open-external', 'https://minecraft.net/')}></i>
@@ -224,6 +225,30 @@ export default class CreateProfile extends React.Component {
                     <br/>
                     <button onClick={() => this.sendCreationRequest()}>Create Profile</button>
                 </div>
+            </div>
+        );
+    }
+}
+
+class CPDropdown extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            active: '1.14',
+        }
+    }
+
+    render() {
+        return (
+            <div>
+                <Dropdown small getValue={() => {
+                    return this.state.active;
+                }} setValue={next => {
+                    this.props.onChange(next)
+                }}>
+                    {this.props.children}
+                </Dropdown>
             </div>
         );
     }

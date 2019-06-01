@@ -1,7 +1,7 @@
 import React from 'react';
 import './modpack.css';
 
-import { Tooltip } from '../core/Tooltip';
+import { Tooltip } from '../core/tooltip/Tooltip';
 
 export class ModpackBrowser extends React.Component {
     constructor(props) {
