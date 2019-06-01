@@ -22,6 +22,7 @@ SOFTWARE.
 
 const fs = require('fs-extra');
 const path = require('path');
+const files = require('../util/files');
 const lzma = require('lzma-purejs');
 const fetch = require('node-fetch');
 const platform = process.platform;
@@ -45,40 +46,6 @@ const aliases = {
 
 fs.mkdirs(tempDir);
 
-exports.download = (url, location, lastTry) => {
-    let https = url.startsWith('https')
-        ? require('follow-redirects').https
-        : require('follow-redirects').http;
-    return new Promise((resolve, reject) => {
-        if (fs.existsSync(location))
-            return resolve(location);
-        else fs.ensureFileSync(location);
-        let target = fs.createWriteStream(location);
-        https.get(url, resp => {
-            resp.pipe(target);
-            target.on('finish', () => {
-                target.close();
-                resolve(location);
-            });
-        }).on('error', error => {
-            if (!lastTry)
-                return this.download(url, location, true);
-            fs.unlink(target);
-            reject(error);
-        });
-    });
-};
-
-exports.unzip = (file) => {
-    return new Promise((resolve, reject) => {
-        const target = file.substring(0, file.length - 4);
-        require('extract-zip')(file, { dir: target }, err => {
-            if (err) reject(err);
-            else resolve(target);
-        });
-    });
-};
-
 exports.installBaseGame = async (platform = 'win32', modern = true) => {
     const launcherPath = path.join(installDir, `minecraft.${platform === 'win32' ? 'exe' : 'jar'}`);
     if (await fs.pathExists(launcherPath))
@@ -92,7 +59,7 @@ exports.installBaseGame = async (platform = 'win32', modern = true) => {
     if (!modern) {
         console.log('Installing legacy Minecraft launcher.');
         const compressedPath = path.join(tempDir, 'launcher.jar.lzma');
-        await this.download('http://launcher.mojang.com/mc/launcher/jar/fa896bd4c79d4e9f0d18df43151b549f865a3db6/launcher.jar.lzma', compressedPath);
+        await files.download('http://launcher.mojang.com/mc/launcher/jar/fa896bd4c79d4e9f0d18df43151b549f865a3db6/launcher.jar.lzma', compressedPath);
         fs.writeFileSync(launcherPath, lzma.decompressFile(fs.readFileSync(compressedPath)));
         await fs.remove(compressedPath);
         return true;
@@ -100,7 +67,7 @@ exports.installBaseGame = async (platform = 'win32', modern = true) => {
 
     if (platform === 'win32') {
         console.log('Installing native Minecraft launcher.');
-        await this.download('https://launcher.mojang.com/download/Minecraft.exe', launcherPath);
+        await files.download('https://launcher.mojang.com/download/Minecraft.exe', launcherPath);
         return true;
     }
 };
@@ -111,8 +78,8 @@ exports.installVersion = async (version, libCallback) => { //todo proper error h
     await fs.mkdirs(dir);
     const vanilla = await (await fetch(require('../game/versionCache').findGameVersion(version).url)).json();
 
-    await this.download(vanilla.downloads.client.url, path.join(dir, `${version}.jar`));
-    await this.download(vanilla.assetIndex.url, path.join(dir, `${version}.json`));
+    await files.download(vanilla.downloads.client.url, path.join(dir, `${version}.jar`));
+    await files.download(vanilla.assetIndex.url, path.join(dir, `${version}.json`));
     await this.installLibraries(vanilla.libraries, libCallback);
 };
 
@@ -206,7 +173,7 @@ const downloadLibraryArtifact = async (artifact) => {
     const file = path.join(libDir, filePath);
     if (await fs.pathExists(file))
         return;
-    await this.download(artifact.url, file);
+    await files.download(artifact.url, file);
 };
 
 const downloadMavenArtifact = async (artifact) => {
@@ -217,5 +184,5 @@ const downloadMavenArtifact = async (artifact) => {
 
     if (await fs.pathExists(file))
         return;
-    await this.download(url, file);
+    await files.download(url, file);
 };
