@@ -12,7 +12,8 @@
     "dev": "react-scripts start",
     "build": "react-scripts build",
     "package": "electron-builder --dir",
-    "dist": "react-scripts build && build --x64 --win --c.extraMetadata.main=build/gateway.js -p always"
+    "dist": "react-scripts build && build --x64 --win --c.extraMetadata.main=build/gateway.js -p always",
+    "test": "mocha \"test/**/*.js\""
   },
   "dependencies": {
     "discord-rpc": "^3.0.1",
@@ -24,6 +25,7 @@
     "follow-redirects": "^1.7.0",
     "fs-extra": "^7.0.1",
     "lzma-purejs": "^0.9.3",
+    "mocha": "^6.1.4",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "xml-js": "^1.6.11"

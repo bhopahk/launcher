@@ -20,8 +20,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-const NativeLauncher = require('../launcher/NativeLauncher');
-const LegacyLauncher = require('../launcher/LegacyLauncher');
+const NativeLauncher = require('./NativeLauncher');
+const LegacyLauncher = require('./LegacyLauncher');
 
 const fs = require('fs-extra');
 const path = require('path');
