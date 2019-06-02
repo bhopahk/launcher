@@ -161,15 +161,11 @@ class Dropdown extends React.Component {
         super(props);
 
         this.state = {
-            active: null,
             shown: false,
         };
     }
 
     componentWillMount() {
-        this.setState({
-            active: this.props.getValue()
-        });
         this._ismounted = true;
         document.addEventListener('click', this.onClickAnywhere.bind(this))
     }
@@ -180,12 +176,16 @@ class Dropdown extends React.Component {
     }
 
     getActiveDisplay() {
-        for (let i = 0; i < this.props.children.length; i++)
-            if (this.props.children[i].props.value === this.state.active)
+        const children = React.Children.toArray(this.props.children);
+        for (let i = 0; i < children.length; i++) {
+            if (children[i] == null || children[i].props == null)
+                continue;
+            if (children[i].props.value === this.props.getValue())
                 return {
-                    display: this.props.children[i].props.display,
-                    description: this.props.children[i].props.description,
+                    display: children[i].props.display,
+                    description: children[i].props.description,
                 };
+        }
     }
 
     onClickAnywhere(e) {
@@ -204,24 +204,36 @@ class Dropdown extends React.Component {
     render() {
         const active = this.getActiveDisplay();
 
-        return (
-            <div className={`dropdown ${this.props.small ? 'small' : ''}`}>
+        if (active === undefined) {
+            return (
+                <div className={`dropdown ${this.props.small ? 'small' : ''} ${this.props.tiny ? 'tiny' : ''} ${this.props.minuscule ? 'minuscule' : ''}`}>
+                    <div className="dropdown-active">
+                        <div>
+                            <p></p>
+                        </div>
+                    </div>
+                </div>
+            )
+        } else return (
+            <div className={`dropdown ${this.props.small ? 'small' : ''} ${this.props.tiny ? 'tiny' : ''} ${this.props.minuscule ? 'minuscule' : ''}`}>
                 <div className="dropdown-active" onClick={() => this.setState({ shown: !this.state.shown })}>
                     <div>
-                        <h5>{active != null ? active.display : 'test'}</h5>
-                        <p>{active != null ? active.description : 'test'}</p>
+                        <h5>{active.display}</h5>
+                        <p>{active.description}</p>
                     </div>
                     <i className="fas fa-chevron-down"></i>
                 </div>
                 <div className={`dropdown-options ${this.state.shown ? '' : 'hidden'}`}>
-                    {this.props.children.map(child => {
+                    {React.Children.map(this.props.children, child => {
+                        if (child == null)
+                            return null;
                         return React.cloneElement(child, {
                             key: child.props.value,
-                            active: child.props.value === this.state.active,
+                            active: child.props.value === this.props.getValue(),
                             onSelect: () => {
                                 this.props.setValue(child.props.value);
                                 this.setState({
-                                    active: child.props.value,
+                                    // active: child.props.value,
                                     shown: false,
                                 })
                             }

@@ -174,48 +174,48 @@ export default class CreateProfile extends React.Component {
                 </div>
                 <div className="create-profile">
                     <h1>Create Custom Profile</h1>
-                    <CPDropdown  onChange={next => this.handleInput('selected', window.ipc.sendSync('cache:versions', next))} ref={this.vanillaRef}>
+                    <Dropdown minuscule getValue={() => this.state.selected.name } setValue={next => this.handleInput('selected', window.ipc.sendSync('cache:versions', next))} ref={this.vanillaRef}>
                         {this.state.versions.map(ver => {
-                            return (<Option key={ver} value={ver}>{ver}</Option>);
+                            return (<Option key={ver} value={ver} display={ver} />);
                         })}
-                    </CPDropdown>
+                    </Dropdown>
                     <div className="create-profile-types">
                         <div className={`create-profile-type ${this.state.active === 'vanilla' ? 'active' : ''}`} onClick={() => this.setActive('vanilla')}>
                             <i className="fas fa-info-circle" onClick={() => window.ipc.send('open-external', 'https://minecraft.net/')}></i>
                             <h2>VANILLA</h2>
                             <p>The unmodified game distributed by Mojang.</p>
-                            <select onChange={e => this.handleInput('input_snapshot', e.target.value)}>
-                                {this.state.selected.url != null ? (<option value="release">Release</option>) : null}
+                            <Dropdown getValue={() => this.state.input_snapshot } setValue={next => this.handleInput('input_snapshot', next)} ref={this.vanillaRef}>
+                                {this.state.selected.url != null ? (<Option value={"release"} display={"Release"} />) : null}
                                 {this.state.selected.snapshots.map(ver => {
-                                    return (<option key={ver.name}>{ver.name}</option>);
+                                    return (<Option key={ver.name} value={ver.name} display={ver.name} />);
                                 })}
-                            </select>
+                            </Dropdown>
                         </div>
                         <div className={`create-profile-type ${this.state.active === 'forge' ? 'active' : ''} ${this.isDisabled('forge') ? 'disabled' : ''}`} onClick={() => this.setActive('forge')}>
                             <i className="fas fa-info-circle" onClick={() => window.ipc.send('open-external', 'https://www.minecraftforge.net/')}></i>
                             <h2>FORGE</h2>
                             <p>Minecraft Forge is a free, open-source modding API and loader designed to simplify compatibility between community-created mods.</p>
-                            <select onChange={e => this.handleInput('input_forge', e.target.value)}>
+                            <Dropdown getValue={() => this.state.input_forge} setValue={next => this.handleInput('input_forge', next)}>
                                 {this.state.selected.forge.map(ver => {
-                                    return (<option key={ver.id}>{ver.id}</option>);
+                                    return (<Option key={ver.id} value={ver.id} display={ver.id} />);
                                 })}
-                            </select>
+                            </Dropdown>
                         </div>
                         <div className={`create-profile-type ${this.state.active === 'fabric' ? 'active' : ''} ${this.isDisabled('fabric') ? 'disabled' : ''}`} onClick={() => this.setActive('fabric')}>
                             <i className="fas fa-info-circle" onClick={() => window.ipc.send('open-external', 'https://fabricmc.net/')}></i>
                             <h2>FABRIC<i className="fas fa-info-circle"></i></h2>
                             <p>Fabric is a lightweight, experimental modding toolchain for Minecraft. THIS SHOULD BE FLAGGED AS IN EARLY DEV STAGE!</p>
-                            <select onChange={e => this.handleInput('input_fabric_mappings', e.target.value)}>
+                            <Dropdown getValue={() => this.state.input_fabric_mappings} setValue={next => this.handleInput('input_fabric_mappings', next)}>
                                 {this.getFabricMappings().map(ver => {
-                                    return (<option key={ver.version}>{`${ver.game} build ${ver.mappings}`}</option>)
+                                    return (<Option key={ver.version} value={`${ver.game} build ${ver.mappings}`} display={`${ver.game} build ${ver.mappings}`} />)
                                 })}
-                            </select>
+                            </Dropdown>
                             <br/>
-                            <select onChange={e => this.handleInput('input_fabric_loader', e.target.value)}>
+                            <Dropdown getValue={() => this.state.input_fabric_loader} setValue={next => this.handleInput('input_fabric_loader', next)}>
                                 {this.state.fabric.map(ver => {
-                                    return (<option key={ver.raw}>{`${ver.id} build ${ver.build}`}</option>)
+                                    return (<Option key={ver.raw} value={`${ver.id} build ${ver.build}`} display={`${ver.id} build ${ver.build}`} />)
                                 })}
-                            </select>
+                            </Dropdown>
                         </div>
                     </div>
                     <div className="create-profile-name">
@@ -225,30 +225,6 @@ export default class CreateProfile extends React.Component {
                     <br/>
                     <button onClick={() => this.sendCreationRequest()}>Create Profile</button>
                 </div>
-            </div>
-        );
-    }
-}
-
-class CPDropdown extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            active: '1.14',
-        }
-    }
-
-    render() {
-        return (
-            <div>
-                <Dropdown small getValue={() => {
-                    return this.state.active;
-                }} setValue={next => {
-                    this.props.onChange(next)
-                }}>
-                    {this.props.children}
-                </Dropdown>
             </div>
         );
     }
