@@ -60,6 +60,10 @@ ipcMain.on('profile:launch', async (event, payload) => {
         console.log('Launched');
     });
 });
+ipcMain.on('profile:screenshots', async (event, payload) => {
+    const images = await this.getProfileScreenshots(payload);
+    ipcMain.send('profile:screenshots', images);
+});
 
 exports.createProfile = async (data, onApproved, overwrite) => {
     const dir = path.join(instanceDir, data.name);
@@ -162,6 +166,23 @@ exports.getProfile = async (name) => {
     const profiles = await fs.readJson(launcherProfiles);
     return profiles[name];
 };
+exports.getProfileScreenshots = async (name) => {
+    let images = [];
+    const dir = path.join((await this.getProfile(name)).directory, 'screenshots');
+    if (!await fs.pathExists(dir))
+        return [];
+    const files = await fs.readdir(dir);
+    files.forEach(file => {
+        if (!file.endsWith('.png'))
+            return;
+        const image = fs.readFileSync(path.join(dir, file));
+        images.push({
+            name: file,
+            src: `data:image/png;base64,${image.toString('base64')}`
+        });
+    });
+    return images;
+};
 exports.getProfiles = async () => {
     return await fs.readJson(launcherProfiles);
 };
@@ -178,17 +199,22 @@ exports.deleteProfile = async (name) => {
     //todo this
 };
 
+this.getProfileScreenshots('agawgawgaw');
+
 exports.renderProfiles = async () => {
     const loaded = await this.getProfiles();
     const profiles = [];
 
     Object.keys(loaded).forEach(key => {
-        console.log(loaded[key]);
+        // console.log(loaded[key]);
         profiles.push({
             name: loaded[key].name,
             icon: loaded[key].icon,
             version: loaded[key].modpackVersion == null ? loaded[key].version : loaded[key].modpackVersion,
             played: loaded[key].launched,
+
+            flavor: loaded[key].flavor,
+            directory: loaded[key].directory,
         });
     });
 

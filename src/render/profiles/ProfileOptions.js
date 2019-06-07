@@ -22,9 +22,69 @@ SOFTWARE.
 
 import React from 'react';
 import './options.css';
+import { ModalPageWrapper, ModalPage } from '../layout/ModalPages';
 
 class ProfileOptions extends React.Component {
+    constructor(props) {
+        super(props);
 
+        this.state = {
+            active: ''
+        }
+    }
+
+    render() {
+        return (
+            <ModalPageWrapper default="overview">
+                <ModalPage header>
+                    <img src={this.props.profile.icon} alt="Profile Icon" />
+                </ModalPage>
+                <ModalPage id="overview" display="Overview">
+                    <p>Profile Overview</p>
+                </ModalPage>
+                <ModalPage id="screenshots" display="Screenshots">
+                    <p>Screenshots</p>
+                </ModalPage>
+                <ModalPage id="mods" display="Mods" disabled>
+                    <p>Profile Overview</p>
+                </ModalPage>
+                <ModalPage id="resourcePacks" display="Resource Packs" disabled>
+                    <p>Profile Overview</p>
+                </ModalPage>
+                <ModalPage id="worlds" display="Worlds" disabled>
+                    <p>Profile Overview</p>
+                </ModalPage>
+            </ModalPageWrapper>
+        );
+    }
+}
+
+class Screenshots extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = { };
+
+        window.ipc.on('profile:screenshots', (event, payload) => {
+
+        })
+    }
+
+    render() {
+        if (this.state.images !== undefined && this.state.images.length === 0)
+            return (
+                <div className="profile-screenshots-none">
+                    <div className="profile-screenshots-error">
+
+                    </div>
+                </div>
+            );
+        else return (
+            <div className="profile-screenshots">
+
+            </div>
+        );
+    }
 }
 
 export {

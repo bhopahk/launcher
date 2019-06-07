@@ -12,6 +12,7 @@ import {
     Page, Link
 } from '../sidebar/Sidebar';
 import { Profiles } from '../profiles/Profiles';
+import { ProfileOptions } from '../profiles/ProfileOptions';
 import { AccountManager } from '../account/AccountManager';
 import CurseModpackListing from '../modpack/provider/Curse';
 
@@ -29,6 +30,10 @@ class App extends React.Component {
 
     constructor(props) {
         super(props);
+
+        this.state = {
+            profile: {}
+        };
 
         this.registerAppWideIpcListeners();
 
@@ -86,7 +91,7 @@ class App extends React.Component {
                     <SidebarHeader />
                     <SidebarGroup index={0} title="library">
                         <Page id="profiles" icon="list" display="Profiles">
-                            <Profiles />
+                            <Profiles onProfileOptions={profile => this.setState({ profile: profile })} />
                         </Page>
                         <Page id="accounts" icon="user" display="Accounts">
                             <AccountManager />
@@ -234,7 +239,8 @@ class App extends React.Component {
                             </Settings>
                         </SettingsWrapper>
                     </Modal>
-                    <Modal id="profileOptionsModal">
+                    <Modal id="profileOptionsModal" className="profile-options-wrapper">
+                        <ProfileOptions profile={this.state.profile} />
                     </Modal>
                 </ModalConductor>
             </div>

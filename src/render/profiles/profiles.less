@@ -11,8 +11,13 @@
   width: @borderSized;
   height: @borderSized;
 
-  margin: 30px;
+  margin: 30px; //todo needs to be changed to padding but that breaks everything O_O
   padding: 0;
+
+  //padding-top: 30px;
+  //padding-left: 30px;
+  //margin-right: 30px;
+  //margin-bottom: 30px;
 
   overflow-y: auto;
 
@@ -42,6 +47,16 @@
     border: none;
     border-radius: 10px;
     box-shadow: 0 0 15px -4px rgba(0,0,0,1);
+
+    .profile-flavor {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+
+      font-size: 15px;
+      color: @offWhite;
+      text-shadow: 2px 2px @offBlack;
+    }
 
     img {
       width: 200px;

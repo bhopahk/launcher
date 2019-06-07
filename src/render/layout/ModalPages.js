@@ -21,10 +21,10 @@ SOFTWARE.
 */
 
 import React from 'react';
-import './settings.css';
+import './pages.css';
 import { ModalConductor } from "../modal/Modal";
 
-class SettingsWrapper extends React.Component {
+class ModalPageWrapper extends React.Component {
     constructor(props) {
         super(props);
 
@@ -35,25 +35,22 @@ class SettingsWrapper extends React.Component {
 
     render() {
         return (
-            <div className="settings-wrapper">
-                <div className="settings-close">
+            <div className="modal-page-wrapper">
+                <div className="modal-page-close">
                     <i className="material-icons" onClick={() => ModalConductor.closeModals()}>close</i>
                 </div>
-                <div className="settings-selector">
-                    <h1>Settings</h1>
+                <div className="modal-page-selector">
+                    {this.props.children[0]}
                     <hr/>
                     {this.props.children.map(child => {
+                        if (child.props.header)
+                            return null;
                         if (!child.props.id)
                             return child;
                         return (<button key={child.props.id ? child.props.id : Math.random()}
-                                        className={child.props.id === this.state.active ? 'active' : ''}
-                                        onClick={() => this.setState({ active: child.props.id })}>{child.props.display}</button>)
+                                        className={`${child.props.id === this.state.active ? 'active' : ''} ${child.props.disabled ? 'disabled' : ''}`}
+                                        onClick={() => { if (!child.props.disabled) this.setState({ active: child.props.id })}}>{child.props.display}</button>)
                     })}
-                    <hr/>
-                    <div className="settings-links">
-                        <i className="fab fa-github" onClick={() => {window.ipc.send('open-external', 'https://github.com/bhopahk/launcher')}}></i>
-                        <i className="fab fa-discord" onClick={() => {window.ipc.send('open-external', 'https://www.google.com/search?q=this+will+be+a+discord+link+eventually')}}></i>
-                    </div>
                 </div>
                 {this.props.children.map(child => {
                     if (child.props.id === this.state.active)
@@ -65,30 +62,25 @@ class SettingsWrapper extends React.Component {
     }
 }
 
-const Settings = (props) => {
-    return (
-        <div className="settings-page">
+const ModalPage = (props) => {
+    if (props.header)
+        return (
+            <div className="modal-page-header">
+                {props.children}
+            </div>
+        );
+    else return (
+        <div className="modal-page">
             {React.Children.map(props.children, child => {
                 return React.cloneElement(child, {
                     key: child.props.title ? child.props.title : Math.random(),
-                    parentId: props.id,
                 });
             })}
         </div>
     );
 };
 
-const Separator = () => {
-    return (<hr/>);
-};
-
-const Title = (props) => {
-    return (<h1>{props.children}</h1>)
-};
-
 export {
-    SettingsWrapper,
-    Settings,
-    Separator,
-    Title,
+    ModalPageWrapper,
+    ModalPage,
 }

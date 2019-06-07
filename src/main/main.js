@@ -196,8 +196,12 @@ ipcMain.on('titlebar', (event, arg) => {
 ipcMain.on('open-external', async (event, arg) => {
     await shell.openExternal(arg);
 });
+
 ipcMain.on('open-folder', async (event, arg) => {
     await shell.openItem(arg);
+});
+ipcMain.on('open-item', async (event, arg) => {
+    await shell.openItemInFolder(arg);
 });
 
 ipcMain.on('argv', event => {

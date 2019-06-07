@@ -1,5 +1,6 @@
 import React from 'react';
-import { ContextMenu, ContextMenuTrigger, MenuItem } from "react-contextmenu";
+import { ContextMenu, ContextMenuTrigger, MenuItem } from 'react-contextmenu';
+import { ModalConductor } from '../modal/Modal';
 import './profiles.css';
 
 class Profiles extends React.Component {
@@ -38,7 +39,10 @@ class Profiles extends React.Component {
         return (
             <div className="profiles">
                 {this.state.profiles.map(profile => {
-                    return (<Profile key={profile.name} {...profile} onLaunch={(name) => this.handleLaunch(name)} />)
+                    return (<Profile key={profile.name} openOptions={() => {
+                        this.props.onProfileOptions(profile);
+                        ModalConductor.openModal('profileOptionsModal');
+                    }} {...profile} onLaunch={(name) => this.handleLaunch(name)} />)
                 })}
             </div>
         );
@@ -46,10 +50,14 @@ class Profiles extends React.Component {
 }
 
 const Profile = (props) => { //todo need to create an icon container for icon centering. Some sort of <Icon /> componenty
+    const flavorIcon = props.flavor === 'fabric' ? 'scroll' : props.flavor === 'forge' ? 'gavel' : 'cube';
     return (
         <div>
             <ContextMenuTrigger id={props.name}>
                 <div className="profile">
+                    <div className="profile-flavor">
+                        <i className={`fas fa-${flavorIcon}`}></i>
+                    </div>
                     <img src={props.icon} alt={props.name}/>
                     <div className="profile-content" style={{backgroundImage: `url("${props.icon}")`}}>
                         <div className="profile-blur"></div>
@@ -66,8 +74,8 @@ const Profile = (props) => { //todo need to create an icon container for icon ce
             <ContextMenu id={props.name}>
                 <MenuItem onClick={() => props.onLaunch(props.name)}><i className="fas fa-play"></i>Launch</MenuItem>
                 <MenuItem onClick={() => alert("// not implemented //")} disabled><i className={`fa${props.favorite ? 'r' : 's' } fa-star`}></i>Favorite</MenuItem>
-                <MenuItem onClick={() => alert("Option 2")}><i className="fas fa-cog"></i>Settings</MenuItem>
-                <MenuItem onClick={() => alert("Option 2")}><i className="fas fa-folder"></i>Open Folder</MenuItem>
+                <MenuItem onClick={() => props.openOptions()}><i className="fas fa-cog"></i>Settings</MenuItem>
+                <MenuItem onClick={() => window.ipc.send('open-folder', props.directory)}><i className="fas fa-folder"></i>Open Folder</MenuItem>
                 <MenuItem onClick={() => alert("// not implemented //")} disabled><i className="fas fa-link"></i>Create Shortcut</MenuItem>
                 <MenuItem onClick={() => alert("// not implemented //")} disabled><i className="fas fa-file-export"></i>Export</MenuItem>
                 <MenuItem divider />
