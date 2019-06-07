@@ -1,5 +1,6 @@
 import React from 'react';
 import './app.css';
+import '../util/contextmenu.css';
 import Snackbar from '../snackbar/Snackbar';
 import { ModalConductor, Modal } from '../modal/Modal';
 import Actions from './actions/Actions';
@@ -81,7 +82,7 @@ class App extends React.Component {
         return (
             <div>
                 <Actions />
-                <Sidebar default="custom">
+                <Sidebar default="profiles">
                     <SidebarHeader />
                     <SidebarGroup index={0} title="library">
                         <Page id="profiles" icon="list" display="Profiles">
@@ -232,6 +233,8 @@ class App extends React.Component {
                                 <SettingsField title="Coming Soon..." description="This will be added in a later version of the launcher, hold tight!" />
                             </Settings>
                         </SettingsWrapper>
+                    </Modal>
+                    <Modal id="profileOptionsModal">
                     </Modal>
                 </ModalConductor>
             </div>

@@ -1,0 +1,62 @@
+@import "../core/colors";
+
+.react-contextmenu {
+  box-sizing: border-box;
+  width: 160px;
+
+  margin: 0;
+  padding: 5px 0;
+
+  border: none;
+  border-radius: 5px;
+  background-color: @downloadsBackground;
+
+  z-index: 5;
+}
+
+.react-contextmenu-item {
+  cursor: pointer;
+  outline: none;
+
+  padding: 5px 10px;
+
+  border-radius: 5px;
+  font-size: 15px;
+  font-family: Source Sans Pro, sans-serif;
+  color: @superOffWhite;
+
+  &:hover {
+    background-color: @backgroundVibrant2;
+  }
+
+  i {
+    width: 17px;
+    font-size: 13px;
+    margin-right: 5px;
+  }
+}
+
+.react-contextmenu-item--divider {
+  cursor: default;
+
+  width: 100%;
+  height: 2px;
+
+  padding: 0;
+
+  background-color: @downloadsBackground;
+
+  &:hover {
+    border-radius: 0;
+    background-color: @downloadsBackground;
+  }
+}
+
+.react-contextmenu-item--disabled {
+  cursor: default;
+  color: @offGrey;
+
+  &:hover {
+    background-color: transparent;
+  }
+}

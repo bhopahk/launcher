@@ -183,6 +183,7 @@ exports.renderProfiles = async () => {
     const profiles = [];
 
     Object.keys(loaded).forEach(key => {
+        console.log(loaded[key]);
         profiles.push({
             name: loaded[key].name,
             icon: loaded[key].icon,

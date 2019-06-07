@@ -207,13 +207,13 @@ export default class CreateProfile extends React.Component {
                             <p>Fabric is a lightweight, experimental modding toolchain for Minecraft. THIS SHOULD BE FLAGGED AS IN EARLY DEV STAGE!</p>
                             <Dropdown getValue={() => this.state.input_fabric_mappings} setValue={next => this.handleInput('input_fabric_mappings', next)}>
                                 {this.getFabricMappings().map(ver => {
-                                    return (<Option key={ver.version} value={`${ver.game} build ${ver.mappings}`} display={`${ver.game} build ${ver.mappings}`} />)
+                                    return (<Option key={ver.version} value={ver.version} display={`${ver.game} build ${ver.mappings}`} />)
                                 })}
                             </Dropdown>
                             <br/>
                             <Dropdown getValue={() => this.state.input_fabric_loader} setValue={next => this.handleInput('input_fabric_loader', next)}>
                                 {this.state.fabric.map(ver => {
-                                    return (<Option key={ver.raw} value={`${ver.id} build ${ver.build}`} display={`${ver.id} build ${ver.build}`} />)
+                                    return (<Option key={ver.raw} value={ver.raw} display={`${ver.id} build ${ver.build}`} />)
                                 })}
                             </Dropdown>
                         </div>
