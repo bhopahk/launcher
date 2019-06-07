@@ -30,6 +30,7 @@
     "react": "^16.8.6",
     "react-contextmenu": "^2.11.0",
     "react-dom": "^16.8.6",
+    "react-tooltip": "^3.10.0",
     "xml-js": "^1.6.11"
   },
   "devDependencies": {

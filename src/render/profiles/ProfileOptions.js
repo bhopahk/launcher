@@ -45,11 +45,11 @@ class ProfileOptions extends React.Component {
                 <ModalPage id="overview" display="Overview">
                     <p>Profile Overview</p>
                 </ModalPage>
-                <ModalPage id="screenshots" display="Screenshots">
-                    <Screenshots profile={this.props.profile.name} />
-                </ModalPage>
                 <ModalPage id="mods" display="Mods" disabled>
                     <p>Profile Overview</p>
+                </ModalPage>
+                <ModalPage id="screenshots" display="Screenshots">
+                    <Screenshots profile={this.props.profile.name} />
                 </ModalPage>
                 <ModalPage id="resourcePacks" display="Resource Packs" disabled>
                     <p>Profile Overview</p>
@@ -98,40 +98,50 @@ class Screenshots extends React.Component {
         });
     };
 
+    handleFocus = image => {
+        // todo this should be called by clicking at some point as well
+        alert('// not implemented //');
+    };
+
     render() {
         if (this.state.images !== undefined && this.state.images.length === 0)
             return (
                 <div className="profile-screenshots-none">
                     <div>
-                        <p>THERE ARE NO SCREENSHOTS</p>
+                        <i className="fas fa-image"></i>
+                        <br />
+                        No screenshots were found!
                     </div>
                 </div>
             );
         else return (
-            <div className="profile-screenshots">
-                <div className={`profile-screenshots-loading ${this.state.loading ? '' : 'hidden'}`}>
-                    <div className="lds-dual-ring"></div>
-                </div>
-                {this.getImagesSafe().map(image => {
-                    return (
-                        <div>
-                            <ContextMenuTrigger id={image.name}>
-                                <div className="profile-screenshot">
-                                    <img src={image.src} alt={image.name} />
-                                    <div>
-                                        {image.name}
+            <div className="profile-screenshots-wrapper">
+                <h1>Screenshots - {this.getImagesSafe().length}</h1>
+                <div className="profile-screenshots">
+                    <div className={`profile-screenshots-loading ${this.state.loading ? '' : 'hidden'}`}>
+                        <div className="lds-dual-ring"></div>
+                    </div>
+                    {this.getImagesSafe().map(image => {
+                        return (
+                            <div>
+                                <ContextMenuTrigger id={image.name}>
+                                    <div className="profile-screenshot">
+                                        <img src={image.src} alt={image.name} />
+                                        <div>
+                                            {image.name}
+                                        </div>
                                     </div>
-                                </div>
-                            </ContextMenuTrigger>
-                            <ContextMenu id={image.name}>
-                                <MenuItem onClick={() => alert("open large")}><i className="fas fa-image"></i>Focus</MenuItem>
-                                <MenuItem onClick={() => window.ipc.send('open-item', image.path)}><i className="fas fa-file-image"></i>Show File</MenuItem>
-                                <MenuItem divider />
-                                <MenuItem onClick={() => this.handleDelete(image.name)}><i className="fas fa-trash-alt"></i>Trash</MenuItem>
-                            </ContextMenu>
-                        </div>
-                    )
-                })}
+                                </ContextMenuTrigger>
+                                <ContextMenu id={image.name}>
+                                    <MenuItem onClick={() => this.handleFocus(image)}><i className="fas fa-image"></i>Focus</MenuItem>
+                                    <MenuItem onClick={() => window.ipc.send('open-item', image.path)}><i className="fas fa-file-image"></i>Show File</MenuItem>
+                                    <MenuItem divider />
+                                    <MenuItem onClick={() => this.handleDelete(image.name)}><i className="fas fa-trash-alt"></i>Trash</MenuItem>
+                                </ContextMenu>
+                            </div>
+                        )
+                    })}
+                </div>
             </div>
         );
     }
