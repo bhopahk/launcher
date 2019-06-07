@@ -201,7 +201,7 @@ ipcMain.on('open-folder', async (event, arg) => {
     await shell.openItem(arg);
 });
 ipcMain.on('open-item', async (event, arg) => {
-    await shell.openItemInFolder(arg);
+    await shell.showItemInFolder(arg);
 });
 
 ipcMain.on('argv', event => {

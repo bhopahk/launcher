@@ -61,8 +61,16 @@ ipcMain.on('profile:launch', async (event, payload) => {
     });
 });
 ipcMain.on('profile:screenshots', async (event, payload) => {
+    if (mainWindow == null)
+        mainWindow = event.sender;
     const images = await this.getProfileScreenshots(payload);
-    ipcMain.send('profile:screenshots', images);
+    mainWindow.send('profile:screenshots', images);
+});
+ipcMain.on('profile:screenshots:delete', async (event, payload) => {
+    if (mainWindow == null)
+        mainWindow = event.sender;
+    await this.deleteProfileScreenshot(payload.profile, payload.image);
+    mainWindow.send('profile:screenshots', await this.getProfileScreenshots(payload.profile));
 });
 
 exports.createProfile = async (data, onApproved, overwrite) => {
@@ -178,10 +186,15 @@ exports.getProfileScreenshots = async (name) => {
         const image = fs.readFileSync(path.join(dir, file));
         images.push({
             name: file,
+            path: path.join(dir, file),
             src: `data:image/png;base64,${image.toString('base64')}`
         });
     });
     return images;
+};
+exports.deleteProfileScreenshot = async (name, image) => {
+    const target = path.join((await this.getProfile(name)).directory, 'screenshots', image);
+    return require('electron').shell.moveItemToTrash(target);
 };
 exports.getProfiles = async () => {
     return await fs.readJson(launcherProfiles);
@@ -198,8 +211,6 @@ exports.saveProfile = async (name, newProfile) => {
 exports.deleteProfile = async (name) => {
     //todo this
 };
-
-this.getProfileScreenshots('agawgawgaw');
 
 exports.renderProfiles = async () => {
     const loaded = await this.getProfiles();

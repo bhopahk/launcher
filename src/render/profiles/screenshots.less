@@ -1,0 +1,87 @@
+@import "../core/colors";
+
+.profile-screenshots-none {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  div {
+
+  }
+}
+
+.profile-screenshots {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-gap: 1em;
+
+  width: calc(100% - 25px);
+  //height: calc(100% + 60px);
+
+  .profile-screenshot {
+    position: relative;
+    box-sizing: border-box;
+    cursor: pointer;
+
+    img {
+      display: block;
+
+      width: 100%;
+      height: auto;
+
+      border-radius: 3px;
+      box-shadow: 5px 5px 10px -4px rgba(0,0,0,0.75);
+
+      transition: 0.5s;
+
+      &:hover {
+        filter: blur(2px);
+      }
+    }
+
+    img:hover + div {
+      color: @superOffWhite;
+    }
+
+    div {
+      position: absolute;
+      left: 0;
+      top: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      pointer-events: none;
+      color: transparent;
+
+      width: 100%;
+      height: 100%;
+
+      font-size: 15px;
+      font-family: "Source Sans Pro", sans-serif;
+
+      transition: 0.5s;
+      z-index: 11;
+    }
+  }
+
+  .profile-screenshots-loading {
+    position: absolute;
+    left: -30px;
+    top: -30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: calc(100% + 65px);
+    height: 500px;
+
+    background-color: rgba(0, 0, 0, 0.5);
+
+    z-index: 11;
+
+    &.hidden {
+      display: none;
+    }
+  }
+}

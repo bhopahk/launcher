@@ -22,7 +22,10 @@ SOFTWARE.
 
 import React from 'react';
 import './options.css';
+import './screenshots.css';
 import { ModalPageWrapper, ModalPage } from '../layout/ModalPages';
+import { ContextMenu, ContextMenuTrigger, MenuItem } from 'react-contextmenu';
+import Snackbar from '../snackbar/Snackbar';
 
 class ProfileOptions extends React.Component {
     constructor(props) {
@@ -43,7 +46,7 @@ class ProfileOptions extends React.Component {
                     <p>Profile Overview</p>
                 </ModalPage>
                 <ModalPage id="screenshots" display="Screenshots">
-                    <p>Screenshots</p>
+                    <Screenshots profile={this.props.profile.name} />
                 </ModalPage>
                 <ModalPage id="mods" display="Mods" disabled>
                     <p>Profile Overview</p>
@@ -63,25 +66,72 @@ class Screenshots extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = { };
+        this.state = {
+            loading: true,
+        };
 
         window.ipc.on('profile:screenshots', (event, payload) => {
+            this.setState({
+                images: payload,
+                loading: false,
+            })
+        });
 
-        })
+        if (props.profile !== undefined)
+            window.ipc.send('profile:screenshots', props.profile);
     }
+
+    getImagesSafe() {
+        if (this.state.images === undefined)
+            return [];
+        return this.state.images;
+    }
+
+    handleDelete = (image) => {
+        this.setState({ loading: true });
+        window.ipc.send('profile:screenshots:delete', {
+            profile: this.props.profile,
+            image: image
+        });
+        Snackbar.sendSnack({
+            body: `Deleted ${image}`
+        });
+    };
 
     render() {
         if (this.state.images !== undefined && this.state.images.length === 0)
             return (
                 <div className="profile-screenshots-none">
-                    <div className="profile-screenshots-error">
-
+                    <div>
+                        <p>THERE ARE NO SCREENSHOTS</p>
                     </div>
                 </div>
             );
         else return (
             <div className="profile-screenshots">
-
+                <div className={`profile-screenshots-loading ${this.state.loading ? '' : 'hidden'}`}>
+                    <div className="lds-dual-ring"></div>
+                </div>
+                {this.getImagesSafe().map(image => {
+                    return (
+                        <div>
+                            <ContextMenuTrigger id={image.name}>
+                                <div className="profile-screenshot">
+                                    <img src={image.src} alt={image.name} />
+                                    <div>
+                                        {image.name}
+                                    </div>
+                                </div>
+                            </ContextMenuTrigger>
+                            <ContextMenu id={image.name}>
+                                <MenuItem onClick={() => alert("open large")}><i className="fas fa-image"></i>Focus</MenuItem>
+                                <MenuItem onClick={() => window.ipc.send('open-item', image.path)}><i className="fas fa-file-image"></i>Show File</MenuItem>
+                                <MenuItem divider />
+                                <MenuItem onClick={() => this.handleDelete(image.name)}><i className="fas fa-trash-alt"></i>Trash</MenuItem>
+                            </ContextMenu>
+                        </div>
+                    )
+                })}
             </div>
         );
     }
