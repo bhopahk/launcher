@@ -1,7 +1,7 @@
 import React from 'react';
 import './modpack.css';
-
-import { Tooltip } from '../core/tooltip/Tooltip';
+import ReactTooltip from "react-tooltip";
+import { ContextMenu, ContextMenuTrigger, MenuItem, SubMenu } from 'react-contextmenu';
 
 export class ModpackBrowser extends React.Component {
     constructor(props) {
@@ -74,43 +74,56 @@ export class ModpackBrowser extends React.Component {
 
 const Modpack = (props) => {
     return (
-        <div className="modpack">
-            <img src={props.icon} alt={props.name} />
-            <div className="modpack-info">
-                <div className="modpack-info-ext">
-                    <h1>{props.name}</h1>
-                    <h2>by <span>{props.primaryAuthor}</span></h2>
-                    <p>{truncateString(props.summary)}</p>
-                    <Tooltip text="TOOLTIPS BOIS" top={15} left={0}>
-                        <i className={`fas ${props.featured ? 'fa-star' : ''}`}></i>
-                    </Tooltip>
+        <div>
+            <ContextMenuTrigger id={props.id}>
+                <div className="modpack">
+                    <img src={props.icon} alt={props.name} />
+                    <div className="modpack-info">
+                        <div className="modpack-info-ext">
+                            <h1>{props.name}</h1>
+                            <h2>by <span>{props.primaryAuthor}</span></h2>
+                            <p>{truncateString(props.summary)}</p>
+                            <i data-tip="" data-for="sad2" className={`fas ${props.featured ? 'fa-star' : ''}`}></i>
+                            <ReactTooltip id='sad2' place="bottom">
+                                <span className="tooltip-text">Featured</span>
+                            </ReactTooltip>
+                        </div>
+                        <div className="modpack-details">
+                            <div>
+                                <h3>DOWNLOADS</h3>
+                                <h2>{truncateNumber(props.downloads, 2)}</h2>
+                            </div>
+                            <div>
+                                <h3>UPDATED</h3>
+                                <h2>{new Date(props.modified).toLocaleDateString('en-US')}</h2>
+                            </div>
+                            <div>
+                                <h3>GAME VERSION</h3>
+                                <h2>{props.gameVersionLatestFiles[0].version}</h2>
+                            </div>
+                            <div>
+                                <h3>POPULARITY INDEX</h3>
+                                <h2>{Math.round(props.popularity)}</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="modpack-install">
+                        <div className={props.disabled ? 'disabled' : ''}>
+                            <button onClick={() => {if (!props.disabled) props.onInstall(props.defaultFile)}}><i className="fas fa-file-download"></i> Install</button>
+                            <div></div>
+                            <button onClick={() => {if (!props.disabled) props.onSetActive()}}><i className="fas fa-caret-down"></i>{props.dropped ? (<VersionDropdown id={props.id} onInstall={(fileId) => props.onInstall(fileId)} />) : (<div></div>)}</button>
+                        </div>
+                    </div>
                 </div>
-                <div className="modpack-details">
-                    <div>
-                        <h3>DOWNLOADS</h3>
-                        <h2>{truncateNumber(props.downloads, 2)}</h2>
-                    </div>
-                    <div>
-                        <h3>UPDATED</h3>
-                        <h2>{new Date(props.modified).toLocaleDateString('en-US')}</h2>
-                    </div>
-                    <div>
-                        <h3>GAME VERSION</h3>
-                        <h2>{props.gameVersionLatestFiles[0].version}</h2>
-                    </div>
-                    <div>
-                        <h3>POPULARITY INDEX</h3>
-                        <h2>{Math.round(props.popularity)}</h2>
-                    </div>
-                </div>
-            </div>
-            <div className="modpack-install">
-                <div className={props.disabled ? 'disabled' : ''}>
-                    <button onClick={() => {if (!props.disabled) props.onInstall(props.defaultFile)}}><i className="fas fa-file-download"></i> Install</button>
-                    <div></div>
-                    <button onClick={() => {if (!props.disabled) props.onSetActive()}}><i className="fas fa-caret-down"></i>{props.dropped ? (<VersionDropdown id={props.id} onInstall={(fileId) => props.onInstall(fileId)} />) : (<div></div>)}</button>
-                </div>
-            </div>
+            </ContextMenuTrigger>
+            <ContextMenu id={props.id}>
+                <SubMenu title={<div><i className="fas fa-cloud-download-alt"></i>Install</div>} className={"submenu-menu"} hoverDelay={0}>
+                    <MenuItem onClick={() => alert('item 3')}><i className="fas fa-check"></i>1.2.3.4</MenuItem>
+                </SubMenu>
+                <MenuItem onClick={() => alert('item 2')} disabled><i className="fas fa-ellipsis-h"></i>Details</MenuItem>
+                <MenuItem onClick={() => window.ipc.send('open-external', props.websiteUrl)}><i className="fas fa-link"></i>CurseForge</MenuItem>
+
+            </ContextMenu>
         </div>
     );
 };

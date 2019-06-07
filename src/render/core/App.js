@@ -1,6 +1,7 @@
 import React from 'react';
 import './app.css';
 import '../util/contextmenu.css';
+import '../util/tooltip.css';
 import Snackbar from '../snackbar/Snackbar';
 import { ModalConductor, Modal } from '../modal/Modal';
 import Actions from './actions/Actions';
@@ -87,7 +88,7 @@ class App extends React.Component {
         return (
             <div>
                 <Actions />
-                <Sidebar default="profiles">
+                <Sidebar default="curse">
                     <SidebarHeader />
                     <SidebarGroup index={0} title="library">
                         <Page id="profiles" icon="list" display="Profiles">
@@ -109,8 +110,6 @@ class App extends React.Component {
                         </Page>
                         <Page id="technic" icon="wrench" display="Technic Modpacks?">
                             <p>Custom Profiles</p>
-                            <button onClick={() => ModalConductor.openModal('test1')}>Open Modal 1</button>
-                            <button onClick={() => ModalConductor.openModal('test2')}>Open Modal 2</button>
                             <button onClick={() => window.ipc.send('argv', 'twonk')}>argv</button>
                             <button onClick={() => window.ipc.send('accounts:newUser', {})}>Login Window</button>
                         </Page>
@@ -126,12 +125,6 @@ class App extends React.Component {
                 </Sidebar>
                 <Snackbar ref={App.snackbar}/>
                 <ModalConductor ref={App.modals}>
-                    <Modal id="test1" className="testing">
-                        <p>Hello Modal 1</p>
-                    </Modal>
-                    <Modal id="test2">
-                        <p>Hello Modal 2</p>
-                    </Modal>
                     <Modal id="settingsModal" className="settings">
                         <SettingsWrapper default="app">
                             <Settings id="app" display="App Settings">

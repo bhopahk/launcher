@@ -56,9 +56,9 @@
     position: relative;
 
     width: calc(100% - 60px);
+    height: 150px;
 
     margin: 30px 30px 0;
-    //margin-bottom: 10px;
     padding: 0;
 
     border: none;
@@ -69,9 +69,9 @@
     img {
       display: block;
 
-      width: 20vh;
-      min-width: 20vh;
-      height: 20vh;
+      width: 150px;
+      min-width: 150px;
+      height: 150px;
 
       border-top-left-radius: 10px;
       border-bottom-left-radius: 10px;
@@ -92,7 +92,7 @@
 
         h1 {
           position: relative;
-          font-size: 4.5vh;
+          font-size: 30px;
           font-family: "Source Sans Pro", sans-serif;
           color: @offWhite;
           text-shadow: 2px 2px @offBlack;
@@ -108,16 +108,16 @@
 
         i {
           position: absolute;
-          left: 17vh;
-          top: 1vh;
+          left: 130px;
+          bottom: 130px;
 
-          font-size: 2vh;
+          font-size: 12px;
           text-shadow: 2px 2px @offBlack;
           color: @offWhite;
         }
 
         h2 {
-          font-size: 2vh;
+          font-size: 14px;
           font-family: Raleway, sans-serif;
           color: @inactive;
 
@@ -128,12 +128,14 @@
 
         p {
           width: 80%;
-          height: 5vh;
+          //height: 15px;
+          //line-height: 10px;
           overflow: hidden;
 
           margin-top: 10px;
 
-          font-size: 2.5vh;
+          // todo need to revisit the multi line ellipsis, should make some calculation based on the width or something
+          font-size: 19px;
           font-family: "Source Sans Pro", sans-serif;
           color: @superOffWhite;
         }
@@ -142,7 +144,7 @@
       .modpack-details {
         position: absolute;
         bottom: 5px;
-        left: calc(20vh + 10px);
+        left: 160px;
         display: flex;
         align-self: flex-end;
 
@@ -151,14 +153,14 @@
           margin-right: 15px;
 
           h3 {
-            font-size: 1.5vh;
+            font-size: 11px;
             font-family: Raleway, sans-serif;
             font-weight: lighter;
             color: @superOffWhite
           }
 
           h2 {
-            font-size: 2.5vh;
+            font-size: 17px;
             font-family: "Source Sans Pro", sans-serif;
             font-weight: normal;
             color: @offWhite
