@@ -152,7 +152,9 @@ class FolderSelect extends React.Component {
 
 const Button = (props) => {
     return (
-        <button className={`btn ${props.style}`}>{props.display}</button>
+        <button className={`btn ${props.classList} ${props.disabled ? 'disabled' : ''}`} onClick={() => {
+            if (!props.disabled) props.onClick();
+        }}>{props.children}</button>
     );
 };
 
@@ -265,16 +267,17 @@ class TextField extends React.Component {
         this.saveTask = setTimeout(() => {}, 1);
     }
 
-    handleInput(e) {
+    handleInput = (e) => {
         clearTimeout(this.saveTask);
         this.saveTask = setTimeout(() => this.props.setValue(this.state.value), 750);
         this.setState({ value: e.target.value });
-    }
+    };
 
     render() {
         return (
-            <div className="textfield">
-                <input type="text" id={this.props.id} placeholder={this.props.placeholder} value={this.state.value} onChange={this.handleInput.bind(this)} />
+            <div className={`textfield ${this.props.icon === undefined ? '' : 'icon'}`}>
+                <i className={this.props.icon}></i>
+                <input type="text" id={this.props.id} placeholder={this.props.placeholder} value={this.state.value} onChange={this.handleInput} />
             </div>
         );
     }

@@ -2,6 +2,7 @@ import React from 'react';
 import './modpack.css';
 import ReactTooltip from "react-tooltip";
 import { ContextMenu, ContextMenuTrigger, MenuItem, SubMenu } from 'react-contextmenu';
+import { Button } from '../input/Input';
 
 export class ModpackBrowser extends React.Component {
     constructor(props) {
@@ -9,6 +10,8 @@ export class ModpackBrowser extends React.Component {
 
         this.state = {
             active: null,
+            versionsId: -1,
+            versions: [],
         }
     }
 
@@ -39,6 +42,34 @@ export class ModpackBrowser extends React.Component {
         document.removeEventListener('click', this.handleGlobalClick.bind(this));
     }
 
+    handleLoadVersions = (id) => {
+        if (this.state.versionsId === id) {
+            this.forceUpdate();
+            return;
+        }
+
+        this.setState({
+            versionsId: id,
+            versions: []
+        });
+
+        fetch(`https://addons-ecs.forgesvc.net/api/v2/addon/${id}/files`, {
+            headers: { "User-Agent": "Launcher (https://github.com/bhopahk/launcher/)" }
+        }).then(resp => resp.json()).then(json => {
+            let versions = [];
+            json.forEach(ver => {
+                versions.push({
+                    id: ver.id,
+                    name: ver.fileName,
+                    type: ver.releaseType,
+                });
+            });
+            this.setState({
+                versions: versions.reverse(),
+            })
+        });
+    };
+
     render() {
         if (this.props.error) {
             return (
@@ -64,7 +95,9 @@ export class ModpackBrowser extends React.Component {
                     return (<Modpack key={modpack.id} dropped={this.state.active === modpack.id} {...modpack}
                                      onInstall={(version) => this.props.onModpackInstall(modpack.id, version)}
                                      onShowVersions={() => this.props.onModpackFetchVersions(modpack.id)}
-                                     onSetActive={() => this.handleSetActive(modpack.id)} />)
+                                     onSetActive={() => this.handleSetActive(modpack.id)}
+                                     loadVersions={() => this.handleLoadVersions(modpack.id)}
+                                     getLoadedVersions={() => this.state.versions} />)
                 })}
                 {/*{props.loading ? (<p>LOADING</p>) : (<div></div>)}*/}
             </div>
@@ -75,14 +108,14 @@ export class ModpackBrowser extends React.Component {
 const Modpack = (props) => {
     return (
         <div>
-            <ContextMenuTrigger id={props.id}>
+            <ContextMenuTrigger id={`${props.id}`}>
                 <div className="modpack">
                     <img src={props.icon} alt={props.name} />
                     <div className="modpack-info">
                         <div className="modpack-info-ext">
                             <h1>{props.name}</h1>
                             <h2>by <span>{props.primaryAuthor}</span></h2>
-                            <p>{truncateString(props.summary)}</p>
+                            <p>{props.summary}</p>
                             <i data-tip="" data-for="sad2" className={`fas ${props.featured ? 'fa-star' : ''}`}></i>
                             <ReactTooltip id='sad2' place="bottom">
                                 <span className="tooltip-text">Featured</span>
@@ -108,81 +141,22 @@ const Modpack = (props) => {
                         </div>
                     </div>
                     <div className="modpack-install">
-                        <div className={props.disabled ? 'disabled' : ''}>
-                            <button onClick={() => {if (!props.disabled) props.onInstall(props.defaultFile)}}><i className="fas fa-file-download"></i> Install</button>
-                            <div></div>
-                            <button onClick={() => {if (!props.disabled) props.onSetActive()}}><i className="fas fa-caret-down"></i>{props.dropped ? (<VersionDropdown id={props.id} onInstall={(fileId) => props.onInstall(fileId)} />) : (<div></div>)}</button>
-                        </div>
+                        <Button onClick={() => props.onInstall(props.defaultFile)} disabled={props.disabled}><i className="fas fa-cloud-download-alt"></i> Install</Button>
                     </div>
                 </div>
             </ContextMenuTrigger>
-            <ContextMenu id={props.id}>
-                <SubMenu title={<div><i className="fas fa-cloud-download-alt"></i>Install</div>} className={"submenu-menu"} hoverDelay={0}>
-                    <MenuItem onClick={() => alert('item 3')}><i className="fas fa-check"></i>1.2.3.4</MenuItem>
+            <ContextMenu id={`${props.id}`} onShow={() => props.loadVersions()}>
+                <SubMenu title={<div><i className="fas fa-cloud-download-alt"></i>Install</div>} className={"submenu-menu modpack-versions"} hoverDelay={0}>
+                    {/* 1=Release, 2=Beta, 3=Alpha */}
+                    {props.getLoadedVersions().map(ver => {
+                        return (<MenuItem key={ver.id} onClick={() => props.onInstall(ver.id)}>{ver.name}{ver.type === 2 ? (<span className="badge">Beta</span>) : ver.type === 3 ? (<span className="badge">Alpha</span>) : null}</MenuItem>);
+                    })}
                 </SubMenu>
-                <MenuItem onClick={() => alert('item 2')} disabled><i className="fas fa-ellipsis-h"></i>Details</MenuItem>
+                <MenuItem onClick={() => alert('// not implemented //')} disabled><i className="fas fa-ellipsis-h"></i>Details</MenuItem>
                 <MenuItem onClick={() => window.ipc.send('open-external', props.websiteUrl)}><i className="fas fa-link"></i>CurseForge</MenuItem>
-
             </ContextMenu>
         </div>
     );
-};
-
-class VersionDropdown extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            versions: []
-        };
-
-        fetch(`https://addons-ecs.forgesvc.net/api/addon/${this.props.id}/files`, {
-            headers: { "User-Agent": "Launcher (https://github.com/bhopahk/launcher/)" }
-        }).then(resp => resp.json()).then(json => {
-            let versions = [];
-            json.forEach(ver => {
-                versions.push({
-                    id: ver.id,
-                    name: ver.fileName,
-                    type: ver.releaseType,
-                });
-            });
-            this.setState({
-                versions: versions.reverse()
-            });
-        });
-    }
-
-
-    render() {
-        if (this.state.versions.length === 0) {
-            return (
-                <div className="modpack-versions">
-                    <p>temp // loading...</p>
-                </div>
-            )
-        }
-        return (
-            <div className="modpack-versions">
-                <ul>
-                    {this.state.versions.map(ver => {
-                        return (<li onClick={() => {this.props.onInstall(ver.id)}}><span className="version-name">{ver.name}</span><span className="version-type">{ver.type === 1 ? 'Release' : ver.type === 2 ? 'Beta' : 'Alpha'}</span></li>)
-                    })}
-                </ul>
-            </div>
-        );
-    }
-}
-
-const truncateString = (str) => {
-    // 158 chars
-    let truncated = str;
-    if (str.length > 150) {
-        truncated = truncated.substring(0, 150);
-        truncated = truncated.substring(0, truncated.lastIndexOf(' '));
-        truncated += '...';
-    }
-    return truncated;
 };
 
 const truncateNumber = (number, decPlaces) => {
@@ -206,5 +180,4 @@ const truncateNumber = (number, decPlaces) => {
 
 export {
     Modpack,
-    VersionDropdown
 }

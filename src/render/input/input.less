@@ -188,17 +188,27 @@
 
   border: 1px solid @backgroundOpaque;
   border-radius: 5px;
-  background-color: transparent;
+  background-color: @backgroundVibrant3;
 
   font-size: 15px;
   font-family: Raleway, sans-serif;
-  color: @offGrey;
+  color: @superOffWhite;
 
   transition: 0.1s;
 
   &:hover {
     background-color: @backgroundOpaque;
-    color: @superOffWhite;
+    color: @offWhite;
+  }
+
+  &.disabled {
+    cursor: default;
+    color: @offGrey;
+
+    &:hover {
+      background-color: @backgroundVibrant3;
+      color: @offGrey;
+    }
   }
 
   &.primary {
@@ -275,7 +285,7 @@
     top: 35px;
 
     width: 100%;
-    max-height: 150px;
+    max-height: 155px;
 
     padding: 5px 0;
 
@@ -290,6 +300,22 @@
 
     &.hidden {
       display: none;
+    }
+
+    &::-webkit-scrollbar {
+      width: 5px;
+      border-radius: 5px;
+    }
+    &::-webkit-scrollbar-track {
+      background: @backgroundOpaque;
+      border-radius: 5px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: @offGrey;
+      border-radius: 5px;
+    }
+    &::-webkit-scrollbar-thumb:hover {
+      background: @superOffWhite;
     }
 
     .dropdown-option {
@@ -334,8 +360,10 @@
 }
 
 .textfield {
+  position: relative;
   box-sizing: border-box;
-  //cursor: pointer;
+  display: flex;
+  vertical-align: center;
 
   width: 100%;
   height: 30px;
@@ -343,6 +371,16 @@
   border: none;
   border-radius: 3px;
   background-color: @backgroundVibrant;
+
+  i {
+    position: absolute;
+    top: 6px;
+    left: 5px;
+    display: none;
+
+    font-size: 17px;
+    color: @offGrey
+  }
 
   input {
     box-sizing: border-box;
@@ -364,6 +402,17 @@
       font-size: 15px;
       font-family: Raleway, sans-serif;
       color: @offGrey;
+    }
+  }
+
+  &.icon {
+    i {
+      display: block;
+    }
+
+    input {
+      width: calc(100% - 17px);
+      margin-left: 17px;
     }
   }
 }

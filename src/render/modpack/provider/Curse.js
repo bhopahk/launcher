@@ -1,13 +1,13 @@
 import React from 'react';
 import { ModpackBrowser } from '../Modpack';
 import Snackbar from "../../snackbar/Snackbar";
+import { TextField, Dropdown, Option } from '../../input/Input';
 
 class CurseModpackListing extends React.Component {
     constructor(props) {
         super(props);
 
         this.page = 0;
-        this.searchRefreshTimeout = null;
 
         // noinspection SpellCheckingInspection
         this.state = {
@@ -15,9 +15,15 @@ class CurseModpackListing extends React.Component {
             search: '',
             category: 0,
             mcVersion: '-',
+            mcVersions: [],
             modpacks: [ ],
             loading: true,
         };
+
+        new Promise(resolve => {
+            window.ipc.send('cache:versions:keys');
+            window.ipc.once('cache:versions:keys', (event, data) => resolve(data));
+        }).then(keys => this.setState({ mcVersions: keys }));
 
         setTimeout(() => {
             this.fetchNextPage();
@@ -27,7 +33,7 @@ class CurseModpackListing extends React.Component {
     fetchNextPage() {
         this.setState({ loading: true });
         let oldModpacks = this.state.modpacks.slice();
-        fetch(`https://addons-ecs.forgesvc.net/api/addon/search?gameId=432&pageSize=20&index=${this.page * 20}&sort=${this.state.sort}&searchFilter=${encodeURI(this.state.search)}&categoryId=${this.state.category}&sectionId=4471&sortDescending=${this.state.sort === 'Name' || this.state.sort === 'Author' ? 'false' : true}`, {
+        fetch(`https://addons-ecs.forgesvc.net/api/v2/addon/search?gameId=432&pageSize=20&index=${this.page * 20}&sort=${this.state.sort}&searchFilter=${encodeURI(this.state.search)}&gameVersion=${this.state.mcVersion === '-' ? '' : this.state.mcVersion}&categoryId=${this.state.category}&sectionId=4471&sortDescending=${this.state.sort === 'Name' || this.state.sort === 'Author' ? 'false' : 'true'}`, {
             headers: { "User-Agent": "Launcher (https://github.com/bhopahk/launcher/)" }
         }).then(resp => resp.json()).then(json => {
             json.forEach(packJson => {
@@ -71,7 +77,7 @@ class CurseModpackListing extends React.Component {
                     icon: icon,
                     summary: packJson.summary,
                     description: packJson.fullDescription,
-                    featured: packJson.isFeatured === 1,
+                    featured: packJson.isFeatured,
                     popularity: packJson.popularityScore,
                     downloads: packJson.downloadCount,
                     modified: new Date(packJson.dateModified).getTime(),
@@ -136,60 +142,52 @@ class CurseModpackListing extends React.Component {
                 </div>
                 <div className="modpack-filter">
                     <div className="search">
-                        <input id="curseSearch" type="text" placeholder="Search..." onChange={(e) => {
-                            const newValue = e.target.value;
-                            clearTimeout(this.searchRefreshTimeout);
-                            this.searchRefreshTimeout = setTimeout(() => {
-                                this.setState({ search: newValue }, () => this.clearRefresh());
-                            }, 750);
-                        }} />
-                        <i className="fas fa-search"></i>
+                        <TextField id="curseSearch" placeholder="Search..." getValue={() => this.state.search} setValue={next => this.setState({ search: next }, () => this.clearRefresh())} icon="fas fa-search" />
                     </div>
-                    <div className="dropdowns">
-                        <select id="curseCategory" name="category" onChange={(e) => {
-                            this.setState({ category: e.target.value }, () => this.clearRefresh())
-                        }} >
-                            <option value="0">All</option>
-                            <option value="4475">Adventure and RPG</option>
-                            <option value="4483">Combat / PvP</option>
-                            <option value="4476">Exploration</option>
-                            <option value="4482">Extra Large</option>
-                            <option value="4487">FTB Official</option>
-                            <option value="4479">Hardcore</option>
-                            <option value="4473">Magic</option>
-                            <option value="4480">Map Based</option>
-                            <option value="4477">Mini Game</option>
-                            <option value="4484">Multiplayer</option>
-                            <option value="4478">Quests</option>
-                            <option value="4474">Sci-Fi</option>
-                            <option value="4736">Skyblock</option>
-                            <option value="4481">Small / Light</option>
-                            <option value="4472">Tech</option>
-                        </select>
-                        <select id="curseSortOrder" name="sort-order" onChange={(e) => {
-                            this.setState({ sort: e.target.value }, () => this.clearRefresh())
-                        }} >
-                            <option value="Featured">Featured</option>
-                            <option value="TotalDownloads">Downloads</option>
-                            <option value="Popularity">Popularity</option>
-                            <option value="Name">Name</option>
-                            <option value="Author">Author</option>
-                            <option value="LastUpdated">Last Updated</option>
-                        </select>
-                        <select id="curseGameVersion" onChange={(e) => {
-                            this.setState({ mcVersion: e.target.value }, () => this.clearRefresh())
-                        }} >
-                            <option value="-">Any</option>
-                            <option value="1.14">1.14</option>
-                            <option value="1.13.2">1.13.2</option>
-                        </select>
+                    <div style={{ width: '175px', paddingLeft: '15px' }}>
+                        <Dropdown id="curseCategory" getValue={() => this.state.category} setValue={next => this.setState({ category: next }, () => this.clearRefresh())} >
+                            <Option value={0} display="All" />
+                            <Option value={4475} display="Adventure and RPG" />
+                            <Option value={4483} display="Combat / PvP" />
+                            <Option value={4476} display="Exploration" />
+                            <Option value={4482} display="Extra Large" />
+                            <Option value={4487} display="FTB Official" />
+                            <Option value={4479} display="Hardcore" />
+                            <Option value={4473} display="Magic" />
+                            <Option value={4480} display="Map Based" />
+                            <Option value={4477} display="Mini Game" />
+                            <Option value={4484} display="Multiplayer" />
+                            <Option value={4478} display="Quests" />
+                            <Option value={4474} display="Sci-Fi" />
+                            <Option value={4736} display="Skyblock" />
+                            <Option value={4481} display="Small / Light" />
+                            <Option value={4472} display="Tech" />
+                        </Dropdown>
+                    </div>
+                    <div style={{ width: '125px', paddingLeft: '15px' }}>
+                        <Dropdown id="curseSortOrder" getValue={() => this.state.sort} setValue={next => this.setState({ sort: next }, () => this.clearRefresh())} >
+                            <Option value="Featured" display="Featured" />
+                            <Option value="TotalDownloads" display="Downloads" />
+                            <Option value="Popularity" display="Popularity" />
+                            <Option value="Name" display="Name" />
+                            <Option value="Author" display="Author" />
+                            <Option value={2} display="Last Updated" />
+                        </Dropdown>
+                    </div>
+                    <div style={{ width: '125px', paddingLeft: '15px' }}>
+                        <Dropdown id="curseGameVersion" getValue={() => this.state.mcVersion} setValue={next => this.setState({ mcVersion: next }, () => this.clearRefresh())} >
+                            <Option value="-" display="Any" />
+                            {this.state.mcVersions.map(ver => {
+                                return (<Option key={ver} value={ver} display={ver} />)
+                            })}
+                        </Dropdown>
                     </div>
                     <div className="refresh" onClick={() => this.onRefresh()}>
                         <i className="fas fa-redo flip"></i>
                     </div>
                 </div>
                 <ModpackBrowser modpacks={this.state.modpacks} loading={!this.state.loading} onRefresh={() => this.onRefresh()} onScrollBottom={() => {
-                    if (this.canLoadMore)
+                    if (!this.state.loading)
                         this.fetchNextPage();
                 }} onModpackInstall={(id, version) => {this.installModpack(id, version)}} onModpackFetchVersions={(id) => {this.fetchVersions(id)}} />
             </div>

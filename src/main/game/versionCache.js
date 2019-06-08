@@ -26,7 +26,7 @@ const xmlJs = require('xml-js');
 
 // Fetch links
 const VANILLA_META = 'https://launchermeta.mojang.com/mc/game/version_manifest.json';
-const FORGE_META = 'https://addons-ecs.forgesvc.net/api/minecraft/modloader';
+const FORGE_META = 'https://addons-ecs.forgesvc.net/api/v2/minecraft/modloader';
 const FABRIC_MAPPINGS = 'https://maven.fabricmc.net/net/fabricmc/yarn/';
 const FABRIC_MAPPINGS_META = `${FABRIC_MAPPINGS}maven-metadata.xml`;
 const FABRIC_LOADER = 'https://maven.fabricmc.net/net/fabricmc/fabric-loader/';

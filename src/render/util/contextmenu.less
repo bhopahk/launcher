@@ -1,53 +1,59 @@
 @import "../core/colors";
 
 .react-contextmenu {
-    box-sizing: border-box;
-    width: 160px;
+  box-sizing: border-box;
+  min-width: 160px;
+  outline: none;
 
-    margin: 0;
-    padding: 5px 0;
+  margin: 0;
+  padding: 5px 0;
 
-    border: none;
-    border-radius: 5px;
-    background-color: @downloadsBackground;
+  border: none;
+  border-radius: 5px;
+  background-color: @downloadsBackground;
 
-    z-index: -1;
-    opacity: 0;
-    transition: opacity 250ms ease !important;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 250ms ease !important;
 
-    &.submenu-menu {
-      max-height: 200px;
-      overflow-y: auto;
+  &.submenu-menu {
+    max-width: 350px;
+    max-height: 200px;
+    overflow-y: auto;
+    outline: none;
 
-      &::-webkit-scrollbar {
-        width: 5px;
-        border-radius: 5px;
-      }
-      &::-webkit-scrollbar-track {
-        background: @backgroundOpaque;
-        border-radius: 5px;
-      }
-      &::-webkit-scrollbar-thumb {
-        background: @offGrey;
-        border-radius: 5px;
-      }
-      &::-webkit-scrollbar-thumb:hover {
-        background: @superOffWhite;
-      }
+    &::-webkit-scrollbar {
+      width: 5px;
+      border-radius: 5px;
     }
-
-    &.react-contextmenu--visible {
-        opacity: 1;
-        pointer-events: auto;
-        z-index: 15;
+    &::-webkit-scrollbar-track {
+      background: @backgroundOpaque;
+      border-radius: 5px;
     }
+    &::-webkit-scrollbar-thumb {
+      background: @offGrey;
+      border-radius: 5px;
+    }
+    &::-webkit-scrollbar-thumb:hover {
+      background: @superOffWhite;
+    }
+  }
+
+  &.react-contextmenu--visible {
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 15;
+  }
 }
 .react-contextmenu-item {
   cursor: pointer;
   outline: none;
 
+  width: auto;
+
   padding: 5px 10px;
 
+  white-space: nowrap;
   border-radius: 5px;
   font-size: 15px;
   font-family: Source Sans Pro, sans-serif;

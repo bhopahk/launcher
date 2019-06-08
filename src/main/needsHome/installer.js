@@ -87,7 +87,7 @@ exports.installForge = async (version, libCallback) => {
     const dir = path.join(installDir, 'versions', version);
 
     await fs.mkdirs(dir);
-    const forge = await (await fetch(`https://addons-ecs.forgesvc.net/api/minecraft/modloader/${version}`)).json();
+    const forge = await (await fetch(`https://addons-ecs.forgesvc.net/api/v2/minecraft/modloader/${version}`)).json();
     let versionJson = JSON.parse(forge.versionJson);
     versionJson.jar = forge.minecraftVersion;
 

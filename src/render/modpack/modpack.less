@@ -37,16 +37,19 @@
   padding-bottom: 30px;
 
   &::-webkit-scrollbar {
-    width: 2px;
+    width: 5px;
+    border-radius: 5px;
   }
   &::-webkit-scrollbar-track {
-    background: #363636;
+    background: @backgroundOpaque;
+    border-radius: 5px;
   }
   &::-webkit-scrollbar-thumb {
-    background: #185cc9;
+    background: @offGrey;
+    border-radius: 5px;
   }
   &::-webkit-scrollbar-thumb:hover {
-    background: #185cc9;
+    background: @superOffWhite;
   }
 
   // Rendered for each individual modpack
@@ -127,15 +130,12 @@
         }
 
         p {
-          width: 80%;
-          //height: 15px;
-          //line-height: 10px;
           overflow: hidden;
 
+          width: 80%;
           margin-top: 10px;
 
-          // todo need to revisit the multi line ellipsis, should make some calculation based on the width or something
-          font-size: 19px;
+          font-size: 15px;
           font-family: "Source Sans Pro", sans-serif;
           color: @superOffWhite;
         }
@@ -173,207 +173,58 @@
       display: flex;
       align-items: center;
       position: absolute;
-      right: 15px;
+      right: 20px;
 
       height: 100%;
-
-      div {
-        display: flex;
-        align-items: center;
-        //border: 1px solid @inactive;
-        border-radius: 5px;
-        background-color: @backgroundOpaque2;
-        box-shadow: 0 0 12px -5px rgba(0,0,0,0.62);
-
-        div {
-          width: 1px;
-          height: 2.5vh;
-
-          background-color: @inactive;
-        }
-
-        button {
-          position: relative;
-          box-sizing: border-box;
-          outline: none;
-          cursor: pointer;
-          user-select: none;
-
-          font-size: 3vh;
-          font-family: Raleway, sans-serif;
-
-          border: none;
-          background: transparent;
-          color: @superOffWhite;
-          text-shadow: 2px 2px @offBlack;
-
-          transition: 0.3s;
-
-          &:hover {
-            color: @offWhite;
-          }
-
-          div {
-            display: none;
-          }
-
-          .modpack-versions {
-            box-sizing: border-box;
-            display: block;
-            position: absolute;
-            right: 0;
-            top: 35px;
-
-            width: 200px;
-            height: 200px;
-
-            margin: 0;
-            padding: 10px;
-
-            background-color: @downloadsBackground;
-
-            overflow-x: hidden;
-            overflow-y: auto;
-
-            text-align: left;
-            z-index: 3;
-
-            p {
-              margin-top: 20px;
-
-              text-align: center;
-              font-size: 15px;
-              font-family: "Source Sans Pro", sans-serif;
-              color: @offWhite;
-              text-shadow: none;
-            }
-
-            li {
-              display: flex;
-              justify-content: space-between;
-
-              padding: 2px 5px;
-
-              text-shadow: none;
-
-              .version-name {
-                font-size: 12px;
-                color: @offWhite;
-              }
-
-              .version-type {
-                font-size: 10px;
-                color: @offGrey
-              }
-
-              &:hover {
-                background-color: @backgroundOpaque;
-              }
-            }
-          }
-        }
-      }
-
-      .disabled {
-        button {
-          cursor: default;
-          color: @offGrey;
-          text-shadow: none;
-
-          &:hover {
-            color: @offGrey;
-          }
-        }
-      }
     }
   }
 }
 
 .modpack-filter {
   display: flex;
+  justify-content: center;
 
-  height: 3vh;
+  width: calc(100% - 60px);
+  height: 30px;
 
   margin-left: 30px;
   margin-top: 30px;
 
   .search {
     box-sizing: border-box;
-    display: flex;
-    flex-direction: row-reverse;
-
-    height: 4vh;
+    width: 200px;
 
     color: @offGrey;
-
-    input {
-      box-sizing: border-box;
-      outline: none;
-
-      height: 2.5vh;
-
-      border: none;
-      background: transparent;
-      font-family: "Source Sans Pro", sans-serif;
-      color: @offGrey;
-
-      &:focus {
-        color: @offWhite;
-      }
-
-      &::placeholder {
-        font-family: "Source Sans Pro", sans-serif;
-        color: @offGrey;
-      }
-    }
-
-    i {
-      box-sizing: border-box;
-
-      margin-right: 5px;
-
-      font-size: 2.5vh;
-
-    }
-
-    input:focus + i {
-      color: @offWhite;
-    }
   }
 
   .dropdowns {
-    select {
-      text-align-last: right;
-      outline: none;
-
-      border: none;
-      background: transparent;
-      font-family: Raleway, sans-serif;
-      color: @offGrey;
-
-      option {
-        direction: rtl;
-        outline: none;
-
-        border: none;
-        background-color: @backgroundOpaque2;
-        color: @offWhite;
-      }
-    }
+    width: 150px;
   }
 
   .refresh {
+    position: relative;
     display: flex;
     align-items: center;
     cursor: pointer;
 
+    width: 30px;
+    height: 30px;
+
     margin-left: 15px;
 
-    font-size: 2vh;
+    font-size: 15px;
     color: @offGrey;
+
+    border: none;
+    border-radius: 3px;
+    background-color: @backgroundVibrant;
 
     &:hover {
       color: @offWhite;
+    }
+
+    i {
+      margin-left: 7px;
     }
   }
 }
