@@ -21,15 +21,16 @@ SOFTWARE.
 */
 
 const fs = require('fs-extra');
+const crypto = require('crypto');
 
 exports.download = (url, location, oneTry) => {
     let https = url.startsWith('https')
         ? require('follow-redirects').https
         : require('follow-redirects').http;
-    return new Promise((resolve, reject) => {
-        if (fs.existsSync(location))
-            return resolve(location);
-        else fs.ensureFileSync(location);
+    return new Promise(async (resolve, reject) => {
+        if (await fs.pathExists(location))
+            await fs.remove(location);
+        await fs.ensureFile(location);
         let target = fs.createWriteStream(location);
         https.get(url, resp => {
             resp.pipe(target);
@@ -37,12 +38,28 @@ exports.download = (url, location, oneTry) => {
                 target.close();
                 resolve(location);
             });
+            target.on('error', () => {
+                if (!oneTry)
+                    return this.download(url, location, true);
+                fs.removeSync(target);
+                reject(error);
+            });
         }).on('error', error => {
             if (!oneTry)
                 return this.download(url, location, true);
-            fs.unlink(target);
+            fs.removeSync(target);
             reject(error);
         });
+        // fs.ensureFile(location).then(() => {
+        //
+        // }).catch(async e => {
+        //     const exists = await fs.pathExists(location);
+        //     console.log("ETRWIUAHTIUAWT" + exists);
+        //     if (!exists)
+        //         fs.
+        //     console.log(e);
+        // });
+
     });
 };
 
@@ -65,4 +82,33 @@ exports.dLzma = async (file, cleanup = true) => {
     await fs.writeFile(file.substring(0, file.lastIndexOf('.')), decompressed);
     if (cleanup)
         await fs.remove(file);
+};
+
+//todo needs test
+exports.loadImage = async (file) => {
+    const name = file.substring(file.lastIndexOf(file.indexOf('/') !== -1 ? '/' : '\\'));
+    if (!/[^\s]+(\.(jpg|png|gif|bmp))/.test(name))
+        return { error: 'no match', errorMessage: 'The supplied file is not a valid image.' };
+    if (!await fs.pathExists(file))
+        return { error: 'nonexistent', errorMessage: 'The supplied file does not exist!' };
+    const image = fs.readFileSync(file);
+    return {
+        name: name,
+        path: file,
+        src: `data:image/png;base64,${image.toString('base64')}`
+    };
+};
+
+exports.fileChecksum = (file, algorithm) => {
+    return new Promise(async resolve => {
+        if (!await fs.pathExists(file))
+            resolve('');
+        let hash = crypto.createHash(algorithm);
+        let stream = fs.createReadStream(file);
+        stream.on('data', data => hash.update(data, 'utf8'));
+        stream.on('end', () => {
+            stream.close();
+            resolve(hash.digest('hex'))
+        });
+    });
 };

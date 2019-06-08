@@ -25,6 +25,9 @@ const path = require('path');
 const files = require('../util/files');
 const lzma = require('lzma-purejs');
 const fetch = require('node-fetch');
+const cache = require('../game/versionCache');
+const config = require('../config/config');
+const { BrowserWindow, ipcMain } = require('electron');
 const platform = process.platform;
 
 const baseDir = require('electron').app.getPath('userData');
@@ -45,6 +48,8 @@ const aliases = {
 };
 
 fs.mkdirs(tempDir);
+
+const sendTaskUpdate = (id, task, progress) => require('./profile').sendTaskUpdate(id, task, progress);
 
 exports.installBaseGame = async (platform = 'win32', modern = true) => {
     const launcherPath = path.join(installDir, `minecraft.${platform === 'win32' ? 'exe' : 'jar'}`);
@@ -81,6 +86,38 @@ exports.installVersion = async (version, libCallback) => { //todo proper error h
     await files.download(vanilla.downloads.client.url, path.join(dir, `${version}.jar`));
     await files.download(vanilla.assetIndex.url, path.join(dir, `${version}.json`));
     await this.installLibraries(vanilla.libraries, libCallback);
+};
+exports.installVanilla = async (version, task) => {
+    const dir = path.join(installDir, 'versions', version);
+
+    console.log(`Installing (or validating) Minecraft ${version}`);
+    fs.mkdirs(dir);
+    const vanilla = await (await fetch(cache.findGameVersion(version).url)).json();
+
+    // Write version json
+    sendTaskUpdate(task, 'writing profile settings', 1/3);
+    const jsonLoc = path.join(dir, `${version}.json`);
+    if (!await fs.pathExists(jsonLoc))
+        await fs.writeJson(jsonLoc, vanilla);
+    // Download client jar
+    sendTaskUpdate(task, 'writing profile settings', 2/3);
+    const clientJar = path.join(dir, `${version}.jar`);
+    if (!await fs.pathExists(clientJar) || (await files.fileChecksum(clientJar, 'sha1')) !== vanilla.downloads.client.sha1)
+        await files.download(vanilla.downloads.client.url, clientJar);
+    // Download asset index
+    sendTaskUpdate(task, 'writing profile settings', 3/3);
+    const assetIndex = path.join(installDir, 'assets', 'indexes', `${vanilla.assetIndex.id}.json`);
+    if (!await fs.pathExists(assetIndex) || (await files.fileChecksum(assetIndex, 'sha1')) !== vanilla.assetIndex.sha1)
+        await files.download(vanilla.assetIndex.url, assetIndex);
+
+    // Download assets
+    await downloadAssets((await fs.readJson(assetIndex)).objects, task);
+
+    const logConfig = path.join(installDir, 'assets', 'log_configs', vanilla.logging.client.file.id);
+    if (!await fs.pathExists(logConfig) || (await files.fileChecksum(logConfig, 'sha1')) !== vanilla.logging.client.file.sha1)
+        await files.download(vanilla.logging.client.file.url, assetIndex);
+
+    await downloadVanillaLibraries(vanilla.libraries, task);
 };
 
 exports.installForge = async (version, libCallback) => {
@@ -161,7 +198,6 @@ exports.installLibraries = async (libraries, callback) => {
     }
 };
 
-
 const downloadLibraryArtifact = async (artifact) => {
     if (artifact == null)
         return;
@@ -185,4 +221,30 @@ const downloadMavenArtifact = async (artifact) => {
     if (await fs.pathExists(file))
         return;
     await files.download(url, file);
+};
+
+// Helper Functions
+
+const downloadAssets = (objects, task) => {
+    return new Promise(resolve => {
+        console.log('Creating worker...');
+        const workerWindow = new BrowserWindow({ show: config.getValue('app/developerMode'), title: 'Proton Worker', webPreferences: { nodeIntegration: true } });
+        ipcMain.on('workers:assets', () => {
+            workerWindow.close();
+            resolve();
+        });
+        ipcMain.on('workers:assets:task', (event, data) => {
+            sendTaskUpdate(task, data.task, data.progress);
+        });
+        workerWindow.loadURL(`file://${__dirname}/worker/assets.html`).then(() => {
+            workerWindow.webContents.send('workers:assets', {
+                objects,
+                installDir
+            });
+        });
+    });
+};
+
+const downloadVanillaLibraries = (libraries, task) => {
+
 };

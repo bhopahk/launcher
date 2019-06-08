@@ -89,7 +89,7 @@ class App extends React.Component {
         return (
             <div>
                 <Actions />
-                <Sidebar default="curse">
+                <Sidebar default="custom">
                     <SidebarHeader />
                     <SidebarGroup index={0} title="library">
                         <Page id="profiles" icon="list" display="Profiles">
@@ -145,6 +145,9 @@ class App extends React.Component {
                                     </Dropdown>
                                 </SettingsField>
                                 <Title>Advanced</Title>
+                                <SettingsField title="Parallel Downloads" switch description="Allows the launcher to download many files at once, this speeds up the download process significantly, however it is not recommended for slow internet connections.">
+                                    <SettingsSwitch id="parallelDownloads" />
+                                </SettingsField>
                                 <SettingsField title="End on Close" switch description="Stops the launcher from keeping a background process in the background when the window is not shown. This will disable all background features.">
                                     <SettingsSwitch id="endOnClose" />
                                 </SettingsField>

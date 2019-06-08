@@ -56,88 +56,8 @@
   }
 
   .create-profile-name {
-    display: flex;
-    flex-direction: row-reverse;
-    justify-content: center;
-
-    border: none;
-
-    i {
-      padding: 5px;
-
-      border-top-left-radius: 5px;
-      border-bottom-left-radius: 5px;
-      color: @offGrey;
-      background-color: rgba(0, 0, 0, 0.2);
-    }
-
-    input:focus + i {
-      color: @offWhite;
-    }
-
-    input {
-      box-sizing: border-box;
-      outline: none;
-
-      border: none;
-      border-top-right-radius: 5px;
-      border-bottom-right-radius: 5px;
-      background-color: rgba(0, 0, 0, 0.2);
-      font-size: 15px;
-      font-family: "Source Sans Pro", sans-serif;
-      color: @offWhite;
-
-      &::placeholder {
-        font-family: "Source Sans Pro", sans-serif;
-        color: @offGrey;
-      }
-    }
-  }
-
-  button {
-    box-sizing: border-box;
-    outline: none;
-    user-select: none;
-    cursor: pointer;
-
-    padding: 5px;
-    margin: 0 20px 20px;
-
-    font-size: 20px;
-    font-family: Raleway, sans-serif;
-
-    border: none;
-    border-radius: 5px;
-    background-color: @backgroundVibrant;
-    color: @superOffWhite;
-
-    text-shadow: 2px 2px @offBlack;
-    box-shadow: 0 0 12px -5px rgba(0,0,0,0.72);
-
-    &:active {
-      box-shadow: none;
-    }
-  }
-
-  select {
-    box-sizing: border-box;
-    outline: none;
-
-    font-size: 20px;
-    font-family: Raleway, sans-serif;
-
-    border: none;
-    border-bottom: 1px solid @offGrey;
-    background: transparent;
-    color: @offGrey;
-
-    &:focus {
-      border-bottom: 1px solid @offWhite;
-    }
-
-    option {
-      background-color: @backgroundVibrant;
-    }
+    width: 30%;
+    margin-left: 35%;
   }
 
   .create-profile-types {
@@ -149,33 +69,50 @@
 
     .create-profile-type {
       box-sizing: border-box;
-      display: block;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
       flex: 1;
       position: relative;
       cursor: pointer;
 
+      height: 285px;
       max-width: 300px;
 
       margin: 10px;
-      padding: 5px 5px 15px;
+      padding: 5px 10px 15px;
 
       text-align: center;
 
       border: none;
       border-radius: 5px;
-      background-color: @backgroundVibrant;
-      //background-color: green;
+      background-color: @downloadsBackground;
 
-      //z-index: -1;
+      .dropdown {
+        box-sizing: border-box;
+
+        margin-bottom: 10px;
+
+        border: 1px solid @backgroundOpaque;
+        border-radius: 3px;
+        background-color: @backgroundVibrant3;
+
+        .dropdown-active {
+          background-color: transparent;
+        }
+        //position: absolute;
+        //bottom: 0;
+      }
 
       transition: all 0.3s;
+
       * {
         transition: all 0.3s;
       }
 
-      i {
+      .more-info {
         position: absolute;
-        right: 10px;
+        left: 10px;
         top: 10px;
 
         font-size: 15px;
@@ -220,7 +157,7 @@
 
       &.disabled {
         cursor: not-allowed;
-        background: transparent;
+        background: @backgroundVibrant3;
 
         * {
           cursor: not-allowed;
@@ -235,8 +172,13 @@
           }
         }
 
+        .dropdown {
+          opacity: 0.5;
+        }
+
         h2 {
           color: @inactive;
+          text-shadow: none;
         }
 
         p {

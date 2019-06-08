@@ -74,5 +74,20 @@ describe('files.js', () => {
             assert.ok(await fs.pathExists(unzippedPath))
         );
     });
+    describe('checksum', () => {
+        const testFileUrl = 'https://launcher.mojang.com/v1/objects/a9358d6b2ac6025923155b46dc26cc74523ac130/client.jar';
+        const testFile = './client.jar';
+        const correctChecksum = 'a9358d6b2ac6025923155b46dc26cc74523ac130';
+
+        it('should download test file', async () => {
+            await files.download(testFileUrl, testFile, true);
+            assert.ok(await fs.pathExists(testFile));
+        });
+        it('should find a matching checksum', async () => {
+            const checksum = await files.fileChecksum(testFile, 'sha1');
+            assert.strictEqual(checksum, correctChecksum);
+            await fs.remove(testFile);
+        });
+    })
 });
 

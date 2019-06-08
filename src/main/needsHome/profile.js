@@ -29,6 +29,7 @@ const { app, ipcMain, Notification } = require('electron');
 const fs = require('fs-extra');
 const path = require('path');
 const installer = require('./installer');
+const files = require('../util/files');
 const config = require('../config/config');
 const sendSync = require('../util/ipcMainSync').sendSync;
 
@@ -60,6 +61,17 @@ ipcMain.on('profile:launch', async (event, payload) => {
         console.log('Launched');
     });
 });
+ipcMain.on('profile:create:custom', async (event, payload) => {
+    if (mainWindow == null)
+        mainWindow = event.sender;
+    const tId = await sendSync(mainWindow, 'tasks:create', { name: payload.name });
+    await installer.installVanilla(payload.version.version, tId);
+});
+ipcMain.on('profile:create:curse', async (event, payload) => {
+    if (mainWindow == null)
+        mainWindow = event.sender;
+
+});
 ipcMain.on('profile:screenshots', async (event, payload) => {
     if (mainWindow == null)
         mainWindow = event.sender;
@@ -72,6 +84,13 @@ ipcMain.on('profile:screenshots:delete', async (event, payload) => {
     await this.deleteProfileScreenshot(payload.profile, payload.image);
     mainWindow.send('profile:screenshots', await this.getProfileScreenshots(payload.profile));
 });
+
+exports.sendTaskUpdate = (id, task, progress) => {
+    mainWindow.send('tasks:update', {
+        tId: id,
+        task, progress
+    });
+};
 
 exports.createProfile = async (data, onApproved, overwrite) => {
     const dir = path.join(instanceDir, data.name);
@@ -175,21 +194,16 @@ exports.getProfile = async (name) => {
     return profiles[name];
 };
 exports.getProfileScreenshots = async (name) => {
-    let images = [];
     const dir = path.join((await this.getProfile(name)).directory, 'screenshots');
     if (!await fs.pathExists(dir))
         return [];
-    const files = await fs.readdir(dir);
-    files.forEach(file => {
-        if (!file.endsWith('.png'))
-            return;
-        const image = fs.readFileSync(path.join(dir, file));
-        images.push({
-            name: file,
-            path: path.join(dir, file),
-            src: `data:image/png;base64,${image.toString('base64')}`
-        });
-    });
+    const screenshots = await fs.readdir(dir);
+    let images = [];
+    for (let i = 0; i < screenshots.length; i++) {
+        const processed = await files.loadImage(path.join(dir, screenshots[i]));
+        if (!processed.error)
+            images.push(processed);
+    }
     return images;
 };
 exports.deleteProfileScreenshot = async (name, image) => {
@@ -217,7 +231,6 @@ exports.renderProfiles = async () => {
     const profiles = [];
 
     Object.keys(loaded).forEach(key => {
-        // console.log(loaded[key]);
         profiles.push({
             name: loaded[key].name,
             icon: loaded[key].icon,
@@ -228,7 +241,6 @@ exports.renderProfiles = async () => {
             directory: loaded[key].directory,
         });
     });
-
     mainWindow.send('profiles', profiles);
 };
 

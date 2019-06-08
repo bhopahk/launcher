@@ -24,11 +24,27 @@ import React from 'react';
 import Snackbar from '../snackbar/Snackbar';
 import './create.css';
 
-import { Dropdown, Option } from '../input/Input';
+import { Dropdown, Option, TextField, Button } from '../input/Input';
 
 export default class CreateProfile extends React.Component {
     constructor(props) {
         super(props);
+
+        this.state = {
+            loading: true,
+            active: 'vanilla',
+
+            versions: [],
+            selected: {
+                snapshots: [],
+                forge: [],
+                fabric: [],
+            },
+            fabric: [],
+
+            input_snapshot: 'release',
+            input_name: '',
+        };
 
         new Promise(resolve => {
             window.ipc.send('cache:versions:keys');
@@ -51,30 +67,11 @@ export default class CreateProfile extends React.Component {
                 input_snapshot: selected.url == null ? selected.snapshots[0].name : 'release',
             });
         });
-
-        this.state = {
-            loading: true,
-            active: 'vanilla',
-
-            versions: [],
-            selected: {
-                snapshots: [],
-                forge: [],
-                fabric: [],
-            },
-            fabric: [],
-
-            input_snapshot: 'release',
-            input_name: '',
-        };
-
-        this.stopLoading = () => {
-            this.setState({
-                loading: false,
-            });
-        };
     }
 
+    componentWillMount() {
+        window.ipc.on('profile:custom', this.stopLoading);
+    }
     componentWillUpdate(nextProps, nextState, nextContext) {
         if (this.state.selected !== nextState.selected) {
             nextState.input_snapshot = nextState.selected.url == null ? nextState.selected.snapshots[0].name : 'release';
@@ -88,12 +85,17 @@ export default class CreateProfile extends React.Component {
             nextState.input_fabric_mappings = this.getFabricMappings(nextState).length === 0 ? null : this.getFabricMappings(nextState)[0].version;
         }
     }
-
-    componentWillMount() {
-        window.ipc.on('profile:custom', this.stopLoading);
-    }
     componentWillUnmount() {
         window.ipc.removeListener('profile:custom', this.stopLoading);
+    }
+
+    getFabricMappings(state = this.state) {
+        if (state.input_snapshot === 'release')
+            return state.selected.fabric;
+        else for (let i = 0; i < state.selected.snapshots.length; i++)
+            if (state.selected.snapshots[i].name === state.input_snapshot)
+                return state.selected.snapshots[i].fabric;
+        return [];
     }
 
     isDisabled(type, state = this.state) {
@@ -107,26 +109,14 @@ export default class CreateProfile extends React.Component {
     setActive(type) {
         if (this.isDisabled(type))
             return;
+        this.setState({ active: type });
+    }
 
+    stopLoading = () => {
         this.setState({
-            active: type,
+            loading: false,
         });
-    }
-
-    handleInput(key, value) {
-        let nextState = {};
-        nextState[key] = value;
-        this.setState(nextState);
-    }
-
-    getFabricMappings(state = this.state) {
-        if (state.input_snapshot === 'release')
-            return state.selected.fabric;
-        else for (let i = 0; i < state.selected.snapshots.length; i++)
-            if (state.selected.snapshots[i].name === state.input_snapshot)
-                return state.selected.snapshots[i].fabric;
-        return [];
-    }
+    };
 
     sendCreationRequest() {
         if (this.state.active !== 'vanilla' && this.state.active !== 'forge' && this.state.active !== 'fabric') {
@@ -139,7 +129,7 @@ export default class CreateProfile extends React.Component {
             this.setState({ loading: true });
 
         let version = {
-            version: this.state.input_snapshot === 'release' ? this.state.selected.name : this.state.input_snapshot,
+            version: this.state.selected.url !== undefined ? this.state.selected.name : this.state.input_snapshot,
             flavor: this.state.active
         };
         switch (this.state.active) {
@@ -157,7 +147,7 @@ export default class CreateProfile extends React.Component {
                 return;
         }
 
-        window.ipc.send('profile:custom', {
+        window.ipc.send('profile:create:custom', {
             action: 'CREATE',
             version,
             name: this.state.input_name.trim(),
@@ -165,7 +155,6 @@ export default class CreateProfile extends React.Component {
     }
 
     //todo add alpha/beta versions as another selector at the top which just disables all of the ones below.
-
     render() {
         return (
             <div className="create-profile-wrapper">
@@ -174,56 +163,69 @@ export default class CreateProfile extends React.Component {
                 </div>
                 <div className="create-profile">
                     <h1>Create Custom Profile</h1>
-                    <Dropdown minuscule getValue={() => this.state.selected.name } setValue={next => this.handleInput('selected', window.ipc.sendSync('cache:versions', next))} ref={this.vanillaRef}>
-                        {this.state.versions.map(ver => {
-                            return (<Option key={ver} value={ver} display={ver} />);
-                        })}
+                    <Dropdown minuscule getValue={() => this.state.selected.name } setValue={next => this.setState({ selected: window.ipc.sendSync('cache:versions', next) })}>
+                        {this.state.versions.map(ver =>
+                            <Option key={ver} value={ver} display={ver} />)}
                     </Dropdown>
                     <div className="create-profile-types">
                         <div className={`create-profile-type ${this.state.active === 'vanilla' ? 'active' : ''}`} onClick={() => this.setActive('vanilla')}>
-                            <i className="fas fa-info-circle" onClick={() => window.ipc.send('open-external', 'https://minecraft.net/')}></i>
-                            <h2>VANILLA</h2>
-                            <p>The unmodified game distributed by Mojang.</p>
-                            <Dropdown getValue={() => this.state.input_snapshot } setValue={next => this.handleInput('input_snapshot', next)} ref={this.vanillaRef}>
-                                {this.state.selected.url != null ? (<Option value={"release"} display={"Release"} />) : null}
-                                {this.state.selected.snapshots.map(ver => {
-                                    return (<Option key={ver.name} value={ver.name} display={ver.name} />);
-                                })}
-                            </Dropdown>
+                            <i className="fas fa-info-circle more-info" onClick={() => window.ipc.send('open-external', 'https://minecraft.net/')}></i>
+                            <div>
+                                <h2>VANILLA</h2>
+                                <p>The unmodified game distributed by Mojang. Snapshot versions are not guaranteed to function correctly, expect bugs.</p>
+                            </div>
+                            <div className="create-profile-selectors">
+                                <Dropdown getValue={() => this.state.input_snapshot } setValue={next => this.setState({ input_snapshot: next })}>
+                                    {this.state.selected.url != null ? (<Option value={"release"} display={"Release"} />) : null}
+                                    {this.state.selected.snapshots.map(ver =>
+                                        <Option key={ver.name} value={ver.name} display={ver.name} />)}
+                                </Dropdown>
+                                <Button onClick={() => {}}>Select</Button>
+                            </div>
                         </div>
                         <div className={`create-profile-type ${this.state.active === 'forge' ? 'active' : ''} ${this.isDisabled('forge') ? 'disabled' : ''}`} onClick={() => this.setActive('forge')}>
-                            <i className="fas fa-info-circle" onClick={() => window.ipc.send('open-external', 'https://www.minecraftforge.net/')}></i>
-                            <h2>FORGE</h2>
-                            <p>Minecraft Forge is a free, open-source modding API and loader designed to simplify compatibility between community-created mods.</p>
-                            <Dropdown getValue={() => this.state.input_forge} setValue={next => this.handleInput('input_forge', next)}>
-                                {this.state.selected.forge.map(ver => {
-                                    return (<Option key={ver.id} value={ver.id} display={ver.id} />);
-                                })}
-                            </Dropdown>
+                            <i className="fas fa-info-circle more-info" onClick={() => window.ipc.send('open-external', 'https://www.minecraftforge.net/')}></i>
+                            <div>
+                                <h2>FORGE</h2>
+                                <p>Minecraft Forge is a free, open-source modding API and loader designed to simplify compatibility between community-created mods.</p>
+                            </div>
+                            <div className="create-profile-selectors">
+                                <Dropdown getValue={() => this.state.input_forge} setValue={next => this.setState({ input_forge: next })}>
+                                    {this.state.selected.forge.map(ver =>
+                                        <Option key={ver.id} value={ver.id} display={ver.id} />)}
+                                </Dropdown>
+                                <Button onClick={() => {}} disabled={this.isDisabled('forge')}>Select</Button>
+                            </div>
                         </div>
                         <div className={`create-profile-type ${this.state.active === 'fabric' ? 'active' : ''} ${this.isDisabled('fabric') ? 'disabled' : ''}`} onClick={() => this.setActive('fabric')}>
-                            <i className="fas fa-info-circle" onClick={() => window.ipc.send('open-external', 'https://fabricmc.net/')}></i>
-                            <h2>FABRIC<i className="fas fa-info-circle"></i></h2>
-                            <p>Fabric is a lightweight, experimental modding toolchain for Minecraft. THIS SHOULD BE FLAGGED AS IN EARLY DEV STAGE!</p>
-                            <Dropdown getValue={() => this.state.input_fabric_mappings} setValue={next => this.handleInput('input_fabric_mappings', next)}>
-                                {this.getFabricMappings().map(ver => {
-                                    return (<Option key={ver.version} value={ver.version} display={`${ver.game} build ${ver.mappings}`} />)
-                                })}
-                            </Dropdown>
-                            <br/>
-                            <Dropdown getValue={() => this.state.input_fabric_loader} setValue={next => this.handleInput('input_fabric_loader', next)}>
-                                {this.state.fabric.map(ver => {
-                                    return (<Option key={ver.raw} value={ver.raw} display={`${ver.id} build ${ver.build}`} />)
-                                })}
-                            </Dropdown>
+                            <i className="fas fa-info-circle more-info" onClick={() => window.ipc.send('open-external', 'https://fabricmc.net/')}></i>
+                            <div>
+                                <h2>FABRIC <span className={`badge ${this.isDisabled('fabric') ? 'disabled' : ''}`} style={{ position: 'absolute', top: '16px' }}>Pre Release</span></h2>
+                                <p>The Fabric project is a lightweight, experimental modding toolchain for Minecraft, primarily targeting 1.14+ versions of the game.</p>
+                            </div>
+                            <div className="create-profile-selectors">
+                                <Dropdown getValue={() => this.state.input_fabric_mappings} setValue={next => this.setState({ input_fabric_mappings: next })}>
+                                    {this.getFabricMappings().map(ver =>
+                                        <Option key={ver.version} value={ver.version} display={`${ver.game} build ${ver.mappings}`} />)}
+                                </Dropdown>
+                                <Dropdown getValue={() => this.state.input_fabric_loader} setValue={next => this.setState({ input_fabric_loader: next })}>
+                                    {this.state.fabric.map(ver => {
+                                        if (this.isDisabled('fabric'))
+                                            return null;
+                                        return (<Option key={ver.raw} value={ver.raw} display={`${ver.id} build ${ver.build}`} />)
+                                    })}
+                                </Dropdown>
+                                <Button onClick={() => {}} disabled={this.isDisabled('fabric')}>Select</Button>
+                            </div>
                         </div>
                     </div>
                     <div className="create-profile-name">
-                        <input onChange={e => this.handleInput('input_name', e.target.value)} type="text" placeholder="Profile Name" />
-                        <i className="fas fa-pencil-alt"></i>
+                        <TextField id="customProfileName" icon="fas fa-pencil-alt" placeholder="Enter name..." getValue={() => this.state.input_name} setValue={next => this.setState({ input_name: next })} />
                     </div>
                     <br/>
-                    <button onClick={() => this.sendCreationRequest()}>Create Profile</button>
+                    <Button onClick={() => this.sendCreationRequest()}>
+                        Create Profile
+                    </Button>
                 </div>
             </div>
         );

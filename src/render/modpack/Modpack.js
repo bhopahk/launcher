@@ -3,6 +3,7 @@ import './modpack.css';
 import ReactTooltip from "react-tooltip";
 import { ContextMenu, ContextMenuTrigger, MenuItem, SubMenu } from 'react-contextmenu';
 import { Button } from '../input/Input';
+import Snackbar from '../snackbar/Snackbar';
 
 export class ModpackBrowser extends React.Component {
     constructor(props) {
@@ -75,7 +76,7 @@ export class ModpackBrowser extends React.Component {
             return (
                 <div className="bug">
                     <h1><i className="fas fa-bug"></i></h1>
-                    <p>An error has occurred, please <span onClick={() => this.props.onRefresh()}>refresh</span> the page.</p>
+                    <p>An error has occurred, please <span onClick={() => Snackbar.sendSnack({ body: 'Refreshing Page...' })}>refresh</span> the page.</p>
                 </div>
             );
         }
@@ -99,7 +100,6 @@ export class ModpackBrowser extends React.Component {
                                      loadVersions={() => this.handleLoadVersions(modpack.id)}
                                      getLoadedVersions={() => this.state.versions} />)
                 })}
-                {/*{props.loading ? (<p>LOADING</p>) : (<div></div>)}*/}
             </div>
         );
     }

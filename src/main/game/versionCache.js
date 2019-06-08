@@ -143,7 +143,7 @@ exports.findGameVersion = (version) => {
     const keys = Object.keys(this.minecraft);
     for (let i = 0; i < keys.length; i++) {
         const key = keys[i];
-        if (version === key)
+        if (version === key && this.minecraft[key].url !== undefined)
             return this.minecraft[key];
         for (let j = 0; j < this.minecraft[key].snapshots.length; j++)
             if (this.minecraft[key].snapshots[j].name === version)

@@ -1,0 +1,48 @@
+<h1>This is a background process.</h1>
+<script type="text/javascript">
+    const ipc = require('electron').ipcRenderer;
+    const path = require('path');
+    const fs = require('fs-extra');
+    const files = require('../../util/files');
+
+    ipc.on('workers:assets', async (event, data) => {
+        const dev = ipc.sendSync('config:get', 'app/developerMode');
+        const keys = Object.keys(data.objects);
+        const objectDir = path.join(data.installDir, 'assets', 'objects');
+        const total = keys.length;
+
+        let index = 0;
+        const callback = () => {
+            index++;
+            ipc.send('workers:assets:task', { task: 'downloading game assets', progress: index / total });
+            if (index === total)
+                ipc.send('workers:assets');
+        };
+
+        for (let i = 0; i < keys.length; i++) {
+            const object = data.objects[keys[i]];
+            const file = path.join(objectDir, object.hash.substring(0, 2), object.hash.substring(2));
+            if (!(await fs.pathExists(file) && (await files.fileChecksum(file, 'sha1')) === object.hash))
+                await files.download(`https://resources.download.minecraft.net/${object.hash.substring(0, 2)}/${object.hash}`, file);
+            callback();
+        }
+
+        // if (ipc.sendSync('config:get', 'app/parallelDownloads')) {
+        //     keys.forEach(async key => {
+        //         const object = data.objects[key];
+        //         const fileParent = path.join(objectDir, object.hash.substring(0, 2));
+        //         // await fs.mkdirs(fileParent);
+        //         const file = path.join(fileParent, object.hash.substring(2));
+        //         if (dev)
+        //             console.log(`Downloading ${object.hash} to ${file}`);
+        //         files.download(`https://resources.download.minecraft.net/${object.hash.substring(0, 2)}/${object.hash}`, file).then(() => callback()).catch(err => {
+        //             console.log('ERROROROROR');
+        //         });
+        //         if (!await fs.pathExists(file)/* || (await files.fileChecksum(file, 'sha1')) !== object.hash*/) {
+        //
+        //         }
+        //     });
+        // } else {
+        // }
+    });
+</script>
