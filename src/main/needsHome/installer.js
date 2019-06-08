@@ -246,5 +246,23 @@ const downloadAssets = (objects, task) => {
 };
 
 const downloadVanillaLibraries = (libraries, task) => {
+    // All of them which contain a 'natives' key should have the native installed as well.
 
+    return new Promise(resolve => {
+        console.log('Creating worker...');
+        const workerWindow = new BrowserWindow({ show: config.getValue('app/developerMode'), title: 'Proton Worker', webPreferences: { nodeIntegration: true } });
+        ipcMain.on('workers:libraries:vanilla', () => {
+            workerWindow.close();
+            resolve();
+        });
+        ipcMain.on('workers:libraries:vanilla:task', (event, data) => {
+            sendTaskUpdate(task, data.task, data.progress);
+        });
+        workerWindow.loadURL(`file://${__dirname}/worker/libraries-vanilla.html`).then(() => {
+            workerWindow.webContents.send('workers:libraries:vanilla', {
+                libraries,
+                installDir
+            });
+        });
+    });
 };
