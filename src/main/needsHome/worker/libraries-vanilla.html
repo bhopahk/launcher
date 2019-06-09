@@ -35,7 +35,7 @@
                         return resolve();
 
                     if (library.rules)
-                        for (let i = 0; i < library.rules; i++)
+                        for (let i = 0; i < library.rules.length; i++)
                             if ((library.rules[i].os.name !== osName && library.rules[i].action === 'allow') || library.rules[i].os.name === osName && library.rules[i].action === 'deny')
                                 return resolve();
 
@@ -59,15 +59,20 @@
                 }).then(() => callback());
             });
         } else {
+            libs:
             for (let i = 0; i < data.libraries.length; i++) {
                 const library = data.libraries[i];
-                if (!library.downloads)
-                    return;
+                if (!library.downloads) {
+                    callback();
+                    continue;
+                }
 
                 if (library.rules)
-                    for (let i = 0; i < library.rules; i++)
-                        if ((library.rules[i].os.name !== osName && library.rules[i].action === 'allow') || library.rules[i].os.name === osName && library.rules[i].action === 'deny')
-                            return;
+                    for (let i = 0; i < library.rules.length; i++)
+                        if ((library.rules[i].os.name !== osName && library.rules[i].action === 'allow') || library.rules[i].os.name === osName && library.rules[i].action === 'deny') {
+                            callback();
+                            continue libs;
+                        }
 
                 if (library.downloads.artifact) {
                     const filePath = path.join(libDir, library.downloads.artifact.path);
@@ -75,15 +80,21 @@
                         await files.download(library.downloads.artifact.url, filePath);
                 }
 
-                if (!library.natives)
-                    return;
+                if (!library.natives) {
+                    callback();
+                    continue;
+                }
                 const native = library.natives[osName];
-                if (native === undefined)
-                    return;
+                if (native === undefined) {
+                    callback();
+                    continue;
+                }
 
                 const nativePath = path.join(libDir, library.downloads.classifiers[native].path);
                 if (!await fs.pathExists(nativePath) || (await files.fileChecksum(nativePath, 'sha1')) !== library.downloads.classifiers[native].sha1)
                     await files.download(library.downloads.classifiers[native].url, nativePath);
+
+                callback();
             }
         }
     });

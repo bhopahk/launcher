@@ -98,7 +98,7 @@ exports.installVanilla = async (version, task) => {
     sendTaskUpdate(task, 'writing profile settings', 1/3);
     const jsonLoc = path.join(dir, `${version}.json`);
     if (!await fs.pathExists(jsonLoc))
-        await fs.writeJson(jsonLoc, vanilla);
+        await files.download(cache.findGameVersion(version).url, jsonLoc);
     // Download client jar
     sendTaskUpdate(task, 'writing profile settings', 2/3);
     const clientJar = path.join(dir, `${version}.jar`);
@@ -109,14 +109,17 @@ exports.installVanilla = async (version, task) => {
     const assetIndex = path.join(installDir, 'assets', 'indexes', `${vanilla.assetIndex.id}.json`);
     if (!await fs.pathExists(assetIndex) || (await files.fileChecksum(assetIndex, 'sha1')) !== vanilla.assetIndex.sha1)
         await files.download(vanilla.assetIndex.url, assetIndex);
+    console.log(await files.fileChecksum(assetIndex, 'sha1'));
 
     // Download assets
     await downloadAssets((await fs.readJson(assetIndex)).objects, task);
 
+    // Download logger config
     const logConfig = path.join(installDir, 'assets', 'log_configs', vanilla.logging.client.file.id);
     if (!await fs.pathExists(logConfig) || (await files.fileChecksum(logConfig, 'sha1')) !== vanilla.logging.client.file.sha1)
         await files.download(vanilla.logging.client.file.url, assetIndex);
 
+    // Download libraries
     await downloadVanillaLibraries(vanilla.libraries, task);
 };
 
@@ -246,8 +249,6 @@ const downloadAssets = (objects, task) => {
 };
 
 const downloadVanillaLibraries = (libraries, task) => {
-    // All of them which contain a 'natives' key should have the native installed as well.
-
     return new Promise(resolve => {
         console.log('Creating worker...');
         const workerWindow = new BrowserWindow({ show: config.getValue('app/developerMode'), title: 'Proton Worker', webPreferences: { nodeIntegration: true } });

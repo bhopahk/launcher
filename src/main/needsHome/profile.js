@@ -66,6 +66,28 @@ ipcMain.on('profile:create:custom', async (event, payload) => {
         mainWindow = event.sender;
     const tId = await sendSync(mainWindow, 'tasks:create', { name: payload.name });
     await installer.installVanilla(payload.version.version, tId);
+
+    //todo temp, just for testing!
+    const profileOptions = {
+        name: payload.name,
+        flavor: 'vanilla',
+        version: payload.version.version,
+        icon: defaultFavicon,
+        directory: path.join(instanceDir, payload.name),
+    };
+
+    await this.createLauncherProfile(profileOptions);
+    //todo end temp
+
+
+    console.log(`Finished installing '${payload.name}'!`);
+    const notification = new Notification({
+        title: `Profile installed!`,
+        body: `${payload.name} has finished installing!`,
+        icon: 'https://github.com/bhopahk/launcher/blob/master/public/icon.png',
+    });
+    notification.show();
+    mainWindow.send('tasks:delete', { tId });
 });
 ipcMain.on('profile:create:curse', async (event, payload) => {
     if (mainWindow == null)
@@ -241,7 +263,7 @@ exports.renderProfiles = async () => {
             directory: loaded[key].directory,
         });
     });
-    mainWindow.send('profiles', profiles);
+    mainWindow.send('profiles', profiles.sort((a, b) => a.played < b.played ? 1 : b.played < a.played ? -1 : 0));
 };
 
 async function installCustomProfile(event, payload) {
