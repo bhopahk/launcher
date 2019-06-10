@@ -5,6 +5,8 @@
     const fs = require('fs-extra');
     const files = require('../../util/files');
 
+    forceComplete = () => ipc.send('workers:assets');
+
     ipc.on('workers:assets', async (event, data) => {
         const dev = ipc.sendSync('config:get', 'app/developerMode');
         const keys = Object.keys(data.objects);

@@ -1,0 +1,34 @@
+<style>
+    div {
+        position: absolute;
+        left: 0;
+        top: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        width: 100vw;
+        height: 100vh;
+    }
+</style>
+<div>
+    <h1>Proton Worker</h1>
+    <p>This is a background process</p>
+    <button onclick="complete()">Force Complete</button>
+</div>
+<script type="text/javascript">
+    const ipc = require('electron').ipcRenderer;
+    let id;
+
+    complete = () => ipc.send('worker:finish', id);
+
+    ipc.once('worker:start', async (event, data) => {
+        id = data.id;
+        let props = data.props;
+        props.updateTask = (task, progress) => ipc.send('worker:task', { id: data.task, task, progress });
+        props.complete = complete;
+        const func = new Function(`return ${data.work}`)();
+        await func(props);
+    });
+</script>

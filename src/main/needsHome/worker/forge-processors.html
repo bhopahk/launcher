@@ -1,0 +1,115 @@
+<h1>This is a background process.</h1>
+<script type="text/javascript">
+    const ipc = require('electron').ipcRenderer;
+    const path = require('path');
+    const fs = require('fs-extra');
+    const files = require('../../util/files');
+    const spawn = require('child_process').spawn;
+    const execNoPromise = require('child_process').exec;
+
+    forceComplete = () => ipc.send('workers:forge:processors');
+
+    ipc.on('workers:forge:processors', async (event, data) => {
+        const libDir = path.join(data.installDir, 'libraries');
+        const total = data.processors.length;
+        const java = '"C:\\Users\\Matt Worzala\\AppData\\Roaming\\launcher\\Install\\runtime\\jre-x64\\bin\\java.exe"'; //todo should be using configurable java version
+
+        let index = 0;
+        const callback = () => {
+            index++;
+            ipc.send('workers:forge:processors:task', { task: 'installing forge', progress: index / total });
+            if (index === total)
+                ipc.send('workers:forge:processors');
+        };
+
+        let envars = {};
+        const keys = Object.keys(data.vars);
+        keys.forEach(key => {
+            let val = data.vars[key].client;
+            if (val.startsWith('/'))
+                val = path.join(data.installDir, '../', 'temp', val);
+            if (val.startsWith('['))
+                val = findLibraryPath(libDir, val.substring(1, val.length - 1));
+            envars[key] = `"${val}"`;
+        });
+        envars.MINECRAFT_JAR = `"${path.join(data.installDir, 'versions', data.mcVersion, `${data.mcVersion}.jar`)}"`;
+        console.log('Using variables: ', envars);
+
+        if (ipc.sendSync('config:get', 'app/parallelDownloads')) {
+            data.processors.forEach(async processor => {
+                new Promise(async resolve => {
+
+                    resolve();
+                }).then(() => callback());
+            });
+        } else {
+            for (let i = 0; i < data.processors.length; i++) {
+                const processor = data.processors[i];
+                const processorJar = findLibraryPath(libDir, processor.jar);
+
+                let arguments = ['-cp', `"${processorJar};${processor.classpath.map(cp => findLibraryPath(libDir, cp)).join(';')}"`, await findMainClass(processorJar)];
+                const envarKeys = Object.keys(envars);
+                arguments = arguments.concat(processor.args.map(arg => {
+                    for (let j = 0; j < envarKeys.length; j++)
+                        if (arg.startsWith(`{${envarKeys[j]}}`))
+                            return envars[envarKeys[j]];
+                    if (arg.startsWith('['))
+                        return `"${findLibraryPath(libDir, arg)}"`;
+                    return arg;
+                }));
+                console.log(arguments);
+
+                const resp = await exec(`java ${arguments.join(' ')}`);
+                console.log(arguments[2], resp);
+
+                callback();
+            }
+        }
+    });
+
+    exec = cmd => new Promise((resolve, reject) => {
+        execNoPromise(cmd, {maxBuffer: 1024 * 1024}, (err, stdout, stderr) => {
+            if (err)
+                reject(err);
+            resolve({
+                stdout: stdout.split(require('os').EOL),
+                stderr: stderr.split(require('os').EOL)
+            });
+        });
+    });
+
+    findLibraryPath = (libDir, target) => {
+        if (target.includes('['))
+            target = target.substring(1, target.length - 1);
+        const parts = target.split(':');
+        let extension;
+        if (parts.length === 4)
+            extension = `-${parts[3].replace('@', '.')}`;
+        else if (parts[2].includes('@')) {
+            extension = `.${parts[2].substring(parts[2].indexOf('@') + 1)}`;
+            parts[2] = parts[2].substring(0, parts[2].indexOf('@'));
+        } else extension = '.jar';
+        if (!extension.includes('.'))
+            extension += '.jar';
+        const folderGroup = path.join(libDir, parts[0].split('.').join('/'));
+        return path.join(folderGroup, parts[1], parts[2], `${parts[1]}-${parts[2]}${extension}`);
+    };
+
+    findMainClass = async file => {
+        const parentDir = path.join(file, '../');
+        const fileName = path.basename(file);
+        const fileNameNoExt = path.basename(file, '.jar');
+        await files.unzip(path.join(parentDir, fileName), false);
+        const lines = (await fs.readFile(path.join(parentDir, fileNameNoExt, 'META-INF', 'MANIFEST.MF'))).toString('utf8').split(require('os').EOL);
+        let mainClass;
+        for (let i = 0; i < lines.length; i++) {
+            if (lines[i].startsWith('Main-Class')) {
+                mainClass = lines[i].replace('Main-Class: ', '');
+                break;
+            }
+        }
+        await fs.remove(path.join(parentDir, fileNameNoExt));
+        return mainClass;
+    };
+</script>
+

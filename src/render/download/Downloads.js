@@ -65,6 +65,8 @@ class Downloads extends React.Component {
 
         window.ipc.on('tasks:update', (event, data) => {
             let tasks = JSON.parse(JSON.stringify(this.state.tasks));
+            if (tasks[data.tId] === undefined)
+                return; //todo this is a temp fix, it will probably break tasks.
             tasks[data.tId].task = data.task;
             tasks[data.tId].progress = data.progress;
 

@@ -1,0 +1,59 @@
+<h1>This is a background process.</h1>
+<script type="text/javascript">
+    const ipc = require('electron').ipcRenderer;
+    const path = require('path');
+    const fs = require('fs-extra');
+    const files = require('../../util/files');
+
+    forceComplete = () => ipc.send('workers:libraries:forge');
+
+    ipc.on('workers:libraries:forge', async (event, data) => {
+        const libDir = path.join(data.installDir, 'libraries');
+        const total = data.libraries.length;
+
+        let index = 0;
+        const callback = () => {
+            index++;
+            ipc.send('workers:libraries:forge:task', { task: 'downloading forge libraries', progress: index / total });
+            if (index === total)
+                ipc.send('workers:libraries:forge');
+        };
+
+        if (ipc.sendSync('config:get', 'app/parallelDownloads')) {
+            data.libraries.forEach(async library => {
+                new Promise(async resolve => {
+                    if (library.clientreq === false)
+                        return resolve();
+
+                    const baseUrl = library.url === undefined ? 'https://repo1.maven.org/maven2/' : library.url;
+                    const name = library.name.split(':');
+                    const url = `${baseUrl}${name[0].split('.').join('/')}/${name[1]}/${name[2]}/${name[1]}-${name[2]}.jar`;
+                    const filePath = path.join(libDir, name[0].split('.').join('/'), name[1], name[2], `${name[1]}-${name[2]}.jar`);
+
+                    if (!await fs.pathExists(filePath))
+                        await files.download(url, filePath);
+
+                    resolve();
+                }).then(() => callback());
+            });
+        } else {
+            for (let i = 0; i < data.libraries.length; i++) {
+                if (library.clientreq === false) {
+                    callback();
+                    continue;
+                }
+
+                const baseUrl = library.url === undefined ? 'https://repo1.maven.org/maven2/' : library.url;
+                const name = library.name.split(':');
+                const url = `${baseUrl}${name[0].split('.').join('/')}/${name[1]}/${name[2]}/${name[1]}-${name[2]}.jar`;
+                const filePath = path.join(libDir, name[0].split('.').join('/'), name[1], name[2], `${name[1]}-${name[2]}.jar`);
+
+                if (!await fs.pathExists(filePath))
+                    await files.download(url, filePath);
+
+                callback();
+            }
+        }
+    });
+</script>
+

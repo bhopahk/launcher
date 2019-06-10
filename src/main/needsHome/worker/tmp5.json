@@ -1,0 +1,27 @@
+{
+   "id":"forge-26.0.8",
+   "time":"2019-06-08T18:34:15Z",
+   "releaseTime":"2019-06-08T18:34:15Z",
+   "type":"release",
+   "minimumLauncherVersion":0,
+   "inheritsFrom":"1.14.2",
+   "jar":"1.14.2",
+   "libraries":[
+      
+   ],
+   "mainClass":"cpw.mods.modlauncher.Launcher",
+   "arguments":{
+      "game":[
+         "--launchTarget",
+         "fmlclient",
+         "--fml.forgeVersion",
+         "26.0.8",
+         "--fml.mcVersion",
+         "1.14.2",
+         "--fml.forgeGroup",
+         "net.minecraftforge",
+         "--fml.mcpVersion",
+         "20190603.175704"
+      ]
+   }
+}

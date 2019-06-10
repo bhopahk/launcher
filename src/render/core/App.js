@@ -113,6 +113,7 @@ class App extends React.Component {
                             <p>Custom Profiles</p>
                             <button onClick={() => window.ipc.send('argv', 'twonk')}>argv</button>
                             <button onClick={() => window.ipc.send('accounts:newUser', {})}>Login Window</button>
+                            <br/>
                         </Page>
                         <Page id="custom" icon="tools" display="Custom Profile">
                             <CreateProfile />

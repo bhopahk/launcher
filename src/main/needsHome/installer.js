@@ -29,6 +29,7 @@ const cache = require('../game/versionCache');
 const config = require('../config/config');
 const { BrowserWindow, ipcMain } = require('electron');
 const platform = process.platform;
+const workers = require('../worker/workers');
 
 const baseDir = require('electron').app.getPath('userData');
 const tempDir = path.join(baseDir, 'temp');
@@ -77,19 +78,10 @@ exports.installBaseGame = async (platform = 'win32', modern = true) => {
     }
 };
 
-exports.installVersion = async (version, libCallback) => { //todo proper error handling
-    const dir = path.join(installDir, 'versions', version);
-
-    await fs.mkdirs(dir);
-    const vanilla = await (await fetch(require('../game/versionCache').findGameVersion(version).url)).json();
-
-    await files.download(vanilla.downloads.client.url, path.join(dir, `${version}.jar`));
-    await files.download(vanilla.assetIndex.url, path.join(dir, `${version}.json`));
-    await this.installLibraries(vanilla.libraries, libCallback);
-};
 exports.installVanilla = async (version, task) => {
     const dir = path.join(installDir, 'versions', version);
 
+    // Create version directory and find the version json
     console.log(`Installing (or validating) Minecraft ${version}`);
     fs.mkdirs(dir);
     const vanilla = await (await fetch(cache.findGameVersion(version).url)).json();
@@ -112,6 +104,7 @@ exports.installVanilla = async (version, task) => {
     console.log(await files.fileChecksum(assetIndex, 'sha1'));
 
     // Download assets
+    await validateGameAssets(task, (await fs.readJson(assetIndex)).objects);
     await downloadAssets((await fs.readJson(assetIndex)).objects, task);
 
     // Download logger config
@@ -123,19 +116,67 @@ exports.installVanilla = async (version, task) => {
     await downloadVanillaLibraries(vanilla.libraries, task);
 };
 
-exports.installForge = async (version, libCallback) => {
-    const dir = path.join(installDir, 'versions', version);
-
-    await fs.mkdirs(dir);
+exports.installForge = async (version, task) => {
     const forge = await (await fetch(`https://addons-ecs.forgesvc.net/api/v2/minecraft/modloader/${version}`)).json();
-    let versionJson = JSON.parse(forge.versionJson);
-    versionJson.jar = forge.minecraftVersion;
+    const afterOneFourteen = parseInt(forge.minecraftVersion.split('.')[1]) >= 14;
 
-    await this.installVersion(forge.minecraftVersion, libCallback);
-    await this.installLibraries(versionJson.libraries, libCallback);
-    await fs.writeJson(path.join(dir, `${forge.name}.json`), versionJson, { spaces: 4 });
+    // Create version directory and fetch version info.
+    const realName = afterOneFourteen ? `${forge.minecraftVersion}-${forge.name}` : version;
+    const dir = path.join(installDir, 'versions', realName);
+    await fs.mkdirs(dir);
+    let versionJson = JSON.parse(forge.versionJson);
+    versionJson.id = realName;
+
+    await this.installVanilla(forge.minecraftVersion, task);
+
+    if (afterOneFourteen) {
+        delete versionJson.jar;
+        delete versionJson.minimumLauncherVersion;
+        versionJson.logging = {};
+
+        // Write version json
+        sendTaskUpdate(task, 'writing version settings', 1/2);
+        const versionJsonPath = path.join(dir, `${realName}.json`);
+        if (!await fs.pathExists(versionJsonPath))
+            await fs.writeJson(versionJsonPath, versionJson);
+
+
+        sendTaskUpdate(task, 'writing profile settings', 2/2);
+        const clientJar = path.join(dir, `${realName}.jar`);
+        if (!await fs.pathExists(clientJar))
+            await fs.copy(path.join(installDir, 'versions', forge.minecraftVersion, `${forge.minecraftVersion}.jar`), clientJar);
+
+        await downloadVanillaLibraries(versionJson.libraries, task);
+        //https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.14.2-26.0.12/forge-1.14.2-26.0.12-universal.jar
+
+        // Now for the extra stuff that the installer does.
+        const installerJson = JSON.parse(forge.installProfileJson);
+
+        await downloadVanillaLibraries(installerJson.libraries, task);
+        const clientDataPathSource = path.join(libDir, 'net', 'minecraftforge', 'forge', `${forge.minecraftVersion}-${forge.forgeVersion}`, `forge-${forge.minecraftVersion}-${forge.forgeVersion}-clientdata.lzma`);
+        const clientDataPathTarget = path.join(installDir, '../', 'temp', 'data', 'client.lzma');
+        await fs.copy(clientDataPathSource, clientDataPathTarget);
+        await fs.remove(clientDataPathSource);
+
+        await forgeProcessors(installerJson.processors, installerJson.data, forge.minecraftVersion, task);
+        await fs.remove(clientDataPathTarget);
+    } else {
+        versionJson.jar = forge.minecraftVersion;
+
+        // Install matching vanilla version
+        await this.installVanilla(forge.minecraftVersion, task);
+
+        // Write version json
+        sendTaskUpdate(task, 'writing version settings', 1);
+        const versionJsonPath = path.join(dir, `${realName}.json`);
+        if (!await fs.pathExists(versionJsonPath))
+            await fs.writeJson(versionJsonPath, versionJson);
+
+        await downloadForgeLibraries(versionJson.libraries, task);
+    }
 };
 
+//todo needs face lift
 exports.installFabric = async (version, mappings, loader, libCallback) => {
     const name = `fabric-${loader}-${mappings}`;
     const dir = path.join(installDir, 'versions', name);
@@ -153,6 +194,7 @@ exports.installFabric = async (version, mappings, loader, libCallback) => {
     await fs.writeJson(path.join(dir, `${name}.json`), versionJson, { spaces: 4 });
 };
 
+//todo decide the fate of this, probably removed.
 exports.installLibraries = async (libraries, callback) => {
     let libs = [];
     if (libraries.common !== undefined) {
@@ -201,6 +243,7 @@ exports.installLibraries = async (libraries, callback) => {
     }
 };
 
+//todo decide the fate of this, probably removed.
 const downloadLibraryArtifact = async (artifact) => {
     if (artifact == null)
         return;
@@ -215,6 +258,7 @@ const downloadLibraryArtifact = async (artifact) => {
     await files.download(artifact.url, file);
 };
 
+//todo decide the fate of this, probably removed
 const downloadMavenArtifact = async (artifact) => {
     const baseUrl = artifact.url == null ? 'https://repo1.maven.org/maven2/' : artifact.url;
     const name = artifact.name.split(':');
@@ -228,23 +272,39 @@ const downloadMavenArtifact = async (artifact) => {
 
 // Helper Functions
 
-const downloadAssets = (objects, task) => {
-    return new Promise(resolve => {
-        console.log('Creating worker...');
-        const workerWindow = new BrowserWindow({ show: config.getValue('app/developerMode'), title: 'Proton Worker', webPreferences: { nodeIntegration: true } });
-        ipcMain.on('workers:assets', () => {
-            workerWindow.close();
-            resolve();
-        });
-        ipcMain.on('workers:assets:task', (event, data) => {
-            sendTaskUpdate(task, data.task, data.progress);
-        });
-        workerWindow.loadURL(`file://${__dirname}/worker/assets.html`).then(() => {
-            workerWindow.webContents.send('workers:assets', {
-                objects,
-                installDir
-            });
-        });
+const validateGameAssets = (task, objects) => {
+    return workers.createWorker(task, { objects, installDir }, async props => {
+        const path = require('path');
+        const fs = require('fs-extra');
+        const files = require('../util/files');
+
+        const keys = Object.keys(props.objects);
+        const objectDir = path.join(props.installDir, 'assets', 'objects');
+        let complete = 0, total = keys.length;
+
+        for (let i = 0; i < keys.length; i++) {
+            const object = props.objects[keys[i]];
+            console.log(`Processing ${keys[i]}`);
+            const file = path.join(objectDir, object.hash.substring(0, 2), object.hash.substring(2));
+            if (!(await fs.pathExists(file) && (await files.fileChecksum(file, 'sha1')) === object.hash)) {
+                console.log(`Downloading ${keys[i]}`);
+                await files.download(`https://resources.download.minecraft.net/${object.hash.substring(0, 2)}/${object.hash}`, file);
+            } else console.log(`Found valid version of ${keys[i]} with matching checksum.`);
+            props.updateTask('validating game assets', ++complete/total);
+        }
+        props.complete();
+    });
+};
+
+const validateTypeOneLibraries = (task, taskName, libraries) => {
+    return workers.createWorker(task, { libraries, taskName }, async props => {
+
+    });
+};
+
+const validateTypeTwoLibraries = (task, taskName, libraries) => {
+    return workers.createWorker(task, { libraries, taskName }, async props => {
+
     });
 };
 
@@ -252,7 +312,7 @@ const downloadVanillaLibraries = (libraries, task) => {
     return new Promise(resolve => {
         console.log('Creating worker...');
         const workerWindow = new BrowserWindow({ show: config.getValue('app/developerMode'), title: 'Proton Worker', webPreferences: { nodeIntegration: true } });
-        ipcMain.on('workers:libraries:vanilla', () => {
+        ipcMain.once('workers:libraries:vanilla', () => {
             workerWindow.close();
             resolve();
         });
@@ -262,6 +322,48 @@ const downloadVanillaLibraries = (libraries, task) => {
         workerWindow.loadURL(`file://${__dirname}/worker/libraries-vanilla.html`).then(() => {
             workerWindow.webContents.send('workers:libraries:vanilla', {
                 libraries,
+                installDir
+            });
+        });
+    });
+};
+
+const downloadForgeLibraries = (libraries, task) => {
+    return new Promise(resolve => {
+        console.log('Creating worker...');
+        const workerWindow = new BrowserWindow({ show: config.getValue('app/developerMode'), title: 'Proton Worker', webPreferences: { nodeIntegration: true } });
+        ipcMain.once('workers:libraries:forge', () => {
+            workerWindow.close();
+            resolve(); //todo these need to be unregistered, they are a memory leak.
+        });
+        ipcMain.on('workers:libraries:forge:task', (event, data) => {
+            sendTaskUpdate(task, data.task, data.progress);
+        });
+        workerWindow.loadURL(`file://${__dirname}/worker/libraries-forge.html`).then(() => {
+            workerWindow.webContents.send('workers:libraries:forge', {
+                libraries,
+                installDir
+            });
+        });
+    });
+};
+
+const forgeProcessors = (processors, vars, mcVersion, task) => {
+    return new Promise(resolve => {
+        console.log('Creating worker (fp)...');
+        const workerWindow = new BrowserWindow({ show: config.getValue('app/developerMode'), title: 'Proton Worker', webPreferences: { nodeIntegration: true } });
+        ipcMain.once('workers:forge:processors', () => {
+            workerWindow.close();
+            resolve();
+        });
+        ipcMain.on('workers:forge:processors:task', (event, data) => {
+            sendTaskUpdate(task, data.task, data.progress);
+        });
+        workerWindow.loadURL(`file://${__dirname}/worker/forge-processors.html`).then(() => {
+            workerWindow.webContents.send('workers:forge:processors', {
+                processors,
+                vars,
+                mcVersion,
                 installDir
             });
         });

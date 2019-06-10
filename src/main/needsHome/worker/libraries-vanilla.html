@@ -15,6 +15,8 @@
         aix: 'linux',
     };
 
+    forceComplete = () => ipc.send('workers:libraries:vanilla');
+
     ipc.on('workers:libraries:vanilla', async (event, data) => {
         const libDir = path.join(data.installDir, 'libraries');
         const osName = classifiers[process.platform];
@@ -35,9 +37,12 @@
                         return resolve();
 
                     if (library.rules)
-                        for (let i = 0; i < library.rules.length; i++)
+                        for (let i = 0; i < library.rules.length; i++) {
+                            if (library.rules[i].os === undefined)
+                                continue;
                             if ((library.rules[i].os.name !== osName && library.rules[i].action === 'allow') || library.rules[i].os.name === osName && library.rules[i].action === 'deny')
                                 return resolve();
+                        }
 
                     if (library.downloads.artifact) {
                         const filePath = path.join(libDir, library.downloads.artifact.path);
@@ -67,12 +72,21 @@
                     continue;
                 }
 
+                console.log('Downloading ' + library.name);
+                //todo temp fix
+                if (library.name === 'net.minecraftforge:forge:1.14.2-26.0.12:universal')
+                    library.downloads.artifact.url = `https://files.minecraftforge.net/maven/${library.downloads.artifact.path}`;
+
                 if (library.rules)
-                    for (let i = 0; i < library.rules.length; i++)
+                    for (let i = 0; i < library.rules.length; i++) {
+                        if (library.rules[i].os === undefined)
+                            continue;
                         if ((library.rules[i].os.name !== osName && library.rules[i].action === 'allow') || library.rules[i].os.name === osName && library.rules[i].action === 'deny') {
                             callback();
                             continue libs;
                         }
+                    }
+
 
                 if (library.downloads.artifact) {
                     const filePath = path.join(libDir, library.downloads.artifact.path);

@@ -50,16 +50,6 @@ exports.download = (url, location, oneTry) => {
             fs.removeSync(target);
             reject(error);
         });
-        // fs.ensureFile(location).then(() => {
-        //
-        // }).catch(async e => {
-        //     const exists = await fs.pathExists(location);
-        //     console.log("ETRWIUAHTIUAWT" + exists);
-        //     if (!exists)
-        //         fs.
-        //     console.log(e);
-        // });
-
     });
 };
 
