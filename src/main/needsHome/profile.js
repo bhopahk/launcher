@@ -65,8 +65,8 @@ ipcMain.on('profile:create:custom', async (event, payload) => {
     if (mainWindow == null)
         mainWindow = event.sender;
     const tId = await sendSync(mainWindow, 'tasks:create', { name: payload.name });
-    // await installer.installForge(payload.version.forge, tId);
-    await installer.installVanilla(payload.version.version, tId);
+    await installer.installForge(payload.version.forge, tId);
+    // await installer.installVanilla(payload.version.version, tId);
 
     //todo temp, just for testing!
     const profileOptions = {

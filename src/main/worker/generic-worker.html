@@ -28,7 +28,8 @@
         let props = data.props;
         props.updateTask = (task, progress) => ipc.send('worker:task', { id: data.task, task, progress });
         props.complete = complete;
-        const func = new Function(`return ${data.work}`)();
+        props.isParallel = ipc.sendSync('config:get', 'app/parallelDownloads');
+        let func = new Function(`return ${data.work}`)();
         await func(props);
     });
 </script>
