@@ -26,26 +26,13 @@ const files = require('../util/files');
 const lzma = require('lzma-purejs');
 const fetch = require('node-fetch');
 const cache = require('../game/versionCache');
-const config = require('../config/config');
-const { BrowserWindow, ipcMain } = require('electron');
+const fabric = require('../util/fabric');
 const workers = require('../worker/workers');
 
 const baseDir = require('electron').app.getPath('userData');
 const tempDir = path.join(baseDir, 'temp');
 const installDir = path.join(baseDir, 'Install');
 const libDir = path.join(installDir, 'libraries');
-
-const FABRIC_LOADER = 'https://maven.fabricmc.net/net/fabricmc/fabric-loader/';
-
-const aliases = {
-    win32: 'natives-windows',
-    darwin: 'natives-osx',
-    linux: 'natives-linux',
-    sunos: 'natives-linux',
-    openbsd: 'natives-linux',
-    android: 'natives-linux',
-    aix: 'natives-linux',
-};
 
 fs.mkdirs(tempDir);
 
@@ -170,22 +157,29 @@ exports.installForge = async (version, task) => {
     }
 };
 
-//todo needs face lift
-exports.installFabric = async (version, mappings, loader, libCallback) => {
-    const name = `fabric-${loader}-${mappings}`;
-    const dir = path.join(installDir, 'versions', name);
+exports.installFabric = async (mappings, loader, task) => {
+    const version = fabric.fabricify(mappings);
+    const versionName = `${fabric.LOADER_NAME}-${loader}-${version.version}`;
+    const versionDir = path.join(installDir, 'versions', versionName);
 
-    await fs.mkdirs(dir);
+    // Install corresponding vanilla version.
+    await this.installVanilla(version.minecraftVersion, task);
 
-    const url = `${FABRIC_LOADER}/${loader}/fabric-loader-${loader}.json`;
-    console.log(url);
-    const versionJson = await (await fetch(url)).json();
-    versionJson.id = name;
-    versionJson.inheritsFrom = version;
-    await this.installVersion(version, libCallback);
-    await this.installLibraries(versionJson.libraries, libCallback);
-    await fs.ensureFile(path.join(dir, `${name}.jar`));
-    await fs.writeJson(path.join(dir, `${name}.json`), versionJson, { spaces: 4 });
+    let versionJson = await fabric.getLaunchMeta(loader);
+    versionJson.id = versionName;
+    versionJson.inheritsFrom = version.minecraftVersion;
+
+    versionJson.libraries.push({ name: `${fabric.PACKAGE_NAME.replace('/', '.')}:${fabric.MAPPINGS_NAME}:${version.version}`, url: fabric.MAVEN_SERVER_URL });
+    versionJson.libraries.push({ name: `${fabric.PACKAGE_NAME.replace('/', '.')}:${fabric.LOADER_NAME}:${loader}`, url: fabric.MAVEN_SERVER_URL });
+
+    const versionJsonPath = path.join(versionDir, `${versionName}.json`);
+    const versionJarPath = path.join(versionDir, `${versionName}.jar`);
+
+    // Empty jar to trick the launcher into thinking this is a valid version.
+    await fs.ensureFile(versionJarPath);
+    await fs.writeJson(versionJsonPath, versionJson);
+
+    await validateTypeTwoLibraries(task, 'validating fabric libraries', versionJson.libraries);
 };
 
 // Helper Functions
