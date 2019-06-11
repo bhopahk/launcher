@@ -98,6 +98,8 @@ exports.installVanilla = async (version, task) => {
 
     // Download libraries
     await validateTypeOneLibraries(task, 'validating vanilla libraries', vanilla.libraries);
+
+    return version;
 };
 
 exports.installForge = async (version, task) => {
@@ -155,6 +157,8 @@ exports.installForge = async (version, task) => {
 
         await validateTypeTwoLibraries(task, 'validating forge libraries', versionJson.libraries);
     }
+
+    return realName;
 };
 
 exports.installFabric = async (mappings, loader, task) => {
@@ -180,6 +184,8 @@ exports.installFabric = async (mappings, loader, task) => {
     await fs.writeJson(versionJsonPath, versionJson);
 
     await validateTypeTwoLibraries(task, 'validating fabric libraries', versionJson.libraries);
+
+    return versionName;
 };
 
 // Helper Functions

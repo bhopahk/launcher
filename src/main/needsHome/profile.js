@@ -65,22 +65,39 @@ ipcMain.on('profile:create:custom', async (event, payload) => {
     if (mainWindow == null)
         mainWindow = event.sender;
     const tId = await sendSync(mainWindow, 'tasks:create', { name: payload.name });
-    // await installer.installForge(payload.version.forge, tId);
-    // await installer.installVanilla(payload.version.version, tId);
-    await installer.installFabric(payload.version.mappings, payload.version.loader, tId);
+    // Send response to disable the loading animation.
+    mainWindow.send('profile:create:response');
 
-    //todo temp, just for testing!
-    const profileOptions = {
-        name: payload.name,
-        flavor: 'fabric',
-        version: `${payload.version.version}-${payload.version.forge}`,
-        icon: defaultFavicon,
-        directory: path.join(instanceDir, payload.name),
-    };
+    let versionId;
+    try {
+        switch (payload.version.flavor) {
+            case 'vanilla':
+                versionId = await installer.installVanilla(payload.version.version, tId);
+                break;
+            case 'forge':
+                versionId = await installer.installForge(payload.version.forge, tId);
+                break;
+            case 'fabric':
+                versionId = await installer.installFabric(payload.version.mappings, payload.version.loader, tId);
+                break;
+            default:
+                mainWindow.send('profile:create:response', {
+                    error: 'unknown flavor',
+                    errorMessage: 'An unknown error has occurred, please try again.'
+                });
+                break;
+        }
+    } catch (err) {
+        mainWindow.send('profile:create:response', {
+            error: 'error creating',
+            errorRaw: err,
+            errorMessage: `An error has occurred while creating ${payload.name}.`
+        });
+        return;
+    }
 
-    await this.createLauncherProfile(profileOptions);
-    //todo end temp
-
+    await this.createProfile(payload.name, 'https://via.placeholder.com/240', payload.version, versionId, undefined);
+    await fs.mkdirs(path.join(instanceDir, payload.name));
 
     console.log(`Finished installing '${payload.name}'!`);
     const notification = new Notification({
@@ -109,6 +126,7 @@ ipcMain.on('profile:screenshots:delete', async (event, payload) => {
     mainWindow.send('profile:screenshots', await this.getProfileScreenshots(payload.profile));
 });
 
+// Util
 exports.sendTaskUpdate = (id, task, progress) => {
     mainWindow.send('tasks:update', {
         tId: id,
@@ -116,54 +134,20 @@ exports.sendTaskUpdate = (id, task, progress) => {
     });
 };
 
-exports.createProfile = async (data, onApproved, overwrite) => {
-    const dir = path.join(instanceDir, data.name);
-
-    if (overwrite)
-        await fs.remove(dir);
-    else if (await this.profileExists(data.name))
-        return 2;
-
-    await fs.mkdirs(dir);
-    const tId = await onApproved();
-
-    const onLibraryInstall = data => {
-        if (tId)
-            mainWindow.send('tasks:update', {
-                tId,
-                task: 'downloading libraries',
-                progress: data.index/data.count,
-            });
-    };
-
-    const profileOptions = {
-        name: data.name,
-        flavor: data.flavor,
-        version: data.version,
-        icon: data.icon == null ? defaultFavicon : data.icon,
-        directory: dir,
-    };
-
-    switch (data.flavor) {
-        case 'vanilla':
-            await installer.installVersion(data.version, onLibraryInstall);
-            break;
-        case 'forge':
-            await installer.installForge(data.version, onLibraryInstall);
-            break;
-        case 'fabric':
-            console.log('attempted to install fabric, but that is not implemented yet.');
-            break;
-        default:
-            return 1;
-    }
-    await this.createLauncherProfile(profileOptions);
-    if (tId)
-        mainWindow.send('tasks:delete', { tId });
-    return 0;
-};
-exports.createLauncherProfile = async (profile) => {
-    profile.type = 'custom';
+exports.createProfile = async (name, icon, version, target, packData) => {
+    let profile = {};
+    profile.name = name;
+    profile.directory = path.join(instanceDir, name);
+    profile.icon = await files.downloadImage(icon);
+    profile.type = packData === undefined ? 'custom' : 'curse';
+    profile.packData = packData;
+    profile.created = new Date().getTime();
+    profile.played = profile.created;
+    profile.minecraftVersion = version.version;
+    profile.flavor = version.flavor;
+    delete version.flavor;
+    profile.flavorVersion = version;
+    profile.targetVersion = target;
     const res = config.getValue('defaults/resolution').split('x');
     profile.resolution = {
         width: res[0],
@@ -173,43 +157,29 @@ exports.createLauncherProfile = async (profile) => {
         min: '512',
         max: config.getValue('defaults/maxMemory'),
     };
-    const now = new Date().getTime();
-    profile.created = now;
-    profile.modified = now;
-    profile.launched = 0;
     profile.javaArgs = config.getValue('defaults/javaArgs');
-
-    await this.saveProfile(profile.name, profile);
-    await this.createGameProfile({
-        name: profile.name,
-        version: profile.version,
-        directory: profile.directory,
-        resolution: profile.resolution,
-        memory: profile.memory,
-        javaArgs: profile.javaArgs,
-    });
+    await this.saveProfile(name, profile);
+    await this.exportProfileToGame(profile);
 };
-exports.createGameProfile = async (options) => {
+exports.exportProfileToGame = async launcherProfile => {
+    const profile = {
+        name: launcherProfile.name,
+        type: 'custom',
+        created: launcherProfile.created,
+        lastUsed: launcherProfile.played,
+        lastVersionId: launcherProfile.targetVersion,
+        resolution: launcherProfile.resolution,
+        gameDir: launcherProfile.directory,
+        icon: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAB4BAMAAADLSivhAAAAG1BMVEXMzMyWlpacnJy+vr6jo6OxsbGqqqrFxcW3t7fLh8KjAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAnUlEQVRYhe3RvQrCMBiF4VOl1rGCFxDN0FWK4Frp4tjBC9CheyyVrlK8cH+mBopmFHmf7R0OHyESAAAAAOCXTNQuXbyuxvOz6V71tch3djS/iM/KlJbaKi4aN8ggkTaJydRI9uBl2FjNzTzfqt54GTaeW71PRZWXYePeqdRdOhovw8Zl5/LOKsnqYQaOV4v09bGz08UNEgAAAAD+1QORnRwe8Vw6/QAAAABJRU5ErkJggg==',
+        javaArgs: `-Xmx${launcherProfile.memory.max}m -Xms${launcherProfile.memory.min}m -Dminecraft.applet.TargetDirectory="${launcherProfile.directory}" -Dfml.ignorePatchDiscrepancies=true -Dfml.ignoreInvalidMinecraftCertificates=true -Duser.language=en -Duser.country=US ${launcherProfile.javaArgs}`
+    };
     const profileJson = path.join(installDir, 'launcher_profiles.json');
-
     if (!await fs.pathExists(profileJson)) {
         await fs.ensureFile(profileJson);
         await fs.writeJson(profileJson, { profiles: {} }, { spaces: 4 });
     }
-
-    const profile = {
-        name: options.name,
-        type: 'custom',
-        created: new Date().toISOString(),
-        lastUsed: '1970-01-01T00:00:00.000Z',
-        lastVersionId: options.version,
-        resolution: options.resolution,
-        gameDir: options.directory,
-        javaArgs: `-Xmx${options.memory.max}m -Xms${options.memory.min}m -Dminecraft.applet.TargetDirectory="${options.directory}" -Dfml.ignorePatchDiscrepancies=true -Dfml.ignoreInvalidMinecraftCertificates=true -Duser.language=en -Duser.country=US ${options.javaArgs}`
-    };
-
     let profilesJson = await fs.readJson(profileJson);
-    profilesJson.profiles[options.name] = profile;
+    profilesJson.profiles[profile.name] = profile;
     await fs.writeJson(profileJson, profilesJson, { spaces: 4 });
 };
 
@@ -247,24 +217,16 @@ exports.saveProfile = async (name, newProfile) => {
     await fs.writeJson(launcherProfiles, profiles, { spaces: 4 });
 };
 exports.deleteProfile = async (name) => {
-    //todo this
+    const profiles = await fs.readJson(launcherProfiles);
+    delete profiles[name];
+    await fs.writeJson(launcherProfiles, profiles, { spaces: 4 });
 };
 
 exports.renderProfiles = async () => {
     const loaded = await this.getProfiles();
     const profiles = [];
 
-    Object.keys(loaded).forEach(key => {
-        profiles.push({
-            name: loaded[key].name,
-            icon: loaded[key].icon,
-            version: loaded[key].modpackVersion == null ? loaded[key].version : loaded[key].modpackVersion,
-            played: loaded[key].launched,
-
-            flavor: loaded[key].flavor,
-            directory: loaded[key].directory,
-        });
-    });
+    Object.keys(loaded).forEach(key => profiles.push(loaded[key]));
     mainWindow.send('profiles', profiles.sort((a, b) => a.played < b.played ? 1 : b.played < a.played ? -1 : 0));
 };
 

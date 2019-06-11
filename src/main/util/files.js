@@ -28,6 +28,8 @@ exports.download = (url, location, oneTry) => {
         ? require('follow-redirects').https
         : require('follow-redirects').http;
     return new Promise(async (resolve, reject) => {
+        if (url === undefined)
+            reject('undefined url');
         if (await fs.pathExists(location))
             await fs.remove(location);
         await fs.ensureFile(location);
@@ -87,6 +89,22 @@ exports.loadImage = async (file) => {
         path: file,
         src: `data:image/png;base64,${image.toString('base64')}`
     };
+};
+
+exports.downloadImage = url => {
+    let https = url.startsWith('https')
+        ? require('follow-redirects').https
+        : require('follow-redirects').http;
+    return new Promise((resolve, reject) => {
+        if (url === undefined)
+            reject('undefined url');
+        https.get(url, resp => {
+            resp.setEncoding('base64');
+            let body = `data:${resp.headers["content-type"]};base64,`;
+            resp.on('data', data => body += data);
+            resp.on('end', () => resolve(body));
+        }).on('error', e => reject(e));
+    });
 };
 
 exports.fileChecksum = (file, algorithm) => {

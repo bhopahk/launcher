@@ -1,6 +1,6 @@
 {
   "name": "launcher",
-  "version": "0.1.10",
+  "version": "0.1.12",
   "description": "A custom minecraft launcher",
   "private": false,
   "author": "Matt Worzala <bhop.me>",
@@ -47,8 +47,10 @@
       "build/**/*",
       "node_modules/**/*",
       "./public/gateway.js",
+      "./public/index.html",
       "./public/icon.png",
-      "src/**"
+      "src/**",
+      "*.js"
     ],
     "extends": null,
     "directories": {

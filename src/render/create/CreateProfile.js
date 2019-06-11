@@ -148,7 +148,6 @@ export default class CreateProfile extends React.Component {
         }
 
         window.ipc.send('profile:create:custom', {
-            action: 'CREATE',
             version,
             name: this.state.input_name.trim(),
         });

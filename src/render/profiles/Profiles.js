@@ -63,7 +63,7 @@ const Profile = (props) => { //todo need to create an icon container for icon ce
                         <div className="profile-blur"></div>
                         <div className="profile-details">
                             <h1>{props.name}</h1>
-                            {props.played === 0 ? (<p>{props.version.indexOf('-') !== -1 ? props.version.split('-')[1] : props.version}</p>) : (<p>{props.version.indexOf('-') !== -1 ? props.version.split('-')[1] : props.version}<span>•</span>{new Date(props.played).toLocaleDateString()}</p>)}
+                            <p>{props.minecraftVersion}<span>•</span>{new Date(props.played).toLocaleDateString()}</p>
                         </div>
                         <div className="profile-play" onClick={() => props.onLaunch(props.name)}>
                             <i className="fas fa-play"></i>
