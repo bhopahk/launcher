@@ -31,13 +31,13 @@ const path = require('path');
 const installer = require('./installer');
 const files = require('../util/files');
 const config = require('../config/config');
+const fetch = require('node-fetch');
 const sendSync = require('../util/ipcMainSync').sendSync;
 
 const baseDir = app.getPath('userData');
 const installDir = path.join(baseDir, 'Install');
 const instanceDir = config.getValue('minecraft/instanceDir');
 const launcherProfiles = path.join(baseDir, 'profiles.json');
-
 let mainWindow = null;
 
 fs.pathExists(launcherProfiles).then(async exists => {
@@ -47,20 +47,15 @@ fs.pathExists(launcherProfiles).then(async exists => {
     await fs.writeJson(launcherProfiles, {}, { spaces: 4 });
 });
 
-ipcMain.on('profile:custom', installCustomProfile.bind(this));
-ipcMain.on('profile:curse', installCurseProfile.bind(this));
-
+// IPC Listeners
+// Render Profiles todo need to look around renderer for any places where ipc listeners are registered but not unregistered (is a memory leak)
 ipcMain.on('profiles', async event => {
     if (mainWindow == null)
         mainWindow = event.sender;
     await this.renderProfiles();
 });
-ipcMain.on('profile:launch', async (event, payload) => {
-    const profile = await this.getProfile(payload);
-    require('../launcher/launcher').launchProfile(profile).then(() => {
-        console.log('Launched');
-    });
-});
+
+// Create custom profile
 ipcMain.on('profile:create:custom', async (event, payload) => {
     if (mainWindow == null)
         mainWindow = event.sender;
@@ -108,17 +103,58 @@ ipcMain.on('profile:create:custom', async (event, payload) => {
     notification.show();
     mainWindow.send('tasks:delete', { tId });
 });
+// Create curse modpack profile
 ipcMain.on('profile:create:curse', async (event, payload) => {
     if (mainWindow == null)
         mainWindow = event.sender;
+    let packData = {};
+    const packJson = await (await fetch(`https://addons-ecs.forgesvc.net/api/v2/addon/${payload.modpack}`)).json();
+    packData.id = packJson.id;
+    packData.name = packJson.name;
 
+    // Find default icon
+    let icon;
+    for (let i = 0; i < packJson.attachments.length; i++)
+        if (packJson.attachments[i].isDefault)
+            icon = packJson.attachments[i].url;
+    packData.originalIcon = icon;
+
+    // Create valid profile name
+    let name = packJson.name, i = 0;
+    while (await fs.pathExists(name))
+        name = `${name.endsWith(` (${i})`) ? name.substring(0, name.length - 3 - `${i}`.length) : name} (${++i})`;
+
+    const tId = await sendSync(mainWindow, 'tasks:create', { name });
+    // Send response to disable the loading animation.
+    mainWindow.send('profile:create:response');
+
+    const fileJson = await (await fetch(`https://addons-ecs.forgesvc.net/api/v2/addon/${payload.modpack}/file/${payload.file}`)).json();
+    packData.version = fileJson.displayName;
+    packData.versionId = fileJson.id;
+
+    await fs.mkdirs(path.join(instanceDir, name));
+    const versionInfo = await installer.installCurseModpack(tId, name, fileJson.fileName, fileJson.downloadUrl);
+
+    await this.createProfile(name, icon, versionInfo.version, versionInfo.localVersionId, packData);
+
+    console.log(`Finished installing '${name}'!`);
+    const notification = new Notification({
+        title: `Profile installed!`,
+        body: `${name} has finished installing!`,
+        icon: 'https://github.com/bhopahk/launcher/blob/master/public/icon.png',
+    });
+    notification.show();
+    mainWindow.send('tasks:delete', { tId });
 });
+
+// Get profile screenshots
 ipcMain.on('profile:screenshots', async (event, payload) => {
     if (mainWindow == null)
         mainWindow = event.sender;
     const images = await this.getProfileScreenshots(payload);
     mainWindow.send('profile:screenshots', images);
 });
+// Delete a profile screenshot
 ipcMain.on('profile:screenshots:delete', async (event, payload) => {
     if (mainWindow == null)
         mainWindow = event.sender;
@@ -126,14 +162,15 @@ ipcMain.on('profile:screenshots:delete', async (event, payload) => {
     mainWindow.send('profile:screenshots', await this.getProfileScreenshots(payload.profile));
 });
 
-// Util
-exports.sendTaskUpdate = (id, task, progress) => {
-    mainWindow.send('tasks:update', {
-        tId: id,
-        task, progress
+// Launch Profile todo this whole system needs a reboot
+ipcMain.on('profile:launch', async (event, payload) => {
+    const profile = await this.getProfile(payload);
+    require('../launcher/launcher').launchProfile(profile).then(() => {
+        console.log('Launched');
     });
-};
+});
 
+// Exports
 exports.createProfile = async (name, icon, version, target, packData) => {
     let profile = {};
     profile.name = name;
@@ -187,6 +224,9 @@ exports.getProfile = async (name) => {
     const profiles = await fs.readJson(launcherProfiles);
     return profiles[name];
 };
+exports.getProfiles = async () => {
+    return await fs.readJson(launcherProfiles);
+};
 exports.getProfileScreenshots = async (name) => {
     const dir = path.join((await this.getProfile(name)).directory, 'screenshots');
     if (!await fs.pathExists(dir))
@@ -203,9 +243,6 @@ exports.getProfileScreenshots = async (name) => {
 exports.deleteProfileScreenshot = async (name, image) => {
     const target = path.join((await this.getProfile(name)).directory, 'screenshots', image);
     return require('electron').shell.moveItemToTrash(target);
-};
-exports.getProfiles = async () => {
-    return await fs.readJson(launcherProfiles);
 };
 
 exports.profileExists = async (name) => {
@@ -230,90 +267,10 @@ exports.renderProfiles = async () => {
     mainWindow.send('profiles', profiles.sort((a, b) => a.played < b.played ? 1 : b.played < a.played ? -1 : 0));
 };
 
-async function installCustomProfile(event, payload) {
-    if (mainWindow == null)
-        mainWindow = event.sender;
-
-    if (await this.profileExists(payload.name) && payload.action !== 'OVERRIDE') {
-        payload.action = 'OVERWRITE';
-        mainWindow.send('profile:custom', {
-            result: 'ERROR',
-            type: 'existing',
-            value: 'A profile with that name already exists!',
-            callback: payload,
-        });
-        return;
-    }
-
-    mainWindow.send('profile:custom', {
-        result: 'SUCCESS',
-        name: payload.name,
-    });
-
-    const tId = await sendSync(mainWindow, 'tasks:create', { name: payload.name });
-    const dir = path.join(instanceDir, payload.name);
-
+// Helper functions
+exports.sendTaskUpdate = (id, task, progress) => {
     mainWindow.send('tasks:update', {
-        tId,
-        task: 'cleaning old files',
-        progress: 1,
+        tId: id,
+        task, progress
     });
-    await fs.remove(dir);
-
-    await this.createLauncherProfile({
-        name: payload.name,
-        flavor: payload.version.flavor,
-        version: payload.version.flavor === 'forge' ? payload.version.forge : payload.version.flavor === 'fabric' ? `fabric-${payload.version.loader}-${payload.version.mappings}` : payload.version.version, //todo this needs ot be changed to support fabric.
-        icon: defaultFavicon,
-        directory: dir,
-    });
-
-    const callback = cb => {
-        mainWindow.send('tasks:update', {
-            tId,
-            task: 'downloading libraries',
-            progress: cb.index / cb.count,
-        });
-    };
-    callback({ index: 0, count: 1 });
-    switch (payload.version.flavor) {
-        case 'vanilla':
-            await installer.installVersion(payload.version.version, callback);
-            break;
-        case 'forge':
-            await installer.installForge(payload.version.forge, callback);
-            break;
-        case 'fabric':
-            await installer.installFabric(payload.version.version, payload.version.mappings, payload.version.loader, callback);
-            break;
-        default:
-            await this.deleteProfile(payload.name);
-            throw 'This should not happen, but an invalid version has been provided.';
-    }
-
-    console.log(`Finished installing '${payload.name}'!`);
-    // Send system notification
-    const notification = new Notification({
-        title: `Profile installed!`,
-        body: `${payload.name} has finished installing!`,
-        icon: 'https://github.com/bhopahk/launcher/blob/master/public/icon.png',
-    });
-    notification.show();
-    mainWindow.send('tasks:delete', { tId });
-}
-async function installCurseProfile(event, payload) {
-    if (mainWindow == null)
-        mainWindow = event.sender;
-    switch (payload.action) {
-        case 'CREATE':
-            console.log(payload);
-
-
-            break;
-        case 'CANCEL':
-            console.log(payload);
-            break;
-        default:
-            break;
-    }
-}
+};

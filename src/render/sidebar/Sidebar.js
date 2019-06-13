@@ -176,7 +176,11 @@ const Page = (props) => {
     );
 };
 
-const Link = () => {};
+const Link = () => {
+    return (
+        <div></div>
+    );
+};
 
 export {
     Sidebar,

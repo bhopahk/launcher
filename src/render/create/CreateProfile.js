@@ -70,7 +70,7 @@ export default class CreateProfile extends React.Component {
     }
 
     componentWillMount() {
-        window.ipc.on('profile:custom', this.stopLoading);
+        window.ipc.on('profile:create:response', this.handleResponse);
     }
     componentWillUpdate(nextProps, nextState, nextContext) {
         if (this.state.selected !== nextState.selected) {
@@ -86,7 +86,7 @@ export default class CreateProfile extends React.Component {
         }
     }
     componentWillUnmount() {
-        window.ipc.removeListener('profile:custom', this.stopLoading);
+        window.ipc.removeListener('profile:create:response', this.handleResponse);
     }
 
     getFabricMappings(state = this.state) {
@@ -116,6 +116,16 @@ export default class CreateProfile extends React.Component {
         this.setState({
             loading: false,
         });
+    };
+
+    handleResponse = (event, data) => {
+        this.stopLoading();
+        if (data && data.error) {
+            console.log(`An error has occured while installing a profile: ${data.error}`);
+            if (data.errorRaw)
+                console.log(data.errorRaw);
+            Snackbar.sendSnack({ body: data.errorMessage });
+        }
     };
 
     sendCreationRequest() {
@@ -219,7 +229,7 @@ export default class CreateProfile extends React.Component {
                         </div>
                     </div>
                     <div className="create-profile-name">
-                        <TextField id="customProfileName" icon="fas fa-pencil-alt" placeholder="Enter name..." getValue={() => this.state.input_name} setValue={next => this.setState({ input_name: next })} />
+                        <TextField id="customProfileName" icon="fas fa-pencil-alt" placeholder="Enter name..." timeout={250} getValue={() => this.state.input_name} setValue={next => this.setState({ input_name: next })} />
                     </div>
                     <br/>
                     <Button onClick={() => this.sendCreationRequest()}>

@@ -37,6 +37,7 @@ let listeners = {};
 app.on('ready', async () => {
     ipcMain.on('config:get', (event, args) => event.returnValue = this.getValue(args));
     ipcMain.on('config:set', (event, args) => this.setValue(args.path, args.value));
+    ipcMain.on('config:save', () => this.saveConfig());
 });
 
 app.on('quit', () => {
@@ -114,5 +115,5 @@ exports.loadConfig = async () => {
 exports.addEventListener = (target, callback) => {
     if (!listeners.hasOwnProperty(target))
         listeners[target] = [];
-    listeners.push(callback);
+    listeners[target].push(callback);
 };

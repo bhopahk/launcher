@@ -269,7 +269,7 @@ class TextField extends React.Component {
 
     handleInput = (e) => {
         clearTimeout(this.saveTask);
-        this.saveTask = setTimeout(() => this.props.setValue(this.state.value), 750);
+        this.saveTask = setTimeout(() => this.props.setValue(this.state.value), this.props.timeout ? this.props.timeout : 750);
         this.setState({ value: e.target.value });
     };
 

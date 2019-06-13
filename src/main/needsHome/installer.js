@@ -26,6 +26,7 @@ const files = require('../util/files');
 const lzma = require('lzma-purejs');
 const fetch = require('node-fetch');
 const cache = require('../game/versionCache');
+const config = require('../config/config');
 const fabric = require('../util/fabric');
 const workers = require('../worker/workers');
 
@@ -33,6 +34,7 @@ const baseDir = require('electron').app.getPath('userData');
 const tempDir = path.join(baseDir, 'temp');
 const installDir = path.join(baseDir, 'Install');
 const libDir = path.join(installDir, 'libraries');
+const instanceDir = config.getValue('minecraft/instanceDir');
 
 fs.mkdirs(tempDir);
 
@@ -186,6 +188,56 @@ exports.installFabric = async (mappings, loader, task) => {
     await validateTypeTwoLibraries(task, 'validating fabric libraries', versionJson.libraries);
 
     return versionName;
+};
+
+exports.installCurseModpack = async (task, name, fileName, fileUrl) => {
+    const profileDir = path.join(instanceDir, name);
+    const readDir = path => new Promise((resolve, reject) => { fs.readdir(path, (err, items) => { if (err) reject(err); else resolve(items); }); });
+
+    const zipLoc = path.join(tempDir, fileName);
+    sendTaskUpdate(task, 'preparing', 0/2);
+    await files.download(fileUrl, path.join(tempDir, fileName));
+    sendTaskUpdate(task, 'preparing', 1/2);
+    const dir = await files.unzip(zipLoc);
+    const manifest = await fs.readJson(path.join(dir, 'manifest.json'));
+    sendTaskUpdate(task, 'preparing', 2/2);
+
+    // Copy overrides
+    const overridesDir = path.join(dir, manifest.overrides);
+    const overrides = await readDir(overridesDir);
+    await curseCopyOverrides(task, profileDir, overridesDir, overrides);
+
+    // Install primary modloader
+    let localVersionId;
+    let forgeVersion;
+    for (let i = 0; i < manifest.minecraft.modLoaders.length; i++) {
+        const modloader = manifest.minecraft.modLoaders[i];
+        console.log(modloader);
+        if (modloader.primary) { //todo this is limited to just forge right now, will need to see what is changed to allow for fabric.
+            forgeVersion = modloader.id;
+            localVersionId = await this.installForge(modloader.id, task);
+        }
+    }
+    if (localVersionId === undefined) {
+        console.log('NO VALID MODLOADER HAS BEEN FOUND!!!');
+        //todo this should display error and clean up.
+        return;
+    }
+
+    // Download mods
+    const mods = manifest.files;
+    await curseInstallMods(task, profileDir, mods);
+
+    // cleanup temporary folder.
+    await fs.remove(dir);
+    return {
+        localVersionId,
+        version: {
+            version: manifest.minecraft.version,
+            flavor: 'forge',
+            forge: forgeVersion
+        }
+    };
 };
 
 // Helper Functions
@@ -493,6 +545,73 @@ const runForgeProcessors = (task, processors, vars, mcVersion) => {
                 console.log(arguments[2], resp);
 
                 callback();
+            }
+        }
+    });
+};
+
+const curseCopyOverrides = (task, profileDir, overrideDir, overrides) => {
+    return workers.createWorker(task, { profileDir, overrideDir, overrides }, async props => {
+        const path = require('path');
+        const fs = require('fs-extra');
+
+        let complete = 0, total = props.overrides.length;
+        const callback = () => {
+            props.updateTask('copying overrides', ++complete/total);
+            if (complete === total)
+                props.complete();
+        };
+
+        if (props.isParallel) {
+            props.overrides.forEach(override =>
+                fs.copy(path.join(props.overrideDir, override), path.join(props.profileDir, override))
+                    .then(() => callback())
+            );
+        } else {
+            for (let i = 0; i < props.overrides.length; i++) {
+                await fs.copy(path.join(props.overrideDir, props.overrides[i]), path.join(props.profileDir, props.overrides[i]));
+                callback();
+            }
+        }
+    });
+};
+
+const curseInstallMods = (task, profileDir, mods) => {
+    return workers.createWorker(task, { profileDir, mods }, async props => {
+        const path = require('path');
+        const fs = require('fs-extra');
+        const files = require('../util/files');
+
+        let complete = 0, total = props.mods.length;
+        const callback = name => {
+            props.updateTask(`downloading ${name}`, ++complete/total);
+            if (complete === total)
+                props.complete();
+        };
+
+        if (props.isParallel) {
+            props.mods.forEach(mod => {
+                new Promise(async resolve => {
+                    const name = (await (await fetch(`https://addons-ecs.forgesvc.net/api/v2/addon/${mod.projectID}`)).json()).name;
+                    const fileJson = await (await fetch(`https://addons-ecs.forgesvc.net/api/v2/addon/${mod.projectID}/file/${mod.fileID}`)).json();
+                    const modsDir = path.join(props.profileDir, 'mods');
+
+                    await fs.mkdirs(modsDir);
+                    await files.download(fileJson.downloadUrl, path.join(modsDir, fileJson.fileName));
+                    resolve(name);
+                }).then(callback);
+            });
+        } else {
+            for (let i = 0; i < props.mods.length; i++) {
+                const mod = props.mods[i];
+                const name = (await (await fetch(`https://addons-ecs.forgesvc.net/api/v2/addon/${mod.projectID}`)).json()).name;
+                const fileJson = await (await fetch(`https://addons-ecs.forgesvc.net/api/v2/addon/${mod.projectID}/file/${mod.fileID}`)).json();
+                const modsDir = path.join(props.profileDir, 'mods');
+
+                await fs.mkdirs(modsDir);
+                await files.download(fileJson.downloadUrl, path.join(modsDir, fileJson.fileName));
+
+                callback(name);
             }
         }
     });

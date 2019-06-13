@@ -1,0 +1,22 @@
+// 2706805
+GET https://addons-ecs.forgesvc.net/api/v2/addon/296062/file/2706805
+
+###
+
+GET https://addons-ecs.forgesvc.net/api/v2/addon/296062
+
+###
+
+GET https://addons-ecs.forgesvc.net/api/v2/addon/230497/file/2450900
+
+###
+
+GET https://addons-ecs.forgesvc.net/api/v2/addon/230497
+
+###
+
+GET https://api.atlauncher.com/v1/packs/simple/
+
+###
+
+GET https://api.atlauncher.com/v1/pack/ThroughTheDimensions20

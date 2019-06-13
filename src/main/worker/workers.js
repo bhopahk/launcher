@@ -24,9 +24,16 @@ const { BrowserWindow, ipcMain } = require('electron');
 const config = require('../config/config');
 const profiles = require('../needsHome/profile');
 
-//todo add listener for developerMode changes to show or hide already open windows.
-
 let tasks = {};
+
+config.addEventListener('app/developerMode', (old, next) => {
+    const keys = Object.keys(tasks);
+    keys.forEach(key => {
+        if (next)
+            tasks[key].window.show();
+        else tasks[key].window.hide();
+    });
+});
 
 ipcMain.on('worker:task', (event, data) =>
     profiles.sendTaskUpdate(data.id, data.task, data.progress));

@@ -1,6 +1,6 @@
 {
-  "name": "launcher",
-  "version": "0.1.12",
+  "name": "proton",
+  "version": "0.1.17",
   "description": "A custom minecraft launcher",
   "private": false,
   "author": "Matt Worzala <bhop.me>",
@@ -42,7 +42,7 @@
     "react-scripts": "3.0.0"
   },
   "build": {
-    "appId": "me.bhop.launcher",
+    "appId": "me.bhop.proton",
     "files": [
       "build/**/*",
       "node_modules/**/*",

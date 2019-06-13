@@ -151,10 +151,10 @@ app.on('ready',  async () => {
 
         createWindow();
 
-        createTrayMenu();
-        if (process.platform === 'win32')
-            createContextMenu();
-        registerUriListeners();
+        // createTrayMenu();
+        // if (process.platform === 'win32')
+        //     createContextMenu();
+        // registerUriListeners();
     }, 100);
 });
 

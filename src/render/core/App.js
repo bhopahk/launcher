@@ -89,27 +89,32 @@ class App extends React.Component {
         return (
             <div>
                 <Actions />
+                <div className={"alpha"}>
+                    <i className="fas fa-exclamation-triangle"></i>
+                    <h1>Early Alpha - <span>expect bugs</span></h1>
+                    <i className="fas fa-exclamation-triangle"></i>
+                </div>
                 <Sidebar default="profiles">
                     <SidebarHeader />
                     <SidebarGroup index={0} title="library">
                         <Page id="profiles" icon="list" display="Profiles">
                             <Profiles onProfileOptions={profile => this.setState({ profile: profile })} />
                         </Page>
-                        <Page id="accounts" icon="user" display="Accounts">
+                        <Page id="accounts" icon="user" display="Accounts" disabled>
                             <AccountManager />
                         </Page>
-                        <Page id="profiles3" icon="lock" display="Coming Soon" disabled={true}>
+                        <Page id="profiles3" icon="lock" display="Coming Soon" disabled>
                             <p>Profiles Alt Alt</p>
                         </Page>
                     </SidebarGroup>
                     <SidebarGroup index={1} title="install">
-                        <Page id="recommended" icon="star" display="Recommended">
+                        <Page id="recommended" icon="star" display="Recommended" disabled>
                             <ModpackBrowser error />
                         </Page>
                         <Page id="curse" icon="fire" display="Curse Modpacks">
                             <CurseModpackListing />
                         </Page>
-                        <Page id="technic" icon="wrench" display="Technic Modpacks?">
+                        <Page id="technic" icon="wrench" display="Technic Modpacks" disabled>
                             <p>Custom Profiles</p>
                             <button onClick={() => window.ipc.send('argv', 'twonk')}>argv</button>
                             <button onClick={() => window.ipc.send('accounts:newUser', {})}>Login Window</button>
@@ -120,8 +125,8 @@ class App extends React.Component {
                         </Page>
                     </SidebarGroup>
                     <SidebarGroup index={2} title="quick launch">
-                        <Link id="tst" icon="cube" display="Sevtech: Ages" onClick={() => {window.ipc.send('quickLaunch', { target: 123456 })}} />
-                        <Link id="tst2" icon="cube" display="Stoneblock 2" onClick={() => {window.ipc.send('quickLaunch', { target: 654321 })}} />
+                        <Link id="tst" icon="cube" display="Profile Name" onClick={() => {window.ipc.send('quickLaunch', { target: 123456 })}} disabled />
+                        <Link id="tst2" icon="cube" display="Profile Name" onClick={() => {window.ipc.send('quickLaunch', { target: 654321 })}} disabled />
                     </SidebarGroup>
                     <SidebarFooter />
                 </Sidebar>
@@ -132,10 +137,10 @@ class App extends React.Component {
                             <Settings id="app" display="App Settings">
                                 <Title>App Settings</Title>
                                 <Title>Updates</Title>
-                                <SettingsField title="Prerelease Builds" switch description="Enables pre release builds. They are potentially buggy, however they contain the most up-to-date fixes and features.">
+                                <SettingsField ni title="Prerelease Builds" switch description="Enables pre release builds. They are potentially buggy, however they contain the most up-to-date fixes and features.">
                                     <SettingsSwitch id="prerelease" />
                                 </SettingsField>
-                                <SettingsField title="Interval" description="The amount of time between automatic app update checks.">
+                                <SettingsField ni title="Interval" description="The amount of time between automatic app update checks.">
                                     <Dropdown id="checkInterval" small>
                                         <Option value={0} display="Never" description="Only check on startup." />
                                         <Option value={15} display="15" description="minutes" />
@@ -149,7 +154,7 @@ class App extends React.Component {
                                 <SettingsField title="Parallel Downloads" switch description="Allows the launcher to download many files at once, this speeds up the download process significantly, however it is not recommended for slow internet connections.">
                                     <SettingsSwitch id="parallelDownloads" />
                                 </SettingsField>
-                                <SettingsField title="End on Close" switch description="Stops the launcher from keeping a background process in the background when the window is not shown. This will disable all background features.">
+                                <SettingsField ni title="End on Close" switch description="Stops the launcher from keeping a background process in the background when the window is not shown. This will disable all background features.">
                                     <SettingsSwitch id="endOnClose" />
                                 </SettingsField>
                                 <SettingsField title="Developer Mode" switch description="Enables some extra options and menus for testing. This should not be enabled unless confident or instructed by a developer.">
@@ -164,7 +169,7 @@ class App extends React.Component {
                                         <Option value="1280x720" display="1280x720" />
                                     </Dropdown>
                                 </SettingsField>
-                                <SettingsField title="Memory" description="The amount of memory for profiles to start with. This can be changed for individual profiles.">
+                                <SettingsField title="Memory" description="SEMI IMPLEMENTED - CAN ALLOCATE MORE THAN SYSTEM HAS - The amount of memory for profiles to start with. This can be changed for individual profiles.">
                                     <Slider id="maxMemory" step={128} min={256} max={16384} />
                                 </SettingsField>
                                 <SettingsField title="Java Arguments" description="Any additional Java arguments which will be passed into every profile by default. These can be changed for individual profiles separately.">
@@ -173,7 +178,7 @@ class App extends React.Component {
                             </Settings>
                             <Settings id="minecraft" display="Minecraft">
                                 <Title>Minecraft</Title>
-                                <SettingsField title="Launcher Preference" description="Choose which game launcher variety (or none) will be used when launching a profile.">
+                                <SettingsField ni title="Launcher Preference" description="Choose which game launcher variety (or none) will be used when launching a profile.">
                                     <Checkbox id="launcherPref">
                                         <Check value="native" display="Native Launcher" description="The modern 'native' Mojang launcher." />
                                         <Check value="legacy" display="Legacy Launcher" description="The legacy Java based Mojang launcher." />
@@ -184,23 +189,23 @@ class App extends React.Component {
                                     <FolderSelect id="instanceDir" onMoreAction={value => window.ipc.send('open-folder', value)} />
                                 </SettingsField>
                                 <Title>Advanced</Title>
-                                <SettingsField title="Install Assets" description="Installs version assets such as required libraries and sound files.">
+                                <SettingsField ni title="Install Assets" description="Installs version assets such as required libraries and sound files.">
                                     <SettingsSwitch id="installAssets" />
                                 </SettingsField>
-                                <SettingsField title="Save Files" description="Files of deleted profiles will be kept until a new profile is created with the same name.">
+                                <SettingsField ni title="Save Files" description="Files of deleted profiles will be kept until a new profile is created with the same name.">
                                     <SettingsSwitch id="deleteFiles" />
                                 </SettingsField>
                             </Settings>
                             <Separator/>
                             <Settings id="notifications" display="Notifications">
                                 <Title>Notifications</Title>
-                                <SettingsField title="Enabled" description="System notifications will be sent on certain events such as profile installation finishing.">
+                                <SettingsField ni title="Enabled" description="System notifications will be sent on certain events such as profile installation finishing.">
                                     <SettingsSwitch id="sendNotifications" />
                                 </SettingsField>
-                                <SettingsField title="Taskbar" description="The system task bar will reflect notifications through a discrete flashing.">
+                                <SettingsField ni title="Taskbar" description="The system task bar will reflect notifications through a discrete flashing.">
                                     <SettingsSwitch id="showTaskbar" />
                                 </SettingsField>
-                                <SettingsField title="Sounds" description="Choose which actions will make sounds.">
+                                <SettingsField ni title="Sounds" description="Choose which actions will make sounds.">
                                     <Checkbox id="sounds" multiple>
                                         <Check value="native" display="Native Launcher" description="The modern 'native' Mojang launcher." />
                                         <Check value="legacy" display="Legacy Launcher" description="The legacy Java based Mojang launcher." />
@@ -219,20 +224,20 @@ class App extends React.Component {
                             <Separator/>
                             <Settings id="privacy" display="Privacy">
                                 <Title>Privacy</Title>
-                                <SettingsField title="Recommendations"
-                                               description="Some data about modpack preferences must be stored for recommendations to be generated."
-                                               note="If anonymous statistics are disabled, this data is only stored locally.">
-                                    <button>View Perceived Preferences</button>
-                                </SettingsField>
-                                <SettingsField title="Anonymous Statistics" switch
-                                               description="Allows anonymous data collection about the launcher. This information will be used for improving Proton's features and user experience."
-                                               note="We will not distribute any data.">
-                                    <SettingsSwitch id="collectData" />
-                                </SettingsField>
+                                <SettingsField title="Coming Soon..." description="This will be added in a later version of the launcher, hold tight!" />
+                                {/*<SettingsField title="Recommendations"*/}
+                                {/*               description="Some data about modpack preferences must be stored for recommendations to be generated."*/}
+                                {/*               note="If anonymous statistics are disabled, this data is only stored locally.">*/}
+                                {/*    <button>View Perceived Preferences</button>*/}
+                                {/*</SettingsField>*/}
+                                {/*<SettingsField title="Anonymous Statistics" switch*/}
+                                {/*               description="Allows anonymous data collection about the launcher. This information will be used for improving Proton's features and user experience."*/}
+                                {/*               note="We will not distribute any data.">*/}
+                                {/*    <SettingsSwitch id="collectData" />*/}
+                                {/*</SettingsField>*/}
                             </Settings>
                             <Settings id="dangerZone" display="Danger Zone">
                                 <Title>Danger Zone</Title>
-                                <Title>Language</Title>
                                 <SettingsField title="Coming Soon..." description="This will be added in a later version of the launcher, hold tight!" />
                             </Settings>
                         </SettingsWrapper>
