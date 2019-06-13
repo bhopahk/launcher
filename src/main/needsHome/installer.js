@@ -190,13 +190,13 @@ exports.installFabric = async (mappings, loader, task) => {
     return versionName;
 };
 
-exports.installCurseModpack = async (task, name, fileName, fileUrl) => {
+exports.installCurseModpack = async (task, name, fileUrl) => {
     const profileDir = path.join(instanceDir, name);
     const readDir = path => new Promise((resolve, reject) => { fs.readdir(path, (err, items) => { if (err) reject(err); else resolve(items); }); });
 
-    const zipLoc = path.join(tempDir, fileName);
+    const zipLoc = path.join(tempDir, `${name}.zip`);
     sendTaskUpdate(task, 'preparing', 0/2);
-    await files.download(fileUrl, path.join(tempDir, fileName));
+    await files.download(fileUrl, zipLoc);
     sendTaskUpdate(task, 'preparing', 1/2);
     const dir = await files.unzip(zipLoc);
     const manifest = await fs.readJson(path.join(dir, 'manifest.json'));

@@ -117,15 +117,29 @@ class CurseModpackListing extends React.Component {
         this.clearRefresh();
     }
 
-    async installModpack(id, version) {
-        let cp = this.state.modpacks.slice();
-        for (let i = 0; i < cp.length; i++) {
-            if (cp[i].id !== id)
-                continue;
-            cp[i].disabled = true;
-        }
+    componentWillMount() {
+        window.ipc.on('profile:create:response', this.handleResponse);
+    }
+    componentWillUnmount() {
+        window.ipc.removeListener('profile:create:response', this.handleResponse);
+    }
+
+    handleResponse = () => {
         this.setState({
-            modpacks: cp,
+            loading: false,
+        })
+    };
+
+    async installModpack(id, version) {
+        // let cp = this.state.modpacks.slice();
+        // for (let i = 0; i < cp.length; i++) {
+        //     if (cp[i].id !== id)
+        //         continue;
+        //     cp[i].disabled = true;
+        // }
+        this.setState({
+            // modpacks: cp,
+            loading: true,
         });
         window.ipc.send('profile:create:curse', {
             modpack: id,

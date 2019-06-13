@@ -32,8 +32,8 @@ class Downloads extends React.Component {
         this.state = {
             tasks: {
                 // 109515215: {
-                //     name: 'Sevtech: Ages',
-                //     task: 'downloading mods',
+                //     name: 'Sevtech: Ages and really long name',
+                //     task: 'downloading mods and really long thing wow',
                 //     progress: .5,
                 // },
                 // 5152162: {
@@ -122,6 +122,9 @@ class Downloads extends React.Component {
 const Task = (props) => {
     return (
         <div className="task">
+            {/*<div className="task-cancel">*/}
+            {/*    <i className="fas fa-times"></i>*/}
+            {/*</div>*/}
             <h1>{props.name}</h1>
             <div className="task-progress">
                 <div className="task-progress-complete" style={{

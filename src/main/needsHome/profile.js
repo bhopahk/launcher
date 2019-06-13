@@ -120,9 +120,13 @@ ipcMain.on('profile:create:curse', async (event, payload) => {
     packData.originalIcon = icon;
 
     // Create valid profile name
-    let name = packJson.name, i = 0;
-    while (await fs.pathExists(name))
-        name = `${name.endsWith(` (${i})`) ? name.substring(0, name.length - 3 - `${i}`.length) : name} (${++i})`;
+    const findName = async (base, index = 0) => {
+        if (await fs.pathExists(path.join(instanceDir, base)))
+            return findName(`${base.endsWith(` (${index})`) ? base.substring(0, base.length - 3 - `${index}`.length) : base} (${++index})`, index);
+        return base;
+    };
+    const name = await findName(packJson.name);
+    await fs.mkdirs(path.join(instanceDir, name));
 
     const tId = await sendSync(mainWindow, 'tasks:create', { name });
     // Send response to disable the loading animation.
@@ -132,9 +136,7 @@ ipcMain.on('profile:create:curse', async (event, payload) => {
     packData.version = fileJson.displayName;
     packData.versionId = fileJson.id;
 
-    await fs.mkdirs(path.join(instanceDir, name));
-    const versionInfo = await installer.installCurseModpack(tId, name, fileJson.fileName, fileJson.downloadUrl);
-
+    const versionInfo = await installer.installCurseModpack(tId, name, fileJson.downloadUrl);
     await this.createProfile(name, icon, versionInfo.version, versionInfo.localVersionId, packData);
 
     console.log(`Finished installing '${name}'!`);
