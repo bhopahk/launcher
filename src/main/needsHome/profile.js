@@ -20,11 +20,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-//todo create a default image. This is ok for non-commercial use, but needs attribution.
-// http://iconbug.com/detail/icon/8235/minecraft-dirt/
-// Creative Commons Attribution Noncommercial 3.0 Unported License.
-const defaultFavicon = 'http://iconbug.com/data/10/512/a024a1ed8a16e9ff5667bd97127d7a8a.png';
-
 const { app, ipcMain, Notification } = require('electron');
 const fs = require('fs-extra');
 const path = require('path');
@@ -148,6 +143,12 @@ ipcMain.on('profile:create:curse', async (event, payload) => {
     notification.show();
     mainWindow.send('tasks:delete', { tId });
 });
+// Delete a profile
+ipcMain.on('profile:delete', async (event, name) => {
+    await this.deleteProfile(name);
+    await this.renderProfiles();
+    console.log(`Deleted profile ${name}.`);
+});
 
 // Get profile screenshots
 ipcMain.on('profile:screenshots', async (event, payload) => {
@@ -257,6 +258,7 @@ exports.saveProfile = async (name, newProfile) => {
 };
 exports.deleteProfile = async (name) => {
     const profiles = await fs.readJson(launcherProfiles);
+    await fs.remove(profiles[name].directory);
     delete profiles[name];
     await fs.writeJson(launcherProfiles, profiles, { spaces: 4 });
 };

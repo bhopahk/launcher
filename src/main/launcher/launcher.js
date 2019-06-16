@@ -47,7 +47,7 @@ exports.launchProfile = async (profile) => {
         name: profile.name,
         type: profile.type,
         gameVersion: profile.version,
-        status: 'Launching...',
+        status: '',
     });
     game.on('stop', code => {
         rpc.setToIdle();

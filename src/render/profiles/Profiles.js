@@ -79,7 +79,7 @@ const Profile = (props) => { //todo need to create an icon container for icon ce
                 <MenuItem onClick={() => alert("// not implemented //")} disabled><i className="fas fa-link"></i>Create Shortcut</MenuItem>
                 <MenuItem onClick={() => alert("// not implemented //")} disabled><i className="fas fa-file-export"></i>Export</MenuItem>
                 <MenuItem divider />
-                <MenuItem onClick={() => alert("// not implemented //")}><i className="fas fa-trash-alt"></i>Delete</MenuItem>
+                <MenuItem onClick={() => window.ipc.send('profile:delete', props.name)}><i className="fas fa-trash-alt"></i>Delete</MenuItem>
             </ContextMenu>
         </div>
     );

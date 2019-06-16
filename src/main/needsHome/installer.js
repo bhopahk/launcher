@@ -29,6 +29,7 @@ const cache = require('../game/versionCache');
 const config = require('../config/config');
 const fabric = require('../util/fabric');
 const workers = require('../worker/workers');
+const lock = require('../util/lockfile');
 
 const baseDir = require('electron').app.getPath('userData');
 const tempDir = path.join(baseDir, 'temp');
@@ -74,29 +75,61 @@ exports.installVanilla = async (version, task) => {
     fs.mkdirs(dir);
     const vanilla = await (await fetch(cache.findGameVersion(version).url)).json();
 
-    // Write version json
-    sendTaskUpdate(task, 'writing profile settings', 1/3);
-    const jsonLoc = path.join(dir, `${version}.json`);
-    if (!await fs.pathExists(jsonLoc))
-        await files.download(cache.findGameVersion(version).url, jsonLoc);
-    // Download client jar
-    sendTaskUpdate(task, 'writing profile settings', 2/3);
-    const clientJar = path.join(dir, `${version}.jar`);
-    if (!await fs.pathExists(clientJar) || (await files.fileChecksum(clientJar, 'sha1')) !== vanilla.downloads.client.sha1)
-        await files.download(vanilla.downloads.client.url, clientJar);
+    const lockfile = path.join(dir, 'version-lock');
+    if (!await lock.check(lockfile)) {
+        try {
+            // Lock the version directory
+            await lock.lock(lockfile, { stale: 300000 });
+
+            // Write version json
+            sendTaskUpdate(task, 'writing profile settings', 1/3);
+            const jsonLoc = path.join(dir, `${version}.json`);
+            if (!await fs.pathExists(jsonLoc))
+                await files.download(cache.findGameVersion(version).url, jsonLoc);
+            // Download client jar
+            sendTaskUpdate(task, 'writing profile settings', 2/3);
+            const clientJar = path.join(dir, `${version}.jar`);
+            if (!await fs.pathExists(clientJar) || (await files.fileChecksum(clientJar, 'sha1')) !== vanilla.downloads.client.sha1)
+                await files.download(vanilla.downloads.client.url, clientJar);
+        } finally {
+            //todo error handling
+            await lock.unlock(lockfile);
+        }
+    }
+
     // Download asset index
     sendTaskUpdate(task, 'writing profile settings', 3/3);
     const assetIndex = path.join(installDir, 'assets', 'indexes', `${vanilla.assetIndex.id}.json`);
-    if (!await fs.pathExists(assetIndex) || (await files.fileChecksum(assetIndex, 'sha1')) !== vanilla.assetIndex.sha1)
-        await files.download(vanilla.assetIndex.url, assetIndex);
+    const assetLock = path.join(path.dirname(assetIndex), `ai-${vanilla.assetIndex.id}-lock`);
+    if (!await lock.check(assetLock)) {
+        try {
+            const err = await lock.lock(assetLock, { stale: 300000 });
+            if (!await fs.pathExists(assetIndex) || (await files.fileChecksum(assetIndex, 'sha1')) !== vanilla.assetIndex.sha1)
+                await files.download(vanilla.assetIndex.url, assetIndex);
+        } finally {
+            //todo error handling
+            await lock.unlock(assetLock);
+        }
+    }
 
     // Download assets
     await validateGameAssets(task, (await fs.readJson(assetIndex)).objects);
 
     // Download logger config
     const logConfig = path.join(installDir, 'assets', 'log_configs', vanilla.logging.client.file.id);
-    if (!await fs.pathExists(logConfig) || (await files.fileChecksum(logConfig, 'sha1')) !== vanilla.logging.client.file.sha1)
-        await files.download(vanilla.logging.client.file.url, assetIndex);
+    const logLock = path.join(path.dirname(logConfig), `log-${vanilla.logging.client.file.id.replace('.', '-')}-lock`);
+    if (!await lock.check(logLock)) {
+        try {
+            await lock.lock(logLock, { stale: 300000 });
+            if (!await fs.pathExists(logConfig) || (await files.fileChecksum(logConfig, 'sha1')) !== vanilla.logging.client.file.sha1)
+                await files.download(vanilla.logging.client.file.url, assetIndex);
+        } finally {
+            //todo error handling
+            await lock.unlock(logLock);
+        }
+    } else {
+        console.log('Skipping asset index due to existing lock.')
+    }
 
     // Download libraries
     await validateTypeOneLibraries(task, 'validating vanilla libraries', vanilla.libraries);
@@ -125,37 +158,52 @@ exports.installForge = async (version, task) => {
         delete versionJson.minimumLauncherVersion;
         versionJson.logging = {};
 
-        // Write version json
-        sendTaskUpdate(task, 'writing version settings', 1/2);
-        const versionJsonPath = path.join(dir, `${realName}.json`);
-        if (!await fs.pathExists(versionJsonPath))
-            await fs.writeJson(versionJsonPath, versionJson);
+        const lockfile = path.join(dir, 'version-lock');
+        if (!await lock.check(lockfile)) {
+            lock.lock(lockfile, { stale: 300000 });
+            try {
+                // Write version json
+                sendTaskUpdate(task, 'writing version settings', 1/2);
+                const versionJsonPath = path.join(dir, `${realName}.json`);
+                if (!await fs.pathExists(versionJsonPath))
+                    await fs.writeJson(versionJsonPath, versionJson);
 
 
-        sendTaskUpdate(task, 'writing profile settings', 2/2);
-        const clientJar = path.join(dir, `${realName}.jar`);
-        if (!await fs.pathExists(clientJar))
-            await fs.copy(path.join(installDir, 'versions', forge.minecraftVersion, `${forge.minecraftVersion}.jar`), clientJar);
+                sendTaskUpdate(task, 'writing profile settings', 2/2);
+                const clientJar = path.join(dir, `${realName}.jar`);
+                if (!await fs.pathExists(clientJar))
+                    await fs.copy(path.join(installDir, 'versions', forge.minecraftVersion, `${forge.minecraftVersion}.jar`), clientJar);
+            } finally {
+                //todo error handling
+                await lock.unlock(lockfile);
+            }
+        } else {
+            console.log('Skipping forge >1.14 version json & jar due to existing lock.')
+        }
 
         const libraries = versionJson.libraries.concat(installerJson.libraries);
         await validateTypeOneLibraries(task, 'validating forge versions', libraries);
 
-        const clientDataPathSource = path.join(libDir, 'net', 'minecraftforge', 'forge', `${forge.minecraftVersion}-${forge.forgeVersion}`, `forge-${forge.minecraftVersion}-${forge.forgeVersion}-clientdata.lzma`);
-        const clientDataPathTarget = path.join(installDir, '../', 'temp', 'data', 'client.lzma');
-        await fs.copy(clientDataPathSource, clientDataPathTarget);
-        await fs.remove(clientDataPathSource);
-
-        await runForgeProcessors(task, installerJson.processors, installerJson.data, forge.minecraftVersion);
-        // await forgeProcessors(installerJson.processors, installerJson.data, forge.minecraftVersion, task);
-        await fs.remove(clientDataPathTarget);
+        await runForgeProcessors(task, installerJson.processors, installerJson.data, forge.minecraftVersion, forge.forgeVersion);
     } else {
         versionJson.jar = forge.minecraftVersion;
 
-        // Write version json
-        sendTaskUpdate(task, 'writing version settings', 1);
-        const versionJsonPath = path.join(dir, `${realName}.json`);
-        if (!await fs.pathExists(versionJsonPath))
-            await fs.writeJson(versionJsonPath, versionJson);
+        const lockfile = path.join(dir, 'version-lock');
+        if (!await lock.check(lockfile)) {
+            lock.lock(lockfile, { stale: 300000 });
+            try {
+                // Write version json
+                sendTaskUpdate(task, 'writing version settings', 1);
+                const versionJsonPath = path.join(dir, `${realName}.json`);
+                if (!await fs.pathExists(versionJsonPath))
+                    await fs.writeJson(versionJsonPath, versionJson);
+            } finally {
+                //todo error handling
+                await lock.unlock(lockfile);
+            }
+        } else {
+            console.log('Skipping forge <1.14 version json due to existing lock')
+        }
 
         await validateTypeTwoLibraries(task, 'validating forge libraries', versionJson.libraries);
     }
@@ -181,9 +229,20 @@ exports.installFabric = async (mappings, loader, task) => {
     const versionJsonPath = path.join(versionDir, `${versionName}.json`);
     const versionJarPath = path.join(versionDir, `${versionName}.jar`);
 
-    // Empty jar to trick the launcher into thinking this is a valid version.
-    await fs.ensureFile(versionJarPath);
-    await fs.writeJson(versionJsonPath, versionJson);
+    const lockfile = path.join(versionDir, 'version-lock');
+    if (!await lock.check(lockfile)) {
+        await lock.lock(lockfile, );
+        try {
+            // Empty jar to trick the launcher into thinking this is a valid version.
+            await fs.ensureFile(versionJarPath);
+            await fs.writeJson(versionJsonPath, versionJson);
+        } finally {
+            //todo error handling
+            await lock.unlock(lockfile);
+        }
+    } else {
+        console.log('Skipping fabric version json & jar due to existing lock.')
+    }
 
     await validateTypeTwoLibraries(task, 'validating fabric libraries', versionJson.libraries);
 
@@ -247,20 +306,34 @@ const validateGameAssets = (task, objects) => {
         const path = require('path');
         const fs = require('fs-extra');
         const files = require('../util/files');
+        const lock = require('../util/lockfile');
 
         const keys = Object.keys(props.objects);
         const objectDir = path.join(props.installDir, 'assets', 'objects');
+        const lockfile = path.join(objectDir, 'assets-lock');
         let complete = 0, total = keys.length;
 
-        for (let i = 0; i < keys.length; i++) {
-            const object = props.objects[keys[i]];
-            console.log(`Processing ${keys[i]}`);
-            const file = path.join(objectDir, object.hash.substring(0, 2), object.hash.substring(2));
-            if (!(await fs.pathExists(file) && (await files.fileChecksum(file, 'sha1')) === object.hash)) {
-                console.log(`Downloading ${keys[i]}`);
-                await files.download(`https://resources.download.minecraft.net/${object.hash.substring(0, 2)}/${object.hash}`, file);
-            } else console.log(`Found valid version of ${keys[i]} with matching checksum.`);
-            props.updateTask('validating game assets', ++complete/total);
+        if (await lock.check(lockfile))
+            return props.complete();
+        // Lock this directory so others will skip it, however expire it in 10 minutes in case anything goes wrong and it does not get expired.
+        await lock.lock(lockfile, { stale: 600000 });
+
+        try {
+            for (let i = 0; i < keys.length; i++) {
+                const object = props.objects[keys[i]];
+                console.log(`Processing ${keys[i]}`);
+                const file = path.join(objectDir, object.hash.substring(0, 2), object.hash.substring(2));
+                if (!(await fs.pathExists(file) && (await files.fileChecksum(file, 'sha1')) === object.hash)) {
+                    console.log(`Downloading ${keys[i]}`);
+                    await files.download(`https://resources.download.minecraft.net/${object.hash.substring(0, 2)}/${object.hash}`, file);
+                } else console.log(`Found valid version of ${keys[i]} with matching checksum.`);
+                props.updateTask('validating game assets', ++complete/total);
+            }
+        } catch (e) {
+            console.log('An error has occurred while downloading a game asset.', e);
+        } finally {
+            // Unlock the directory no matter what, otherwise nothing will
+            lock.unlock(lockfile);
         }
         props.complete();
     });
@@ -271,6 +344,7 @@ const validateTypeOneLibraries = (task, taskName, libraries) => {
         const path = require('path');
         const fs = require('fs-extra');
         const files = require('../util/files');
+        const lock = require('../util/lockfile');
 
         const osName = {
             win32: 'windows',
@@ -315,8 +389,15 @@ const validateTypeOneLibraries = (task, taskName, libraries) => {
 
                     if (library.downloads.artifact) {
                         const filePath = path.join(props.libDir, library.downloads.artifact.path);
-                        if (!await fs.pathExists(filePath) || (await files.fileChecksum(filePath, 'sha1')) !== library.downloads.artifact.sha1)
-                            await files.download(library.downloads.artifact.url, filePath);
+                        const lockfile = path.dirname(filePath);
+                        if ((!await fs.pathExists(filePath) || (await files.fileChecksum(filePath, 'sha1')) !== library.downloads.artifact.sha1) && !await lock.check(lockfile)) {
+                            try {
+                                await lock.lock(lockfile, { stale: 60000 });
+                                await files.download(library.downloads.artifact.url, filePath);
+                            } finally {
+                                await lock.unlock(lockfile)
+                            }
+                        }
                     }
 
                     if (!library.natives)
@@ -327,8 +408,15 @@ const validateTypeOneLibraries = (task, taskName, libraries) => {
                         return resolve();
 
                     const nativePath = path.join(props.libDir, library.downloads.classifiers[native].path);
-                    if (!await fs.pathExists(nativePath) || (await files.fileChecksum(nativePath, 'sha1')) !== library.downloads.classifiers[native].sha1)
-                        await files.download(library.downloads.classifiers[native].url, nativePath);
+                    const lockfile = path.dirname(nativePath);
+                    if ((!await fs.pathExists(nativePath) || (await files.fileChecksum(nativePath, 'sha1')) !== library.downloads.classifiers[native].sha1) && !await lock.check(lockfile)) {
+                        try {
+                            await lock.lock(lockfile, { stale: 60000 });
+                            await files.download(library.downloads.classifiers[native].url, nativePath);
+                        } finally {
+                            await lock.unlock(lockfile)
+                        }
+                    }
 
                     resolve();
                 }).then(() => callback());
@@ -363,8 +451,15 @@ const validateTypeOneLibraries = (task, taskName, libraries) => {
 
                 if (library.downloads.artifact) {
                     const filePath = path.join(props.libDir, library.downloads.artifact.path);
-                    if (!await fs.pathExists(filePath) || (await files.fileChecksum(filePath, 'sha1')) !== library.downloads.artifact.sha1)
-                        await files.download(library.downloads.artifact.url, filePath);
+                    const lockfile = path.dirname(filePath);
+                    if ((!await fs.pathExists(filePath) || (await files.fileChecksum(filePath, 'sha1')) !== library.downloads.artifact.sha1) && !await lock.check(lockfile)) {
+                        try {
+                            await lock.lock(lockfile, { stale: 60000 });
+                            await files.download(library.downloads.artifact.url, filePath);
+                        } finally {
+                            await lock.unlock(lockfile)
+                        }
+                    }
                 }
 
                 if (!library.natives) {
@@ -379,8 +474,15 @@ const validateTypeOneLibraries = (task, taskName, libraries) => {
                 }
 
                 const nativePath = path.join(props.libDir, library.downloads.classifiers[native].path);
-                if (!await fs.pathExists(nativePath) || (await files.fileChecksum(nativePath, 'sha1')) !== library.downloads.classifiers[native].sha1)
-                    await files.download(library.downloads.classifiers[native].url, nativePath);
+                const lockfile = path.dirname(nativePath);
+                if ((!await fs.pathExists(nativePath) || (await files.fileChecksum(nativePath, 'sha1')) !== library.downloads.classifiers[native].sha1) && !await lock.check(lockfile)) {
+                    try {
+                        await lock.lock(lockfile, { stale: 60000 });
+                        await files.download(library.downloads.classifiers[native].url, nativePath);
+                    } finally {
+                        await lock.unlock(lockfile)
+                    }
+                }
 
                 callback();
             }
@@ -393,6 +495,7 @@ const validateTypeTwoLibraries = (task, taskName, libraries) => {
         const path = require('path');
         const fs = require('fs-extra');
         const files = require('../util/files');
+        const lock = require('../util/lockfile');
 
         let complete = 0, total = props.libraries.length;
         const callback = () => {
@@ -412,9 +515,16 @@ const validateTypeTwoLibraries = (task, taskName, libraries) => {
                     const name = library.name.split(':');
                     const url = `${baseUrl}${name[0].split('.').join('/')}/${name[1]}/${name[2]}/${name[1]}-${name[2]}.jar`;
                     const filePath = path.join(props.libDir, name[0].split('.').join('/'), name[1], name[2], `${name[1]}-${name[2]}.jar`);
+                    const lockfile = path.dirname(filePath);
 
-                    if (!await fs.pathExists(filePath))
-                        await files.download(url, filePath);
+                    if (!await fs.pathExists(filePath) && !await lock.check(lockfile)) {
+                        try {
+                            await lock.lock(lockfile, { stale: 60000 });
+                            await files.download(url, filePath);
+                        } finally {
+                            await lock.unlock(lockfile)
+                        }
+                    }
 
                     resolve();
                 }).then(() => callback());
@@ -433,9 +543,16 @@ const validateTypeTwoLibraries = (task, taskName, libraries) => {
                 const name = library.name.split(':');
                 const url = `${baseUrl}${name[0].split('.').join('/')}/${name[1]}/${name[2]}/${name[1]}-${name[2]}.jar`;
                 const filePath = path.join(props.libDir, name[0].split('.').join('/'), name[1], name[2], `${name[1]}-${name[2]}.jar`);
+                const lockfile = path.dirname(filePath);
 
-                if (!await fs.pathExists(filePath))
-                    await files.download(url, filePath);
+                if (!await fs.pathExists(filePath) && !await lock.check(lockfile)) {
+                    try {
+                        await lock.lock(lockfile, { stale: 60000 });
+                        await files.download(url, filePath);
+                    } finally {
+                        await lock.unlock(lockfile)
+                    }
+                }
 
                 callback();
             }
@@ -443,11 +560,12 @@ const validateTypeTwoLibraries = (task, taskName, libraries) => {
     });
 };
 
-const runForgeProcessors = (task, processors, vars, mcVersion) => {
-    return workers.createWorker(task, { processors, vars, mcVersion, installDir, libDir }, async props => {
+const runForgeProcessors = (task, processors, vars, mcVersion, forgeVersion) => {
+    return workers.createWorker(task, { processors, vars, mcVersion, forgeVersion, installDir, libDir }, async props => {
         const path = require('path');
         const fs = require('fs-extra');
         const files = require('../util/files');
+        const lock = require('../util/lockfile');
 
         // Start helper functions
         const exec = cmd => new Promise((resolve, reject) => {
@@ -459,7 +577,6 @@ const runForgeProcessors = (task, processors, vars, mcVersion) => {
                 });
             });
         });
-
         const findLibraryPath = target => {
             if (target.includes('['))
                 target = target.substring(1, target.length - 1);
@@ -476,7 +593,6 @@ const runForgeProcessors = (task, processors, vars, mcVersion) => {
             const folderGroup = path.join(props.libDir, parts[0].split('.').join('/'));
             return path.join(folderGroup, parts[1], parts[2], `${parts[1]}-${parts[2]}${extension}`);
         };
-
         const findMainClass = async file => {
             const parentDir = path.join(file, '../');
             const fileName = path.basename(file);
@@ -495,14 +611,22 @@ const runForgeProcessors = (task, processors, vars, mcVersion) => {
         };
         // End helper functions
 
+        // These are used later, but needed for the completion callback
+        const clientDataPathSource = path.join(props.libDir, 'net', 'minecraftforge', 'forge', `${props.mcVersion}-${props.forgeVersion}`, `forge-${props.mcVersion}-${props.forgeVersion}-clientdata.lzma`);
+        const clientDataPathTarget = path.join(props.installDir, '../', 'temp', 'data', 'client.lzma');
+
         console.log('Starting forge installer...');
+        const lockfile = path.join(props.installDir, 'forge-installer-lock');
         let complete = -1, total = props.processors.length;
-        const callback = () => {
+        const callback = async () => {
             props.updateTask('installing forge', ++complete/total);
-            if (complete === total)
+            if (complete === total) {
                 props.complete();
+                await fs.remove(clientDataPathTarget);
+                await lock.unlock(lockfile);
+            }
         };
-        callback();
+        await callback();
 
         let envars = {};
         const keys = Object.keys(props.vars);
@@ -516,6 +640,15 @@ const runForgeProcessors = (task, processors, vars, mcVersion) => {
         });
         envars.MINECRAFT_JAR = `"${path.join(props.installDir, 'versions', props.mcVersion, `${props.mcVersion}.jar`)}"`;
         console.log('Using variables: ', envars);
+
+        if (await lock.check(lockfile))
+            return props.complete();
+        // Lock this directory so others will skip it, however expire it in 10 minutes in case anything goes wrong and it does not get expired.
+        await lock.lock(lockfile, { stale: 600000 });
+
+        // Move files around
+        await fs.copy(clientDataPathSource, clientDataPathTarget);
+        await fs.remove(clientDataPathSource);
 
         if (props.isParallel) {
             props.processors.forEach(async processor => {
@@ -554,23 +687,35 @@ const curseCopyOverrides = (task, profileDir, overrideDir, overrides) => {
     return workers.createWorker(task, { profileDir, overrideDir, overrides }, async props => {
         const path = require('path');
         const fs = require('fs-extra');
+        const lock = require('../util/lockfile');
 
         let complete = 0, total = props.overrides.length;
-        const callback = () => {
+        const lockfile = path.join(props.profileDir, 'override-lock');
+        const callback = async () => {
             props.updateTask('copying overrides', ++complete/total);
-            if (complete === total)
+            if (complete === total) {
                 props.complete();
+                await lock.unlock(lockfile);
+            }
         };
+
+        if (await lock.check(lockfile))
+            return props.complete();
+        // Lock this directory so others will skip it, however expire it in a minute in case anything goes wrong and it does not get expired.
+        await lock.lock(lockfile, { stale: 60000 });
 
         if (props.isParallel) {
             props.overrides.forEach(override =>
                 fs.copy(path.join(props.overrideDir, override), path.join(props.profileDir, override))
-                    .then(() => callback())
+                    .then(() => callback()).catch(() => callback()) //todo needs proper error handling
             );
         } else {
             for (let i = 0; i < props.overrides.length; i++) {
-                await fs.copy(path.join(props.overrideDir, props.overrides[i]), path.join(props.profileDir, props.overrides[i]));
-                callback();
+                try {
+                    await fs.copy(path.join(props.overrideDir, props.overrides[i]), path.join(props.profileDir, props.overrides[i]));
+                } finally {
+                    callback(); //todo proper error handling
+                }
             }
         }
     });
@@ -581,37 +726,45 @@ const curseInstallMods = (task, profileDir, mods) => {
         const path = require('path');
         const fs = require('fs-extra');
         const files = require('../util/files');
+        const lock = require('../util/lockfile');
 
+        const modsDir = path.join(props.profileDir, 'mods');
+        await fs.mkdirs(modsDir);
+        const lockfile = path.join(modsDir, 'mods-lock');
         let complete = 0, total = props.mods.length;
-        const callback = name => {
+        const callback = async name => {
             props.updateTask(`downloading ${name}`, ++complete/total);
-            if (complete === total)
+            if (complete === total) {
                 props.complete();
+                await lock.unlock(lockfile)
+            }
         };
+
+        if (await lock.check(lockfile))
+            return props.complete();
+        // Lock this directory so others will skip it, however expire it in 10 minutes in case anything goes wrong and it does not get expired.
+        await lock.lock(lockfile, { stale: 600000 });
 
         if (props.isParallel) {
             props.mods.forEach(mod => {
                 new Promise(async resolve => {
                     const name = (await (await fetch(`https://addons-ecs.forgesvc.net/api/v2/addon/${mod.projectID}`)).json()).name;
                     const fileJson = await (await fetch(`https://addons-ecs.forgesvc.net/api/v2/addon/${mod.projectID}/file/${mod.fileID}`)).json();
-                    const modsDir = path.join(props.profileDir, 'mods');
-
-                    await fs.mkdirs(modsDir);
                     await files.download(fileJson.downloadUrl, path.join(modsDir, fileJson.fileName));
                     resolve(name);
-                }).then(callback);
+                }).then(callback).catch(er => callback('// error //')); //todo currently we are just ignoring failed mods, but they need to be attempted and notified again.
             });
         } else {
             for (let i = 0; i < props.mods.length; i++) {
-                const mod = props.mods[i];
-                const name = (await (await fetch(`https://addons-ecs.forgesvc.net/api/v2/addon/${mod.projectID}`)).json()).name;
-                const fileJson = await (await fetch(`https://addons-ecs.forgesvc.net/api/v2/addon/${mod.projectID}/file/${mod.fileID}`)).json();
-                const modsDir = path.join(props.profileDir, 'mods');
-
-                await fs.mkdirs(modsDir);
-                await files.download(fileJson.downloadUrl, path.join(modsDir, fileJson.fileName));
-
-                callback(name);
+                try {
+                    const mod = props.mods[i];
+                    const name = (await (await fetch(`https://addons-ecs.forgesvc.net/api/v2/addon/${mod.projectID}`)).json()).name;
+                    const fileJson = await (await fetch(`https://addons-ecs.forgesvc.net/api/v2/addon/${mod.projectID}/file/${mod.fileID}`)).json();
+                    await files.download(fileJson.downloadUrl, path.join(modsDir, fileJson.fileName));
+                    callback(name);
+                } catch (er) {
+                    callback('// error //'); //todo same as above comment
+                }
             }
         }
     });

@@ -48,5 +48,31 @@ describe('random tests', () => {
 
         it('should find \'PROFILE_NAME (5)\'', () =>
             assert.strictEqual(findName('PROFILE_NAME', 0, [ 'PROFILE_NAME', 'PROFILE_NAME (1)', 'PROFILE_NAME (2)', 'PROFILE_NAME (3)', 'PROFILE_NAME (4)', 'PROFILE_NAME (6)' ]), 'PROFILE_NAME (5)'));
-    })
+    });
+
+    describe('lock', () => {
+        const lock = require('../src/main/util/lockfile');
+
+        it('should lock with async await', async () => {
+            const pathh = 'C:\\dev\\RandomOutput\\lock.lock';
+            await lock.lock(pathh);
+
+            const test = await lock.check(pathh);
+
+            await lock.unlock(pathh);
+
+            assert.ok(test);
+
+        })
+    });
+
+    describe('hastebin', () => {
+        const hastebin = require('../src/main/util/hastebin');
+
+        it('should return a valid hastebin link', async () => {
+            const key = await hastebin.haste('I am some cool text which is now on hastebin! At least for a little while...');
+            console.log(`https://hastebin.com/${key}`);
+            assert.ok(false);
+        })
+    });
 });

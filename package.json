@@ -1,6 +1,6 @@
 {
   "name": "proton",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A custom minecraft launcher",
   "private": false,
   "author": "Matt Worzala <bhop.me>",
@@ -67,7 +67,7 @@
       "perMachine": false
     },
     "linux": {
-      "target": "deb",
+      "target": "tar.gz",
       "icon": "./build/icon.png"
     }
   },

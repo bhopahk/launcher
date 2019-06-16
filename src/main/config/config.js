@@ -106,10 +106,11 @@ exports.loadConfig = async () => {
     while (maxMem % 128 !== 0)
         maxMem++;
 
-    if (!created) {
+    if (!created)
         this.setValue('defaults/maxMemory', maxMem / 2);
+
+    if (this.getValue('minecraft/instanceDir').length === 0)
         this.setValue('minecraft/instanceDir', path.join(baseDir, 'Instances'));
-    }
 };
 
 exports.addEventListener = (target, callback) => {

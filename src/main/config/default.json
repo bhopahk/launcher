@@ -2,7 +2,7 @@
   "app": {
     "checkInterval": 30,
     "prerelease": false,
-    "parallelDownloads": true,
+    "parallelDownloads": false,
     "endOnClose": false,
     "developerMode": false
   },
