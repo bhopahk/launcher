@@ -16,6 +16,23 @@
   border-color: #fff transparent #fff transparent;
   animation: lds-dual-ring 1.2s linear infinite;
 }
+
+.lds-dual-ring-small {
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+}
+.lds-dual-ring-small:after {
+  content: " ";
+  display: block;
+  width: 11px;
+  height: 11px;
+  margin: 1px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  border-color: #fff transparent #fff transparent;
+  animation: lds-dual-ring 1.2s linear infinite;
+}
 @keyframes lds-dual-ring {
   0% {
     transform: rotate(0deg);

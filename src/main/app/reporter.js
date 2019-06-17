@@ -64,6 +64,8 @@ if (process.platform === 'win32') {
 
 fs.mkdirs(reportDir);
 
+ipcMain.on('reporter:submit', (_, data) => this.error(data));
+
 ipcMain.on('reporter:register', event => mainWindow = event.sender);
 
 ipcMain.on('reporter:haste', async (event, path) => {
@@ -78,9 +80,14 @@ ipcMain.on('reporter:haste', async (event, path) => {
         console.log('The above has occurred while creating a crash report.');
         return event.sender.send('reporter:haste', { error: er.name, errorMessage: er.message });
     }
-    const url = `https://hastebin.com/${await this.haste(contents)}.txt`;
-    console.log(`Uploaded crash report to hastebin @ ${url} (${path}).`);
-    event.sender.send('reporter:haste', { url });
+    const url = await this.haste(contents);
+    if (url === undefined) {
+        console.log('Failed to upload report! (503)');
+        event.sender.send('reporter:haste', { error: 'response code 503', errorMessage: 'It would appear hastebin is currently unavailable.' })
+    } else {
+        console.log(`Uploaded error report @ ${url} (${path}).`);
+        event.sender.send('reporter:haste', { url });
+    }
 });
 
 ipcMain.on('reporter:test', async () => {
@@ -96,17 +103,16 @@ ipcMain.on('reporter:test', async () => {
 
 exports.error = async (err, extras) => {
     // console.log(err.stack);
-
-    const reportText = `Proton Launcher v${updater.current()}\n` +
+    const usedMem = mem - Math.floor(require('os').freemem()/1e6);
+    const reportText = `Proton Launcher v${updater.CURRENT}\n` +
         `${new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')}\n` +
+        `\n` +
+        `${os.name} ${os.version} ${os.arch}\n` +
+        `${usedMem}/${mem}mb\n` +
         `\n` +
         `// ${this.MESSAGES[Math.floor(Math.random()*this.MESSAGES.length)]}\n` +
         `\n` +
-        `Operating System: ${os.name} ${os.version} ${os.arch}\n` +
-        `Memory: ${mem}mb\n` +
-        `\n` +
-        `${err.stack}\n` +
-        `\n`;
+        `${err.stack}\n`;
     const fileName = `${new Date().toISOString().replace(/T/, '-').replace(/\..+/, '').replace(':', '-').replace(':', '-')}.txt`;
     const filePath = path.join(reportDir, fileName);
     // await fs.ensureFile(filePath);
@@ -114,10 +120,16 @@ exports.error = async (err, extras) => {
     mainWindow.send('reporter:report', filePath);
 };
 
-exports.haste = async (text) => {
-    return (await (await fetch('https://hastebin.com/documents', {
+exports.haste = async (text, alt = false) => {
+    const BASE_URL = alt ? 'https://sourceb.in/':'https://hastebin.com/';
+    const resp = await fetch(`${BASE_URL}${alt ? 'api/bin' : 'documents'}`, {
         method: 'post',
         body: text,
         headers: { 'Content-Type': 'text/plain' }
-    })).json()).key;
+    });
+    if (resp.status === 503 && !alt)
+        return this.haste(text, true);
+    if (resp.status === 503)
+        return;
+    return `${BASE_URL}${(await resp.json()).key}.txt`;
 };

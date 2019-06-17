@@ -37,6 +37,7 @@ class App extends React.Component {
         this.state = {
             profile: {},
             errorPath: undefined,
+            errorLoading: false,
         };
 
         this.registerAppWideIpcListeners();
@@ -65,9 +66,11 @@ class App extends React.Component {
                 console.log('An error has occurred while uploading a report to hastebin.');
                 console.log(data.error);
                 console.log(data.errorMessage);
+                alert(`An error has occurred while uploading a report to hastebin.\n${data.errorMessage}`);
             } else
                 window.ipc.send('open-external', data.url);
             ModalConductor.closeModals();
+            this.setState({ errorLoading: false })
         });
 
         window.ipc.on('message', (event, arg) => {
@@ -275,7 +278,10 @@ class App extends React.Component {
                         <h1><i className="fas fa-exclamation-triangle"></i><span>An error has occurred!</span><i className="fas fa-exclamation-triangle"></i></h1>
                         <h2>A report has been generated.</h2>
                         <div className="buttons">
-                            <Button onClick={() => window.ipc.send('reporter:haste', this.state.errorPath)}>Upload</Button>
+                            <Button onClick={() => {
+                                window.ipc.send('reporter:haste', this.state.errorPath);
+                                this.setState({ errorLoading: true });
+                            }}>Upload<div className={this.state.errorLoading ? "lds-dual-ring-small" : ""} style={{ marginLeft: this.state.errorLoading ? '5px' : '0' }}></div></Button>
                             <Button onClick={() => {
                                 window.ipc.send('open-folder', this.state.errorPath);
                                 ModalConductor.closeModals();

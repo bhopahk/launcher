@@ -1,0 +1,6 @@
+POST https://hastebin.com/documents
+Content-Type: text/plain
+
+I am some text to be uploaded!
+
+###

@@ -30,6 +30,7 @@ const config = require('../config/config');
 const fabric = require('../util/fabric');
 const workers = require('../worker/workers');
 const lock = require('../util/lockfile');
+const reporter = require('../app/reporter');
 
 const baseDir = require('electron').app.getPath('userData');
 const tempDir = path.join(baseDir, 'temp');
@@ -41,6 +42,7 @@ fs.mkdirs(tempDir);
 
 const sendTaskUpdate = (id, task, progress) => require('./profile').sendTaskUpdate(id, task, progress);
 
+//todo needs redo
 exports.installBaseGame = async (platform = 'win32', modern = true) => {
     const launcherPath = path.join(installDir, `minecraft.${platform === 'win32' ? 'exe' : 'jar'}`);
     if (await fs.pathExists(launcherPath))
@@ -67,11 +69,14 @@ exports.installBaseGame = async (platform = 'win32', modern = true) => {
     }
 };
 
-exports.installVanilla = async (version, task) => {
+exports.installVanilla = async (version, task, force) => {
     const dir = path.join(installDir, 'versions', version);
 
     // Create version directory and find the version json
     console.log(`Installing (or validating) Minecraft ${version}`);
+    if (await fs.pathExists(dir) && !force)
+        return version;
+
     fs.mkdirs(dir);
     const vanilla = await (await fetch(cache.findGameVersion(version).url)).json();
 
@@ -91,8 +96,9 @@ exports.installVanilla = async (version, task) => {
             const clientJar = path.join(dir, `${version}.jar`);
             if (!await fs.pathExists(clientJar) || (await files.fileChecksum(clientJar, 'sha1')) !== vanilla.downloads.client.sha1)
                 await files.download(vanilla.downloads.client.url, clientJar);
+        } catch (e) {
+            reporter.error(e);
         } finally {
-            //todo error handling
             await lock.unlock(lockfile);
         }
     }
@@ -106,8 +112,9 @@ exports.installVanilla = async (version, task) => {
             const err = await lock.lock(assetLock, { stale: 300000 });
             if (!await fs.pathExists(assetIndex) || (await files.fileChecksum(assetIndex, 'sha1')) !== vanilla.assetIndex.sha1)
                 await files.download(vanilla.assetIndex.url, assetIndex);
+        } catch (e) {
+            reporter.error(e);
         } finally {
-            //todo error handling
             await lock.unlock(assetLock);
         }
     }
@@ -123,8 +130,9 @@ exports.installVanilla = async (version, task) => {
             await lock.lock(logLock, { stale: 300000 });
             if (!await fs.pathExists(logConfig) || (await files.fileChecksum(logConfig, 'sha1')) !== vanilla.logging.client.file.sha1)
                 await files.download(vanilla.logging.client.file.url, assetIndex);
+        } catch (e) {
+            reporter.error(e);
         } finally {
-            //todo error handling
             await lock.unlock(logLock);
         }
     } else {
@@ -137,13 +145,17 @@ exports.installVanilla = async (version, task) => {
     return version;
 };
 
-exports.installForge = async (version, task) => {
+exports.installForge = async (version, task, force) => {
     const forge = await (await fetch(`https://addons-ecs.forgesvc.net/api/v2/minecraft/modloader/${version}`)).json();
     const afterOneFourteen = parseInt(forge.minecraftVersion.split('.')[1]) >= 14;
 
     // Create version directory and fetch version info.
     const realName = afterOneFourteen ? `${forge.minecraftVersion}-${forge.name}` : version;
     const dir = path.join(installDir, 'versions', realName);
+
+    if (await fs.pathExists(dir) && !force)
+        return realName;
+
     await fs.mkdirs(dir);
     let versionJson = JSON.parse(forge.versionJson);
     versionJson.id = realName;
@@ -211,10 +223,13 @@ exports.installForge = async (version, task) => {
     return realName;
 };
 
-exports.installFabric = async (mappings, loader, task) => {
+exports.installFabric = async (mappings, loader, task, force) => {
     const version = fabric.fabricify(mappings);
     const versionName = `${fabric.LOADER_NAME}-${loader}-${version.version}`;
     const versionDir = path.join(installDir, 'versions', versionName);
+
+    if (await fs.pathExists(versionDir) && !force)
+        return versionName;
 
     // Install corresponding vanilla version.
     await this.installVanilla(version.minecraftVersion, task);
@@ -231,13 +246,14 @@ exports.installFabric = async (mappings, loader, task) => {
 
     const lockfile = path.join(versionDir, 'version-lock');
     if (!await lock.check(lockfile)) {
-        await lock.lock(lockfile, );
+        await lock.lock(lockfile, { stale: 300000 });
         try {
             // Empty jar to trick the launcher into thinking this is a valid version.
             await fs.ensureFile(versionJarPath);
             await fs.writeJson(versionJsonPath, versionJson);
+        } catch (e) {
+            reporter.error(e);
         } finally {
-            //todo error handling
             await lock.unlock(lockfile);
         }
     } else {
@@ -318,9 +334,9 @@ const validateGameAssets = (task, objects) => {
         // Lock this directory so others will skip it, however expire it in 10 minutes in case anything goes wrong and it does not get expired.
         await lock.lock(lockfile, { stale: 600000 });
 
-        try {
-            for (let i = 0; i < keys.length; i++) {
-                const object = props.objects[keys[i]];
+        for (let i = 0; i < keys.length; i++) {
+            const object = props.objects[keys[i]];
+            try {
                 console.log(`Processing ${keys[i]}`);
                 const file = path.join(objectDir, object.hash.substring(0, 2), object.hash.substring(2));
                 if (!(await fs.pathExists(file) && (await files.fileChecksum(file, 'sha1')) === object.hash)) {
@@ -328,13 +344,12 @@ const validateGameAssets = (task, objects) => {
                     await files.download(`https://resources.download.minecraft.net/${object.hash.substring(0, 2)}/${object.hash}`, file);
                 } else console.log(`Found valid version of ${keys[i]} with matching checksum.`);
                 props.updateTask('validating game assets', ++complete/total);
+            } catch (e) {
+                props.error(e);
             }
-        } catch (e) {
-            console.log('An error has occurred while downloading a game asset.', e);
-        } finally {
-            // Unlock the directory no matter what, otherwise nothing will
-            lock.unlock(lockfile);
         }
+        lock.unlock(lockfile);
+
         props.complete();
     });
 };
@@ -419,7 +434,10 @@ const validateTypeOneLibraries = (task, taskName, libraries) => {
                     }
 
                     resolve();
-                }).then(() => callback());
+                }).then(() => callback()).catch(e => {
+                    callback();
+                    props.error(e);
+                });
             });
         } else {
             libs:
@@ -479,6 +497,8 @@ const validateTypeOneLibraries = (task, taskName, libraries) => {
                     try {
                         await lock.lock(lockfile, { stale: 60000 });
                         await files.download(library.downloads.classifiers[native].url, nativePath);
+                    } catch (e) {
+                        props.error(e);
                     } finally {
                         await lock.unlock(lockfile)
                     }
@@ -521,6 +541,8 @@ const validateTypeTwoLibraries = (task, taskName, libraries) => {
                         try {
                             await lock.lock(lockfile, { stale: 60000 });
                             await files.download(url, filePath);
+                        } catch (e) {
+                            props.error(e);
                         } finally {
                             await lock.unlock(lockfile)
                         }
@@ -549,6 +571,8 @@ const validateTypeTwoLibraries = (task, taskName, libraries) => {
                     try {
                         await lock.lock(lockfile, { stale: 60000 });
                         await files.download(url, filePath);
+                    } catch (e) {
+                        props.error(e);
                     } finally {
                         await lock.unlock(lockfile)
                     }
@@ -653,31 +677,54 @@ const runForgeProcessors = (task, processors, vars, mcVersion, forgeVersion) => 
         if (props.isParallel) {
             props.processors.forEach(async processor => {
                 new Promise(async resolve => {
+                    const processorJar = findLibraryPath(processor.jar);
+
+                    let arguments = ['-cp', `"${processorJar};${processor.classpath.map(cp => findLibraryPath(cp)).join(';')}"`, await findMainClass(processorJar)];
+                    const envarKeys = Object.keys(envars);
+                    arguments = arguments.concat(processor.args.map(arg => {
+                        for (let j = 0; j < envarKeys.length; j++)
+                            if (arg.startsWith(`{${envarKeys[j]}}`))
+                                return envars[envarKeys[j]];
+                        if (arg.startsWith('['))
+                            return `"${findLibraryPath(arg)}"`;
+                        return arg;
+                    }));
+                    console.log(arguments);
+
+                    const resp = await exec(`java ${arguments.join(' ')}`);
+                    console.log(arguments[2], resp);
 
                     resolve();
-                }).then(() => callback());
+                }).then(() => callback()).catch(er => {
+                    callback();
+                    props.error(er);
+                });
             });
         } else {
             for (let i = 0; i < props.processors.length; i++) {
                 const processor = props.processors[i];
                 const processorJar = findLibraryPath(processor.jar);
 
-                let arguments = ['-cp', `"${processorJar};${processor.classpath.map(cp => findLibraryPath(cp)).join(';')}"`, await findMainClass(processorJar)];
-                const envarKeys = Object.keys(envars);
-                arguments = arguments.concat(processor.args.map(arg => {
-                    for (let j = 0; j < envarKeys.length; j++)
-                        if (arg.startsWith(`{${envarKeys[j]}}`))
-                            return envars[envarKeys[j]];
-                    if (arg.startsWith('['))
-                        return `"${findLibraryPath(arg)}"`;
-                    return arg;
-                }));
-                console.log(arguments);
+                try {
+                    let arguments = ['-cp', `"${processorJar};${processor.classpath.map(cp => findLibraryPath(cp)).join(';')}"`, await findMainClass(processorJar)];
+                    const envarKeys = Object.keys(envars);
+                    arguments = arguments.concat(processor.args.map(arg => {
+                        for (let j = 0; j < envarKeys.length; j++)
+                            if (arg.startsWith(`{${envarKeys[j]}}`))
+                                return envars[envarKeys[j]];
+                        if (arg.startsWith('['))
+                            return `"${findLibraryPath(arg)}"`;
+                        return arg;
+                    }));
+                    console.log(arguments);
 
-                const resp = await exec(`java ${arguments.join(' ')}`);
-                console.log(arguments[2], resp);
-
-                callback();
+                    const resp = await exec(`java ${arguments.join(' ')}`);
+                    console.log(arguments[2], resp);
+                } catch (e) {
+                    props.error(e);
+                } finally {
+                    callback();
+                }
             }
         }
     });
@@ -707,14 +754,16 @@ const curseCopyOverrides = (task, profileDir, overrideDir, overrides) => {
         if (props.isParallel) {
             props.overrides.forEach(override =>
                 fs.copy(path.join(props.overrideDir, override), path.join(props.profileDir, override))
-                    .then(() => callback()).catch(() => callback()) //todo needs proper error handling
+                    .then(() => callback()).catch(er => { callback(); props.error(er); })
             );
         } else {
             for (let i = 0; i < props.overrides.length; i++) {
                 try {
                     await fs.copy(path.join(props.overrideDir, props.overrides[i]), path.join(props.profileDir, props.overrides[i]));
+                } catch (e) {
+                    props.error(e);
                 } finally {
-                    callback(); //todo proper error handling
+                    callback();
                 }
             }
         }
@@ -752,7 +801,10 @@ const curseInstallMods = (task, profileDir, mods) => {
                     const fileJson = await (await fetch(`https://addons-ecs.forgesvc.net/api/v2/addon/${mod.projectID}/file/${mod.fileID}`)).json();
                     await files.download(fileJson.downloadUrl, path.join(modsDir, fileJson.fileName));
                     resolve(name);
-                }).then(callback).catch(er => callback('// error //')); //todo currently we are just ignoring failed mods, but they need to be attempted and notified again.
+                }).then(callback).catch(er => {
+                    callback('// error //');
+                    props.error(er);
+                });
             });
         } else {
             for (let i = 0; i < props.mods.length; i++) {
@@ -763,7 +815,8 @@ const curseInstallMods = (task, profileDir, mods) => {
                     await files.download(fileJson.downloadUrl, path.join(modsDir, fileJson.fileName));
                     callback(name);
                 } catch (er) {
-                    callback('// error //'); //todo same as above comment
+                    callback('// error //');
+                    props.error(er);
                 }
             }
         }
