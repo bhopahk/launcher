@@ -24,14 +24,19 @@ class ModalConductor extends React.Component {
 
     render() {
         const active = this.state.active;
+        let activeChild = null;
+        for (let i = 0; i < React.Children.count(this.props.children); i++) {
+            const child = React.Children.toArray(this.props.children)[i];
+            if (child.props.id === active)
+                activeChild = child;
+        }
+
         return (
             <div>
-                <div className={active !== null ? 'modal-cover' : ''} onClick={() => ModalConductor.closeModals()}></div>
-                {this.props.children.map(child => {
-                    if (child.props.id === active)
-                        return child;
-                    else return null;
-                })}
+                <div className={active !== null ? 'modal-cover' : ''} onClick={() => {
+                    if (activeChild !== null && !activeChild.props.noclose) ModalConductor.closeModals()
+                }}></div>
+                {activeChild}
             </div>
         );
     }

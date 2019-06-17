@@ -114,3 +114,5 @@ autoUpdater.on('download-progress', progress => {
     // mainWindow.webContents.send('message', 'download progress: ');
     // mainWindow.webContents.send('message', progress);
 });
+
+exports.current = () => autoUpdater.currentVersion.version;

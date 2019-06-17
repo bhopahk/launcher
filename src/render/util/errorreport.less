@@ -1,0 +1,50 @@
+@import "../core/colors";
+
+.error-report-wrapper {
+  box-sizing: border-box;
+  position: relative;
+
+  min-width: 300px !important;
+  max-width: 300px !important;
+  min-height: 120px !important;
+  max-height: 120px !important;
+
+  margin: 0;
+  padding: 15px;
+
+  font-size: 15px;
+  font-family: Raleway, sans-serif;
+  text-align: center;
+  color: @offWhite;
+
+  border: none;
+  border-radius: 5px;
+  background-color: @backgroundVibrant3;
+  box-shadow: 0 0 9px 0 rgba(0, 0, 0, 0.75);
+
+  h1 {
+    font-size: 20px;
+
+    span {
+      margin: 0 5px;
+
+      color: @superOffWhite;
+    }
+  }
+
+  h2 {
+    margin: 10px 0;
+
+    color: @offGrey;
+  }
+
+  .buttons {
+    width: 270px;
+    display: flex;
+    justify-content: center;
+
+    button {
+      margin: 0 7px;
+    }
+  }
+}

@@ -137,6 +137,7 @@ const registerUriListeners = () => {
 app.on('ready',  async () => {
     await config.loadConfig();
 
+    require('./app/reporter');
     require('./app/updater');
     require('./needsHome/profile');
     require('./mojang/accounts');
@@ -155,6 +156,9 @@ app.on('ready',  async () => {
         // if (process.platform === 'win32')
         //     createContextMenu();
         // registerUriListeners();
+
+        // Send warning about not pasting stuff.
+        mainWindow.webContents.on('devtools-opened', () => mainWindow.webContents.send('devtools-opened'));
     }, 100);
 });
 
@@ -198,6 +202,7 @@ ipcMain.on('open-external', async (event, arg) => {
 });
 
 ipcMain.on('open-folder', async (event, arg) => {
+    console.log('opening' + arg);
     await shell.openItem(arg);
 });
 ipcMain.on('open-item', async (event, arg) => {
@@ -210,3 +215,5 @@ ipcMain.on('argv', event => {
     event.sender.send('argv', app.getAppPath());
     event.sender.send('argv', path.join(require('electron').app.getPath('userData'), 'Install'));
 });
+
+ipcMain.on('util:isDev', event => event.returnValue = isDev);

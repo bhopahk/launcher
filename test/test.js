@@ -70,8 +70,7 @@ describe('random tests', () => {
         const hastebin = require('../src/main/util/hastebin');
 
         it('should return a valid hastebin link', async () => {
-            const key = await hastebin.haste('I am some cool text which is now on hastebin! At least for a little while...');
-            console.log(`https://hastebin.com/${key}`);
+            console.log(await require('fs-extra').readFile('C:\\dev\\JavaScript\\launcher\\src\\main\\main.js', 'utf8'));
             assert.ok(false);
         })
     });

@@ -3,6 +3,7 @@ import './app.css';
 import '../util/contextmenu.css';
 import '../util/tooltip.css';
 import '../util/badge.css';
+import '../util/errorreport.css';
 import Snackbar from '../snackbar/Snackbar';
 import { ModalConductor, Modal } from '../modal/Modal';
 import Actions from './actions/Actions';
@@ -24,7 +25,7 @@ import CreateProfile from "../create/CreateProfile";
 import { SettingsWrapper, Settings, Separator, Title } from "../settings/Settings";
 import { SettingsField, SettingsSwitch } from '../settings/SettingsInput';
 
-import { Checkbox, Check, FolderSelect, Dropdown, Option, TextField, Slider } from '../input/Input';
+import { Checkbox, Check, FolderSelect, Dropdown, Option, TextField, Slider, Button } from '../input/Input';
 
 class App extends React.Component {
     static snackbar = React.createRef();
@@ -34,7 +35,8 @@ class App extends React.Component {
         super(props);
 
         this.state = {
-            profile: {}
+            profile: {},
+            errorPath: undefined,
         };
 
         this.registerAppWideIpcListeners();
@@ -45,6 +47,29 @@ class App extends React.Component {
     }
 
     registerAppWideIpcListeners() {
+        // Warning about pasting anything in devtools
+        window.ipc.on('devtools-openend', () => {
+            console.log('----------------------ALERT----------------------');
+            console.log('* Do not type anything in here unless you know what you are doing.');
+            console.log('* Do not paste anything here given by somebody else.');
+            console.log('* If you do not know exactly what you are doing, close this window immediately.')
+        });
+
+        // Register error reporter
+        window.ipc.send('reporter:register');
+        window.ipc.on('reporter:report', (event, path) => {
+            this.setState({ errorPath: path }, () => ModalConductor.openModal('errorReportModal'))
+        });
+        window.ipc.on('reporter:haste', (event, data) => {
+            if (data.error) {
+                console.log('An error has occurred while uploading a report to hastebin.');
+                console.log(data.error);
+                console.log(data.errorMessage);
+            } else
+                window.ipc.send('open-external', data.url);
+            ModalConductor.closeModals();
+        });
+
         window.ipc.on('message', (event, arg) => {
             console.log(arg);
         });
@@ -114,10 +139,11 @@ class App extends React.Component {
                         <Page id="curse" icon="fire" display="Curse Modpacks">
                             <CurseModpackListing />
                         </Page>
-                        <Page id="technic" icon="wrench" display="Technic Modpacks" disabled>
+                        <Page id="technic" icon="wrench" display="Technic Modpacks" disabled={!window.ipc.sendSync('util:isDev')}>
                             <p>Custom Profiles</p>
                             <button onClick={() => window.ipc.send('argv', 'twonk')}>argv</button>
                             <button onClick={() => window.ipc.send('accounts:newUser', {})}>Login Window</button>
+                            <button onClick={() => window.ipc.send('reporter:test')}>Test Error Report</button>
                             <br/>
                         </Page>
                         <Page id="custom" icon="tools" display="Custom Profile">
@@ -244,6 +270,17 @@ class App extends React.Component {
                     </Modal>
                     <Modal id="profileOptionsModal" className="profile-options-wrapper">
                         <ProfileOptions profile={this.state.profile} />
+                    </Modal>
+                    <Modal id="errorReportModal" className="error-report-wrapper" noclose>
+                        <h1><i className="fas fa-exclamation-triangle"></i><span>An error has occurred!</span><i className="fas fa-exclamation-triangle"></i></h1>
+                        <h2>A report has been generated.</h2>
+                        <div className="buttons">
+                            <Button onClick={() => window.ipc.send('reporter:haste', this.state.errorPath)}>Upload</Button>
+                            <Button onClick={() => {
+                                window.ipc.send('open-folder', this.state.errorPath);
+                                ModalConductor.closeModals();
+                            }}>View</Button>
+                        </div>
                     </Modal>
                 </ModalConductor>
             </div>
