@@ -102,6 +102,13 @@ ipcMain.on('reporter:test', async () => {
 });
 
 exports.error = async (err, extras) => {
+    let error = err.stack;
+    if (error === undefined) {
+        error = '';
+        error += `${err.code} (${err.errno})\n`;
+        error += `${err.path}`;
+    }
+
     // console.log(err.stack);
     const usedMem = mem - Math.floor(require('os').freemem()/1e6);
     const reportText = `Proton Launcher v${updater.CURRENT}\n` +
@@ -112,7 +119,8 @@ exports.error = async (err, extras) => {
         `\n` +
         `// ${this.MESSAGES[Math.floor(Math.random()*this.MESSAGES.length)]}\n` +
         `\n` +
-        `${err.stack}\n`;
+        `${error}\n`;
+
     const fileName = `${new Date().toISOString().replace(/T/, '-').replace(/\..+/, '').replace(':', '-').replace(':', '-')}.txt`;
     const filePath = path.join(reportDir, fileName);
     // await fs.ensureFile(filePath);

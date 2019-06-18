@@ -28,6 +28,21 @@ describe('random tests', () => {
             const funcRemade = new Function(`return ${func.toString()}`)();
             assert.strictEqual(funcRemade({ x: () => 1 }), 3);
         });
+
+        it('should create a function and catch its exception', async () => {
+            const func = () => {
+                const t = undefined;
+                return t.test();
+            };
+            const funcRemade = new Function(`return ${func.toString()}`)();
+            let val;
+            try {
+                val = funcRemade();
+            } catch (e) {
+                console.log('that didnt work!');
+            }
+            assert.strictEqual(val, 5);
+        });
     });
 
     describe('names', () => {

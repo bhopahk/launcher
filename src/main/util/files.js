@@ -28,30 +28,28 @@ exports.download = (url, location, oneTry) => {
         ? require('follow-redirects').https
         : require('follow-redirects').http;
     return new Promise(async (resolve, reject) => {
-        if (url === undefined)
-            reject('undefined url');
-        if (await fs.pathExists(location))
-            await fs.remove(location);
-        await fs.ensureFile(location);
-        let target = fs.createWriteStream(location);
-        https.get(url, resp => {
-            resp.pipe(target);
-            target.on('finish', () => {
-                target.close();
-                resolve(location);
-            });
-            target.on('error', () => {
+        try {
+            if (url === undefined)
+                reject('undefined url');
+            if (await fs.pathExists(location))
+                await fs.remove(location);
+            await fs.ensureFile(location);
+            let target = fs.createWriteStream(location);
+            https.get(url, resp => {
+                resp.pipe(target);
+                target.on('finish', () => {
+                    target.close();
+                    resolve(location);
+                });
+            }).on('error', error => {
                 if (!oneTry)
                     return this.download(url, location, true);
                 fs.removeSync(target);
                 reject(error);
             });
-        }).on('error', error => {
-            if (!oneTry)
-                return this.download(url, location, true);
-            fs.removeSync(target);
-            reject(error);
-        });
+        } catch (e) {
+            reject(e);
+        }
     });
 };
 

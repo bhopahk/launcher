@@ -370,143 +370,80 @@ const validateTypeOneLibraries = (task, taskName, libraries) => {
             android: 'linux',
             aix: 'linux',
         }[process.platform];
-        let complete = 0, total = props.libraries.length;
 
+        // Completion Callback
+        let complete = 0, total = props.libraries.length;
         const callback = () => {
             props.updateTask(props.taskName, ++complete/total);
             if (complete === total)
                 props.complete();
         };
 
-        if (props.isParallel) {
-            props.libraries.forEach(library => {
-                new Promise(async resolve => {
-                    console.log(`Validating ${library.name}`);
+        const task = library => new Promise(async resolve => {
+            console.log(`Validating ${library.name}`);
 
-                    if (!library.downloads)
+            if (!library.downloads)
+                return resolve();
+
+            // Forge universal has an empty url.
+            if (library.name.startsWith('net.minecraftforge:forge:') && library.name.endsWith(':universal'))
+                library.downloads.artifact.url = `https://files.minecraftforge.net/maven/${library.downloads.artifact.path}`;
+            // The hosted version of log4j is corrupt.
+            if (library.name.startsWith('org.apache.logging.log4j:log4j-api:') || library.name.startsWith('org.apache.logging.log4j:log4j-core:'))
+                library.downloads.artifact.url = `http://central.maven.org/maven2/${library.downloads.artifact.path}`;
+
+            if (library.rules) {
+                for (let i = 0; i < library.rules.length; i++) {
+                    if (library.rules[i].os === undefined)
+                        continue;
+                    if ((library.rules[i].os.name !== osName && library.rules[i].action === 'allow') || library.rules[i].os.name === osName && library.rules[i].action === 'deny')
                         return resolve();
-
-                    // Forge universal has an empty url.
-                    if (library.name.startsWith('net.minecraftforge:forge:') && library.name.endsWith(':universal'))
-                        library.downloads.artifact.url = `https://files.minecraftforge.net/maven/${library.downloads.artifact.path}`;
-                    // The hosted version of log4j is corrupt.
-                    if (library.name.startsWith('org.apache.logging.log4j:log4j-api:') || library.name.startsWith('org.apache.logging.log4j:log4j-core:'))
-                        library.downloads.artifact.url = `http://central.maven.org/maven2/${library.downloads.artifact.path}`;
-
-                    if (library.rules) {
-                        for (let i = 0; i < library.rules.length; i++) {
-                            if (library.rules[i].os === undefined)
-                                continue;
-                            if ((library.rules[i].os.name !== osName && library.rules[i].action === 'allow') || library.rules[i].os.name === osName && library.rules[i].action === 'deny')
-                                return resolve();
-                        }
-                    }
-
-                    if (library.downloads.artifact) {
-                        const filePath = path.join(props.libDir, library.downloads.artifact.path);
-                        const lockfile = path.dirname(filePath);
-                        if ((!await fs.pathExists(filePath) || (await files.fileChecksum(filePath, 'sha1')) !== library.downloads.artifact.sha1) && !await lock.check(lockfile)) {
-                            try {
-                                await lock.lock(lockfile, { stale: 60000 });
-                                await files.download(library.downloads.artifact.url, filePath);
-                            } finally {
-                                await lock.unlock(lockfile)
-                            }
-                        }
-                    }
-
-                    if (!library.natives)
-                        return resolve();
-                    console.log(`${library.name} has a native file.`);
-                    const native = library.natives[osName];
-                    if (native === undefined)
-                        return resolve();
-
-                    const nativePath = path.join(props.libDir, library.downloads.classifiers[native].path);
-                    const lockfile = path.dirname(nativePath);
-                    if ((!await fs.pathExists(nativePath) || (await files.fileChecksum(nativePath, 'sha1')) !== library.downloads.classifiers[native].sha1) && !await lock.check(lockfile)) {
-                        try {
-                            await lock.lock(lockfile, { stale: 60000 });
-                            await files.download(library.downloads.classifiers[native].url, nativePath);
-                        } finally {
-                            await lock.unlock(lockfile)
-                        }
-                    }
-
-                    resolve();
-                }).then(() => callback()).catch(e => {
-                    callback();
-                    props.error(e);
-                });
-            });
-        } else {
-            libs:
-            for (let i = 0; i < props.libraries.length; i++) {
-                const library = props.libraries[i];
-                console.log(`Validating ${library.name}`);
-
-                if (!library.downloads) {
-                    callback();
-                    continue;
                 }
-
-                // Forge universal has an empty url.
-                if (library.name.startsWith('net.minecraftforge:forge') && library.name.endsWith(':universal'))
-                    library.downloads.artifact.url = `https://files.minecraftforge.net/maven/${library.downloads.artifact.path}`;
-                // The hosted version of log4j is corrupt.
-                if (library.name.startsWith('org.apache.logging.log4j:log4j-api:') || library.name.startsWith('org.apache.logging.log4j:log4j-core:'))
-                    library.downloads.artifact.url = `http://central.maven.org/maven2/${library.downloads.artifact.path}`;
-
-                if (library.rules)
-                    for (let i = 0; i < library.rules.length; i++) {
-                        if (library.rules[i].os === undefined)
-                            continue;
-                        if ((library.rules[i].os.name !== osName && library.rules[i].action === 'allow') || library.rules[i].os.name === osName && library.rules[i].action === 'deny') {
-                            callback();
-                            continue libs;
-                        }
-                    }
-
-                if (library.downloads.artifact) {
-                    const filePath = path.join(props.libDir, library.downloads.artifact.path);
-                    const lockfile = path.dirname(filePath);
-                    if ((!await fs.pathExists(filePath) || (await files.fileChecksum(filePath, 'sha1')) !== library.downloads.artifact.sha1) && !await lock.check(lockfile)) {
-                        try {
-                            await lock.lock(lockfile, { stale: 60000 });
-                            await files.download(library.downloads.artifact.url, filePath);
-                        } finally {
-                            await lock.unlock(lockfile)
-                        }
-                    }
-                }
-
-                if (!library.natives) {
-                    callback();
-                    continue;
-                }
-                console.log(`${library.name} has a native file.`);
-                const native = library.natives[osName];
-                if (native === undefined) {
-                    callback();
-                    continue;
-                }
-
-                const nativePath = path.join(props.libDir, library.downloads.classifiers[native].path);
-                const lockfile = path.dirname(nativePath);
-                if ((!await fs.pathExists(nativePath) || (await files.fileChecksum(nativePath, 'sha1')) !== library.downloads.classifiers[native].sha1) && !await lock.check(lockfile)) {
-                    try {
-                        await lock.lock(lockfile, { stale: 60000 });
-                        await files.download(library.downloads.classifiers[native].url, nativePath);
-                    } catch (e) {
-                        props.error(e);
-                    } finally {
-                        await lock.unlock(lockfile)
-                    }
-                }
-
-                callback();
             }
-        }
+
+            if (library.downloads.artifact) {
+                const filePath = path.join(props.libDir, library.downloads.artifact.path);
+                const lockfile = path.join(path.dirname(filePath), 'library-lock');
+                if (await lock.check(lockfile))
+                    return props.complete();
+                await lock.lock(lockfile, { stale: 60000 });
+
+                if (!await fs.pathExists(filePath) || (await files.fileChecksum(filePath, 'sha1')) !== library.downloads.artifact.sha1) {
+                    console.log(`Unable to locate ${library.name}, it will be downloaded.`);
+                    await files.download(library.downloads.artifact.url, filePath);
+                    await lock.unlock(lockfile)
+                } else
+                    console.log(`Found ${library.name}.`);
+            }
+
+            if (!library.natives)
+                return resolve();
+            console.log(`${library.name} has a native file.`);
+            const native = library.natives[osName];
+            if (native === undefined)
+                return resolve();
+
+            const nativePath = path.join(props.libDir, library.downloads.classifiers[native].path);
+            const lockfile = path.join(path.dirname(nativePath), 'library-lock');
+            if (await lock.check(lockfile))
+                return props.complete();
+            await lock.lock(lockfile, { stale: 60000 });
+
+            if (!await fs.pathExists(nativePath) || (await files.fileChecksum(nativePath, 'sha1')) !== library.downloads.classifiers[native].sha1) {
+                console.log(`Unable to locate native for ${library.name}, it will be downloaded.`);
+                await files.download(library.downloads.classifiers[native].url, nativePath);
+                await lock.unlock(lockfile);
+            } else
+                console.log(`Found native for ${library.name}.`);
+
+            resolve();
+        });
+
+        if (props.isParallel)
+            props.libraries.forEach(library => task(library).catch(props.error).finally(callback));
+        else
+            for (let i = 0; i < props.libraries.length; i++)
+                await task(props.libraries[i]).catch(props.error).finally(callback);
     });
 };
 
@@ -524,63 +461,34 @@ const validateTypeTwoLibraries = (task, taskName, libraries) => {
                 props.complete();
         };
 
-        if (props.isParallel) {
-            props.libraries.forEach(async library => {
-                new Promise(async resolve => {
-                    console.log(`Validating ${library.name}`);
-                    if (library.clientreq === false)
-                        return resolve();
+        const task = library => new Promise(async resolve => {
+            console.log(`Validating ${library.name}`);
+            if (library.clientreq === false)
+                return resolve();
 
-                    const baseUrl = library.url === undefined ? 'https://repo1.maven.org/maven2/' : library.url;
-                    const name = library.name.split(':');
-                    const url = `${baseUrl}${name[0].split('.').join('/')}/${name[1]}/${name[2]}/${name[1]}-${name[2]}.jar`;
-                    const filePath = path.join(props.libDir, name[0].split('.').join('/'), name[1], name[2], `${name[1]}-${name[2]}.jar`);
-                    const lockfile = path.dirname(filePath);
+            const baseUrl = library.url === undefined ? 'https://repo1.maven.org/maven2/' : library.url;
+            const name = library.name.split(':');
+            const url = `${baseUrl}${name[0].split('.').join('/')}/${name[1]}/${name[2]}/${name[1]}-${name[2]}.jar`;
+            const filePath = path.join(props.libDir, name[0].split('.').join('/'), name[1], name[2], `${name[1]}-${name[2]}.jar`);
 
-                    if (!await fs.pathExists(filePath) && !await lock.check(lockfile)) {
-                        try {
-                            await lock.lock(lockfile, { stale: 60000 });
-                            await files.download(url, filePath);
-                        } catch (e) {
-                            props.error(e);
-                        } finally {
-                            await lock.unlock(lockfile)
-                        }
-                    }
+            const lockfile = path.join(path.dirname(filePath), 'library-lock');
+            if (await lock.check(lockfile))
+                return props.complete();
+            await lock.lock(lockfile, { stale: 60000 });
 
-                    resolve();
-                }).then(() => callback());
-            });
-        } else {
-            for (let i = 0; i < props.libraries.length; i++) {
-                const library = props.libraries[i];
-                console.log(`Validating ${library.name}`);
+            if (!await fs.pathExists(filePath)) {
+                console.log(`Unable to locate ${library.name}, it will be downloaded.`);
+                await files.download(url, filePath);
+                await lock.unlock(lockfile)
+            } else
+                console.log(`Found ${library.name}.`);
+            resolve();
+        });
 
-                if (library.clientreq === false) {
-                    callback();
-                    continue;
-                }
-
-                const baseUrl = library.url === undefined ? 'https://repo1.maven.org/maven2/' : library.url;
-                const name = library.name.split(':');
-                const url = `${baseUrl}${name[0].split('.').join('/')}/${name[1]}/${name[2]}/${name[1]}-${name[2]}.jar`;
-                const filePath = path.join(props.libDir, name[0].split('.').join('/'), name[1], name[2], `${name[1]}-${name[2]}.jar`);
-                const lockfile = path.dirname(filePath);
-
-                if (!await fs.pathExists(filePath) && !await lock.check(lockfile)) {
-                    try {
-                        await lock.lock(lockfile, { stale: 60000 });
-                        await files.download(url, filePath);
-                    } catch (e) {
-                        props.error(e);
-                    } finally {
-                        await lock.unlock(lockfile)
-                    }
-                }
-
-                callback();
-            }
-        }
+        if (props.isParallel)
+            props.libraries.forEach(async library => task(library).catch(props.error).finally(callback));
+        else for (let i = 0; i < props.libraries.length; i++)
+            await task(props.libraries[i]).catch(props.error).finally(callback);
     });
 };
 
@@ -639,8 +547,13 @@ const runForgeProcessors = (task, processors, vars, mcVersion, forgeVersion) => 
         const clientDataPathSource = path.join(props.libDir, 'net', 'minecraftforge', 'forge', `${props.mcVersion}-${props.forgeVersion}`, `forge-${props.mcVersion}-${props.forgeVersion}-clientdata.lzma`);
         const clientDataPathTarget = path.join(props.installDir, '../', 'temp', 'data', 'client.lzma');
 
-        console.log('Starting forge installer...');
+        // Locking
         const lockfile = path.join(props.installDir, 'forge-installer-lock');
+        if (await lock.check(lockfile))
+            return props.complete();
+        await lock.lock(lockfile, { stale: 600000 });
+
+        // Completion Callback
         let complete = -1, total = props.processors.length;
         const callback = async () => {
             props.updateTask('installing forge', ++complete/total);
@@ -652,6 +565,7 @@ const runForgeProcessors = (task, processors, vars, mcVersion, forgeVersion) => 
         };
         await callback();
 
+        // Generate Environment Variables
         let envars = {};
         const keys = Object.keys(props.vars);
         keys.forEach(key => {
@@ -663,70 +577,40 @@ const runForgeProcessors = (task, processors, vars, mcVersion, forgeVersion) => 
             envars[key] = `"${val}"`;
         });
         envars.MINECRAFT_JAR = `"${path.join(props.installDir, 'versions', props.mcVersion, `${props.mcVersion}.jar`)}"`;
-        console.log('Using variables: ', envars);
 
-        if (await lock.check(lockfile))
-            return props.complete();
-        // Lock this directory so others will skip it, however expire it in 10 minutes in case anything goes wrong and it does not get expired.
-        await lock.lock(lockfile, { stale: 600000 });
+        console.log('Starting forge installer...');
+        console.log('Using variables: ', envars);
 
         // Move files around
         await fs.copy(clientDataPathSource, clientDataPathTarget);
         await fs.remove(clientDataPathSource);
 
-        if (props.isParallel) {
-            props.processors.forEach(async processor => {
-                new Promise(async resolve => {
-                    const processorJar = findLibraryPath(processor.jar);
+        const task = processor => new Promise(async resolve => {
+            const processorJar = findLibraryPath(processor.jar);
 
-                    let arguments = ['-cp', `"${processorJar};${processor.classpath.map(cp => findLibraryPath(cp)).join(';')}"`, await findMainClass(processorJar)];
-                    const envarKeys = Object.keys(envars);
-                    arguments = arguments.concat(processor.args.map(arg => {
-                        for (let j = 0; j < envarKeys.length; j++)
-                            if (arg.startsWith(`{${envarKeys[j]}}`))
-                                return envars[envarKeys[j]];
-                        if (arg.startsWith('['))
-                            return `"${findLibraryPath(arg)}"`;
-                        return arg;
-                    }));
-                    console.log(arguments);
+            let arguments = ['-cp', `"${processorJar};${processor.classpath.map(cp => findLibraryPath(cp)).join(';')}"`, await findMainClass(processorJar)];
+            const envarKeys = Object.keys(envars);
+            arguments = arguments.concat(processor.args.map(arg => {
+                for (let j = 0; j < envarKeys.length; j++)
+                    if (arg.startsWith(`{${envarKeys[j]}}`))
+                        return envars[envarKeys[j]];
+                if (arg.startsWith('['))
+                    return `"${findLibraryPath(arg)}"`;
+                return arg;
+            }));
 
-                    const resp = await exec(`java ${arguments.join(' ')}`);
-                    console.log(arguments[2], resp);
+            console.log(`Starting ${arguments[2]}.`);
+            const resp = await exec(`java ${arguments.join(' ')}`);
+            console.log(resp);
 
-                    resolve();
-                }).then(() => callback()).catch(er => {
-                    callback();
-                    props.error(er);
-                });
-            });
-        } else {
-            for (let i = 0; i < props.processors.length; i++) {
-                const processor = props.processors[i];
-                const processorJar = findLibraryPath(processor.jar);
+            resolve();
+        });
 
-                try {
-                    let arguments = ['-cp', `"${processorJar};${processor.classpath.map(cp => findLibraryPath(cp)).join(';')}"`, await findMainClass(processorJar)];
-                    const envarKeys = Object.keys(envars);
-                    arguments = arguments.concat(processor.args.map(arg => {
-                        for (let j = 0; j < envarKeys.length; j++)
-                            if (arg.startsWith(`{${envarKeys[j]}}`))
-                                return envars[envarKeys[j]];
-                        if (arg.startsWith('['))
-                            return `"${findLibraryPath(arg)}"`;
-                        return arg;
-                    }));
-                    console.log(arguments);
-
-                    const resp = await exec(`java ${arguments.join(' ')}`);
-                    console.log(arguments[2], resp);
-                } catch (e) {
-                    props.error(e);
-                } finally {
-                    callback();
-                }
-            }
-        }
+        if (props.isParallel)
+            props.processors.forEach(async processor => task(processor).catch(props.error).finally(callback));
+        else
+            for (let i = 0; i < props.processors.length; i++)
+                await task(props.processors[i]).catch(props.error).finally(callback);
     });
 };
 
@@ -736,8 +620,14 @@ const curseCopyOverrides = (task, profileDir, overrideDir, overrides) => {
         const fs = require('fs-extra');
         const lock = require('../util/lockfile');
 
-        let complete = 0, total = props.overrides.length;
+        // Directory Lock
         const lockfile = path.join(props.profileDir, 'override-lock');
+        if (await lock.check(lockfile))
+            return props.complete();
+        await lock.lock(lockfile, { stale: 60000 });
+
+        // Completion Callback
+        let complete = 0, total = props.overrides.length;
         const callback = async () => {
             props.updateTask('copying overrides', ++complete/total);
             if (complete === total) {
@@ -746,27 +636,13 @@ const curseCopyOverrides = (task, profileDir, overrideDir, overrides) => {
             }
         };
 
-        if (await lock.check(lockfile))
-            return props.complete();
-        // Lock this directory so others will skip it, however expire it in a minute in case anything goes wrong and it does not get expired.
-        await lock.lock(lockfile, { stale: 60000 });
+        const task = override => fs.copy(path.join(props.overrideDir, override), path.join(props.profileDir, override));
 
-        if (props.isParallel) {
-            props.overrides.forEach(override =>
-                fs.copy(path.join(props.overrideDir, override), path.join(props.profileDir, override))
-                    .then(() => callback()).catch(er => { callback(); props.error(er); })
-            );
-        } else {
-            for (let i = 0; i < props.overrides.length; i++) {
-                try {
-                    await fs.copy(path.join(props.overrideDir, props.overrides[i]), path.join(props.profileDir, props.overrides[i]));
-                } catch (e) {
-                    props.error(e);
-                } finally {
-                    callback();
-                }
-            }
-        }
+        if (props.isParallel)
+            props.overrides.forEach(override => task(override).catch(props.error).finally(callback));
+        else
+            for (let i = 0; i < props.overrides.length; i++)
+                await task(props.overrides[i]).catch(props.error).finally(callback);
     });
 };
 
@@ -779,7 +655,14 @@ const curseInstallMods = (task, profileDir, mods) => {
 
         const modsDir = path.join(props.profileDir, 'mods');
         await fs.mkdirs(modsDir);
+
+        // Directory locking
         const lockfile = path.join(modsDir, 'mods-lock');
+        if (await lock.check(lockfile))
+            return props.complete();
+        await lock.lock(lockfile, { stale: 600000 });
+
+        // Completion Callback
         let complete = 0, total = props.mods.length;
         const callback = async name => {
             props.updateTask(`downloading ${name}`, ++complete/total);
@@ -789,36 +672,17 @@ const curseInstallMods = (task, profileDir, mods) => {
             }
         };
 
-        if (await lock.check(lockfile))
-            return props.complete();
-        // Lock this directory so others will skip it, however expire it in 10 minutes in case anything goes wrong and it does not get expired.
-        await lock.lock(lockfile, { stale: 600000 });
+        const task = mod => new Promise(async resolve => {
+            const name = (await (await fetch(`https://addons-ecs.forgesvc.net/api/v2/addon/${mod.projectID}`)).json()).name;
+            const fileJson = await (await fetch(`https://addons-ecs.forgesvc.net/api/v2/addon/${mod.projectID}/file/${mod.fileID}`)).json();
+            await files.download(fileJson.downloadUrl, path.join(modsDir, fileJson.fileName));
+            resolve(name);
+        });
 
-        if (props.isParallel) {
-            props.mods.forEach(mod => {
-                new Promise(async resolve => {
-                    const name = (await (await fetch(`https://addons-ecs.forgesvc.net/api/v2/addon/${mod.projectID}`)).json()).name;
-                    const fileJson = await (await fetch(`https://addons-ecs.forgesvc.net/api/v2/addon/${mod.projectID}/file/${mod.fileID}`)).json();
-                    await files.download(fileJson.downloadUrl, path.join(modsDir, fileJson.fileName));
-                    resolve(name);
-                }).then(callback).catch(er => {
-                    callback('// error //');
-                    props.error(er);
-                });
-            });
-        } else {
-            for (let i = 0; i < props.mods.length; i++) {
-                try {
-                    const mod = props.mods[i];
-                    const name = (await (await fetch(`https://addons-ecs.forgesvc.net/api/v2/addon/${mod.projectID}`)).json()).name;
-                    const fileJson = await (await fetch(`https://addons-ecs.forgesvc.net/api/v2/addon/${mod.projectID}/file/${mod.fileID}`)).json();
-                    await files.download(fileJson.downloadUrl, path.join(modsDir, fileJson.fileName));
-                    callback(name);
-                } catch (er) {
-                    callback('// error //');
-                    props.error(er);
-                }
-            }
-        }
+        if (props.isParallel)
+            props.mods.forEach(mod => task(mod).then(callback).catch(props.error));
+        else
+            for (let i = 0; i < props.mods.length; i++)
+                await task(props.mods[i]).then(callback).catch(props.error);
     });
 };
