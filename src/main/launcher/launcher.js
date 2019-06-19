@@ -69,8 +69,8 @@ exports.selectProfile = async (profile) => {
 };
 
 const updateLastLaunched = async (name) => {
-    let loaded = await profile.getProfile(name);
-    loaded.launched = new Date().getTime();
-    await profile.saveProfile(name, loaded);
-    await profile.renderProfiles();
+    // let loaded = await profile.getProfile(name);
+    // loaded.played = new Date().getTime();
+    await profile.updateProfile(name, { played: new Date().getTime() });
+    // await profile.renderProfiles();
 };

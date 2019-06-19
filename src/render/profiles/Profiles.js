@@ -7,16 +7,23 @@ class Profiles extends React.Component {
     constructor(props) {
         super(props);
 
-        window.ipc.on('profiles', (event, payload) => {
-            this.setState({
-                profiles: payload,
-            });
-        });
-
-        window.ipc.send('profiles', { action: 'LIST' });
+        window.ipc.send('profile:list');
 
         this.state = { profiles: [ ] };
     }
+
+    componentWillMount() {
+        window.ipc.on('profile:render', this.handleRender);
+    }
+    componentWillUnmount() {
+        window.ipc.removeListener('profile:render', this.handleRender);
+    }
+
+    handleRender = (event, payload) => {
+        this.setState({
+            profiles: payload,
+        });
+    };
 
     handleLaunch(profile) {
         window.ipc.send('profile:launch', profile);

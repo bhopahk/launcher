@@ -34,9 +34,7 @@
         try {
             await func(props);
         } catch (e) {
-            alert('EXCEPTION!!!');
-            
-            // Catch any unhandled exceptions
+            // Catch any unhandled exceptions todo this does not seem to work very well
             ipc.send('reporter:submit', e);
         }
     });

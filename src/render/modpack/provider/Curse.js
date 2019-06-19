@@ -141,7 +141,7 @@ class CurseModpackListing extends React.Component {
             // modpacks: cp,
             loading: true,
         });
-        window.ipc.send('profile:create:curse', {
+        window.ipc.send('profile:create', {
             modpack: id,
             file: version,
         });

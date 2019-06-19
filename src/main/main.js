@@ -137,7 +137,6 @@ const registerUriListeners = () => {
 app.on('ready',  async () => {
     await config.loadConfig();
 
-    require('./app/nedbtesting');
     require('./app/reporter');
     require('./app/updater');
     require('./needsHome/profile');

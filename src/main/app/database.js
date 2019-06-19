@@ -76,6 +76,13 @@ class Database {
             else resolve();
         })
     });
+
+    noIndex = name => new Promise((resolve, reject) => {
+        this._db.removeIndex(name, err => {
+            if (err) reject(err);
+            else resolve();
+        })
+    })
 }
 
 module.exports = Database;

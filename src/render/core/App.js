@@ -48,6 +48,8 @@ class App extends React.Component {
     }
 
     registerAppWideIpcListeners() {
+        window.ipc.send('sync');
+
         // Warning about pasting anything in devtools
         window.ipc.on('devtools-openend', () => {
             console.log('----------------------ALERT----------------------');

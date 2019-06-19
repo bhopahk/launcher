@@ -70,16 +70,23 @@ class Screenshots extends React.Component {
             loading: true,
         };
 
-        window.ipc.on('profile:screenshots', (event, payload) => {
-            this.setState({
-                images: payload,
-                loading: false,
-            })
-        });
-
         if (props.profile !== undefined)
-            window.ipc.send('profile:screenshots', props.profile);
+            window.ipc.send('profile:screenshot:list', props.profile);
     }
+
+    componentWillMount() {
+        window.ipc.on('profile:screenshot:render', this.handleRender)
+    }
+    componentWillUnmount() {
+        window.ipc.removeListener('profile:screenshot:render', this.handleRender)
+    }
+
+    handleRender = (event, payload) => {
+        this.setState({
+            images: payload,
+            loading: false,
+        })
+    };
 
     getImagesSafe() {
         if (this.state.images === undefined)
@@ -89,7 +96,7 @@ class Screenshots extends React.Component {
 
     handleDelete = (image) => {
         this.setState({ loading: true });
-        window.ipc.send('profile:screenshots:delete', {
+        window.ipc.send('profile:screenshot:delete', {
             profile: this.props.profile,
             image: image
         });

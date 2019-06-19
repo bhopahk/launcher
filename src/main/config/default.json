@@ -15,7 +15,7 @@
     "launcherPref": "native",
     "instanceDir": "",
     "installAssets": true,
-    "deleteFiles": false
+    "deleteFiles": true
   },
   "notifications": {
     "sendNotifications": true,
