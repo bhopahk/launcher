@@ -81,11 +81,73 @@ describe('random tests', () => {
         })
     });
 
-    describe('hastebin', () => {
-        const hastebin = require('../src/main/util/hastebin');
+    describe('mod info', () => {
+        const jar = require('path').resolve('C:\\Users\\mattworzala\\Downloads\\RoughlyEnoughItems-2.9.4+build.129.jar');
+        // const jar = require('path').resolve('C:\\Users\\mattworzala\\Downloads\\TConstruct-1.12.2-2.12.0.135.jar');
+        const StreamZip = require('node-stream-zip');
 
-        it('should return a valid hastebin link', async () => {
-            console.log(await require('fs-extra').readFile('C:\\dev\\JavaScript\\launcher\\src\\main\\main.js', 'utf8'));
+        const loadModInfo = file => new Promise(async resolve => {
+            if (!file.endsWith('jar') && !file.endsWith('dis'))
+                return { error: 'not jar', errorMessage: 'The supplied file did not end with jar or dis.' };
+            let info = {};
+            const archive = new StreamZip({ file: file, storeEntries: true });
+            archive.on('ready', () => {
+                for (const entry of Object.values(archive.entries())) {
+                    if (entry.name !== 'mcmod.info' && entry.name !== 'fabric.mod.json')
+                        continue;
+                    const base64IconSafe = iconFile => new Promise(resolve => {
+                        if (iconFile === undefined)
+                            return resolve('');
+                        archive.stream(iconFile, (err, stream) => {
+                            let body = 'data:image/png;base64,';
+                            stream.setEncoding('base64');
+                            stream.on('data', data => body += data);
+                            stream.on('end', () => resolve(body));
+                        })
+                    });
+                    let body = '';
+                    archive.stream(entry.name, (err, stream) => {
+                        stream.setEncoding('utf8');
+                        stream.on('data', data => body += data);
+                        stream.on('end', async () => {
+                            const mod = JSON.parse(body);
+                            if (entry.name === 'mcmod.info') {
+                                const convert = async json => { return {
+                                    id: json.modid,
+                                    name: json.name,
+                                    authors: json.authorList,
+                                    description: json.description.trim(),
+                                    version: json.version,
+                                    flavor: 'forge',
+                                    minecraftVersion: json.mcversion,
+                                    icon: await base64IconSafe(json.logoFile),
+                                    url: json.url,
+                                }};
+                                info = await convert(mod[0]);
+                                mod.shift();
+                                info.extras = mod.map(async () => await convert());
+                            } else {
+                                info = {
+                                    id: mod.id,
+                                    name: mod.name,
+                                    authors: mod.authors,
+                                    description: mod.description,
+                                    version: mod.version,
+                                    flavor: 'fabric',
+                                    icon: await base64IconSafe(mod.icon),
+                                    url: mod.contact.homepage,
+                                }
+                            }
+                            archive.close(() => resolve(info));
+                        });
+                    });
+                    break;
+                }
+            });
+        });
+
+        it('does it work?', async () => {
+            console.log(await loadModInfo(jar));
             assert.ok(false);
         })
     });

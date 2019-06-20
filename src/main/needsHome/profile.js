@@ -20,25 +20,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+/**
+ * Profile handler, manages interaction to and from profiles.
+ */
+
 const { app, shell, ipcMain, Notification } = require('electron');
 const Database = require('../app/database');
+const installer = require('./installer');
 const config = require('../config/config');
 const path = require('path');
 const fs = require('fs-extra');
 const files = require('../util/files');
+const StreamZip = require('node-stream-zip');
 const fetch = require('node-fetch');
-
-
-// Start useless requires
-const installer = require('./installer');
-const sendSync = require('../util/ipcMainSync').sendSync;
-
-//todo need to look around renderer for any places where ipc listeners are registered but not unregistered (is a memory leak)
-
-const baseDirold = app.getPath('userData');
-const installDir = path.join(baseDirold, 'Install');
-const launcherProfiles = path.join(baseDirold, 'profiles.json');
-// End useless requires
+const sendSync = require('../util/ipcMainSync').sendSync; //todo maybe make a main process api for tasks.
 
 // Useful paths
 const baseDir = app.getPath('userData');
@@ -50,7 +45,7 @@ ipcMain.once('sync', event => mainWindow = event.sender);
 
 // Profile data store.
 const profileDb = new Database(path.join(baseDir, 'profiles.db'));
-profileDb.index({ fieldName: 'name', required: true });
+profileDb.index({ fieldName: 'name', unique: true });
 
 // IPC listeners
 // CRUD operations
@@ -144,7 +139,8 @@ exports.createProfile = async data => {
 
     const now = new Date().getTime();
     const created = await profileDb.insert({
-        name, directory, icon,
+        name, directory,
+        icon: files.downloadImage(icon),
         type: data.modpack === undefined ? 'custom' : 'curse',
         packData,
         created: now, played: 0,
@@ -160,7 +156,8 @@ exports.createProfile = async data => {
             min: '512',
             max: config.getValue('defaults/maxMemory'),
         },
-        javaArgs: config.getValue('defaults/javaArgs')
+        javaArgs: config.getValue('defaults/javaArgs'),
+        mods: {},
     });
     await exportLauncherProfile(created);
     await this.renderProfiles();
@@ -261,6 +258,7 @@ exports.deleteProfile = async name => {
     await this.renderProfiles();
 };
 
+
 /**
  * Gets all screenshots for a profile.
  *
@@ -304,6 +302,158 @@ exports.deleteScreenshot = async (profile, image) => {
     return shell.moveItemToTrash(target);
 };
 
+ipcMain.on('testicles', async () => {
+    console.log('adding mod');
+    // console.log(await this.disableMod('fwvfa', 'ERkyujh63J1zqKE'))
+    console.log(await this.deleteMod('fwvfa', 'ERkyujh63J1zqKE'))
+    // console.log(await this.addMod('fwvfa', { path: 'C:\\Users\\mattworzala\\Downloads\\RoughlyEnoughItems-2.9.5+build.131.jar' }))
+    // console.log(await this.addMod('abcde', { mod: 235279, file: 2619468 }))
+});
+
+/**
+ * Add a mod to a profile
+ *
+ * This adds either a Curse mod or a mod from a file to the target profile.
+ * If `data` contains a `mod` and `file` field, a curse mod will be downloaded.
+ * If `data` contains a `path` field, a local file will be copied.
+ * In either case the mod will be checked for validity.
+ * Note: The profile must not be vanilla or an error will be returned.
+ *
+ * @since 0.2.2
+ *
+ * @param {String} profile The profile name to add to.
+ * @param {Object} data The mod to add.
+ * @returns {Promise<Object>} The added mod, or an object with `error` and `errorMessage` if there was an issue.
+ */
+exports.addMod = async (profile, data) => {
+    const target = await this.getProfile(profile);
+    if (target.flavor !== 'forge' && target.flavor !== 'fabric')
+        return { error: 'vanilla', errorMessage: 'The target profile is not modded!' };
+    if (data.mod && data.file) {
+        const fileJson = await (await fetch(`https://addons-ecs.forgesvc.net/api/v2/addon/${data.mod}/file/${data.file}`)).json();
+        data.path = path.join(target.directory, 'mods', fileJson.fileName);
+        await files.download(fileJson.downloadUrl, data.path);
+    } else await fs.copy(data.path, path.join(target.directory, 'mods', path.basename(data.path)));
+
+    const modInfo = await loadModInfo(data.path, target.directory);
+    if (modInfo.error || target.flavor !== modInfo.flavor) {
+        await fs.remove(data.path);
+        return modInfo.error ? modInfo : { error: 'not matching', errorMessage: 'Forge mods may only be used with forge and fabric with fabric.' };
+    }
+
+    delete modInfo.flavor;
+    target.mods[uniqueId(15)] = modInfo;
+    await profileDb.update({ name: target.name }, { $set: { mods: target.mods } });
+    return modInfo;
+};
+
+/**
+ * Get all mods and their info from a profile.
+ *
+ * This will fetch all mods and update the database entries for them. It has the potential to take a long time.
+ *
+ * @since 0.2.2
+ *
+ * @param {String} profile The profile name to query.
+ * @returns {Promise<Array<Object>>} A
+ */
+exports.getMods = async profile => {
+    const target = await this.getProfile(profile);
+    return Object.values(target.mods).sort((a, b) => a.name.localeCompare(b.name)); //a.name < b.name ? -1 : a.name > b.name ? 1 : 0
+};
+
+/**
+ * Update a curse mod to a new version.
+ *
+ * This will return an error if the update fails or the mod is not a registered curse mod or it has no update.
+ * profile#updateMod can be used to check if an update is available.
+ *
+ * @since 0.2.2
+ *
+ * @param {String} profile
+ * @param {String} mod The unique id of the target mod.
+ * @returns {Promise<void|Object>} Void if successful, otherwise error.
+ */
+exports.updateMod = async (profile, mod) => {
+
+};
+
+/**
+ * Gets whether or not a mod can be updated.
+ *
+ * This will be done automatically for all of the known mods (in the background) when they are fetched.
+ *
+ * @since 0.2.2
+ *
+ * @param {String} profile The profile name of the target mod.
+ * @param {String} mod The unique id of the target mod.
+ * @returns {Promise<boolean>}
+ */
+exports.isUpdatable = async (profile, mod) => {
+
+};
+
+/**
+ * Toggle whether a mod will be used without removing it.
+ *
+ * This will simply toggle the extension of the file from `jar` to `dis`.
+ * If a restriction is applied, it will be a setter instead of a toggle.
+ * `true` = enable it, `false` = disable it
+ *
+ * @since 0.2.2
+ *
+ * @param {String} profile The profile name of the target mod.
+ * @param {String} mod The unique id of the target mod.
+ * @param {boolean} (restrict) Optional restriction to force the status to be the value of `restrict`
+ * @returns {Promise<boolean|Object>} The new enabled status of the mod, or an error.
+ */
+exports.disableMod = async (profile, mod, restrict = undefined) => {
+    const target = await this.getProfile(profile);
+    if (target == null)
+        return { error: 'nonexistent profile', errorMessage: 'The target profile does not exist!' };
+    const modInfo = target.mods[mod], modPath = modInfo.path;
+    if (restrict === true && modInfo.enabled === true)
+        modInfo.enabled = false;
+    if (restrict === false && modInfo.enabled === false)
+        modInfo.enabled = true;
+
+    const from = modPath + (modInfo.enabled ? '.jar' : '.dis');
+    const to = modPath + (modInfo.enabled ? '.dis' : '.jar');
+    await fs.rename(from, to);
+    await fs.remove(from);
+
+    let update = {};
+    update[`mods.${mod}.enabled`] = !modInfo.enabled;
+    await profileDb.update({ name: profile }, { $set: update });
+    return !modInfo.enabled;
+};
+
+/**
+ * Delete a mod.
+ *
+ * @since 0.2.2
+ *
+ * @param {String} profile The profile name of the target mod.
+ * @param {String} mod The unique id of the target mod.
+ * @returns {Promise<void|Object>} Undefined if successful, object if error.
+ */
+exports.deleteMod = async (profile, mod) => {
+    const target = await this.getProfile(profile);
+    if (target == null)
+        return { error: 'nonexistent profile', errorMessage: 'The target profile does not exist!' };
+    const modInfo = target.mods[mod];
+    if (modInfo === undefined)
+        return { error: 'nonexistent mod', errorMessage: 'The target mod does not exist!' };
+
+    const path = modInfo.path + (modInfo.enabled ? '.jar' : '.dis');
+    await fs.remove(path);
+
+    const query = {};
+    query[`mods.${mod}`] = true;
+    profileDb.update({ name: profile }, { $unset: query });
+};
+
+
 // Helper functions
 /**
  * Find a valid name based for a profile based on a starting value.
@@ -335,7 +485,7 @@ const findName = async (base, index = 0) => {
  * @returns {Promise<void>} Completion.
  */
 const exportLauncherProfile = async profile => {
-    const profileJson = path.join(installDir, 'launcher_profiles.json');
+    const profileJson = path.join(baseDir, 'Install', 'launcher_profiles.json');
     if (!await fs.pathExists(profileJson)) {
         await fs.ensureFile(profileJson);
         await fs.writeJson(profileJson, { profiles: {} }, { spaces: 4 });
@@ -366,7 +516,7 @@ const exportLauncherProfile = async profile => {
  * @returns {Promise<void>} Completion.
  */
 const deleteLauncherProfile = async name => {
-    const profileJson = path.join(installDir, 'launcher_profiles.json');
+    const profileJson = path.join(baseDir, 'Install', 'launcher_profiles.json');
     if (!await fs.pathExists(profileJson))
         return;
     let profilesJson = await fs.readJson(profileJson);
@@ -374,9 +524,101 @@ const deleteLauncherProfile = async name => {
     await fs.writeJson(profileJson, profilesJson, { spaces: 4 });
 };
 
+/**
+ * Fetches mod info for a fabric or forge mod.
+ *
+ * This uses the `mcmod.info` (forge) or `fabric.mod.json` (fabric).
+ *
+ * @since 0.2.2
+ *
+ * @param {String} file The path to the mod
+ * @param {String} profileDirectory The enclosing profile's instance directory.
+ * @returns {Promise<Object>} Mod info
+ */
+const loadModInfo = (file, profileDirectory) => new Promise(async resolve => {
+    if (!file.endsWith('jar') && !file.endsWith('dis'))
+        return { error: 'not jar', errorMessage: 'The supplied file did not end with jar or dis.' };
+    let info = {};
+    const archive = new StreamZip({ file: file, storeEntries: true });
+    archive.on('ready', () => {
+        for (const entry of Object.values(archive.entries())) {
+            if (entry.name !== 'mcmod.info' && entry.name !== 'fabric.mod.json')
+                continue;
+            const base64IconSafe = iconFile => new Promise(resolve => {
+                if (iconFile === undefined)
+                    return resolve('');
+                archive.stream(iconFile, (err, stream) => {
+                    if (stream === undefined)
+                        return resolve('');
+                    let body = 'data:image/png;base64,';
+                    stream.setEncoding('base64');
+                    stream.on('data', data => body += data);
+                    stream.on('end', () => resolve(body));
+                })
+            });
+            let body = '';
+            archive.stream(entry.name, (err, stream) => {
+                stream.setEncoding('utf8');
+                stream.on('data', data => body += data);
+                stream.on('end', async () => {
+                    const mod = JSON.parse(body.replace(/\n/g, ''));
+                    if (entry.name === 'mcmod.info') {
+                        const convert = async json => { return {
+                            id: json.modid,
+                            name: json.name,
+                            authors: json.authorList,
+                            description: json.description.trim(),
+                            version: json.version,
+                            flavor: 'forge',
+                            minecraftVersion: json.mcversion,
+                            icon: await base64IconSafe(json.logoFile),
+                            url: json.url,
+                        }};
+                        info = await convert(mod[0]);
+                        mod.shift();
+                        info.extras = mod.map(async () => await convert());
+                    } else {
+                        info = {
+                            id: mod.id,
+                            name: mod.name,
+                            authors: mod.authors,
+                            description: mod.description,
+                            version: mod.version,
+                            flavor: 'fabric',
+                            icon: await base64IconSafe(mod.icon),
+                            url: mod.contact.homepage,
+                        }
+                    }
+                    info.path = path.join(profileDirectory, 'mods', path.basename(file, file.endsWith('dis') ? '.dis' : '.jar'));
+                    info.enabled = true;
+                    archive.close(() => resolve(info));
+                });
+            });
+            break;
+        }
+    });
+});
 
+/**
+ * Generate a fairly unique id with a given length.
+ *
+ * This will use pseudo randomness and generate a string of given length.
+ * Credits: https://stackoverflow.com/a/1349426/9842323
+ *
+ * @since 0.2.2
+ *
+ * @param {number} length The number of characters in the id.
+ * @returns {String} The id.
+ */
+const uniqueId = length => {
+    let result = '';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', cLen = characters.length;
+    for (let i = 0; i < length; i++)
+        result += characters.charAt(Math.floor(Math.random() * cLen));
+    return result;
+};
 
-//todo would not be opposed to removing VVV
+//todo would not be opposed to removing VVV -- should make some sort of task manager object for the main process. This should take over the one in the render process.
 exports.sendTaskUpdate = (id, task, progress) => {
     mainWindow.send('tasks:update', {
         tId: id,
