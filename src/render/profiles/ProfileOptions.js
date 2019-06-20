@@ -23,30 +23,44 @@ SOFTWARE.
 import React from 'react';
 import './options.css';
 import './screenshots.css';
+import './mods.css';
 import { ModalPageWrapper, ModalPage } from '../layout/ModalPages';
 import { ContextMenu, ContextMenuTrigger, MenuItem } from 'react-contextmenu';
+import { Switch, Button } from '../input/Input';
 import Snackbar from '../snackbar/Snackbar';
 
 class ProfileOptions extends React.Component {
     constructor(props) {
         super(props);
 
+        this.imageSelect = React.createRef();
+
         this.state = {
             active: ''
         }
     }
 
+    handleChangeIcon = target => {
+        alert('changing profile background to ' + target);
+    };
+
     render() {
         return (
             <ModalPageWrapper default="overview">
                 <ModalPage header>
-                    <img src={this.props.profile.icon} alt="Profile Icon" />
+                    <div className="po-overview-image">
+                        <div className="po-o-hidden" onClick={() => this.imageSelect.current.click()}>
+                            <p>Change Icon</p>
+                        </div>
+                        <input type="file" ref={this.imageSelect} accept="image/png" onChange={e => this.handleChangeIcon(e.target.files[0].path)} hidden />
+                        <img src={this.props.profile.icon} alt="Profile Icon" />
+                    </div>
                 </ModalPage>
                 <ModalPage id="overview" display="Overview">
                     <p>Profile Overview</p>
                 </ModalPage>
-                <ModalPage id="mods" display="Mods" disabled>
-                    <p>Profile Overview</p>
+                <ModalPage id="mods" display="Mods" disabled={this.props.profile.flavor === 'vanilla'}>
+                    <Mods profile={this.props.profile.name} />
                 </ModalPage>
                 <ModalPage id="screenshots" display="Screenshots">
                     <Screenshots profile={this.props.profile.name} />
@@ -58,6 +72,58 @@ class ProfileOptions extends React.Component {
                     <p>Profile Overview</p>
                 </ModalPage>
             </ModalPageWrapper>
+        );
+    }
+}
+
+class Mods extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            loading: true,
+            mods: [],
+        };
+
+        window.ipc.once('profile:mod:list', this.handleRenderMods);
+        window.ipc.send('profile:mod:list', this.props.profile);
+    }
+
+    handleRenderMods = (event, mods) => this.setState({ loading: false, mods });
+    componentWillUnmount() {
+        window.ipc.removeListener('profile:mod:list', this.handleRenderMods);
+    }
+
+    render() {
+        return (
+            <div className="profile-mods-wrapper">
+                <div className={`profile-mods-loading ${this.state.loading ? '' : 'hidden'}`}>
+                    <div className="lds-dual-ring"></div>
+                </div>
+                <div className="profile-mods-header">
+                </div>
+                <div className="profile-mods-content">
+                    {this.state.mods.map(mod => {
+                        return (
+                            <div key={mod._id} className="profile-mods-mod">
+                                <div className="pmm-select">
+                                </div>
+                                <div className="pmm-switch">
+                                    <Switch id={`${mod._id}.enabled`} getValue={() => true} setValue={next => {}} />
+                                </div>
+                                <div className="pmm-title">
+                                    <p>{mod.name} <span>{mod.authors.length > 0 ? `by ${mod.authors[0]}` : ``}</span></p>
+                                </div>
+                                <div className="pmm-delete">
+                                    <Button classList="pmm-delete-btn" onClick={() => alert('deleting mod')}>
+                                        <i className="fas fa-trash-alt"></i>
+                                    </Button>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
         );
     }
 }

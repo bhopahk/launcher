@@ -28,6 +28,7 @@ const isDev = require('electron-is-dev');
 
 const config = require('./config/config');
 
+let maximized = false;
 let mainWindow;
 let tray;
 
@@ -187,9 +188,10 @@ ipcMain.on('titlebar', (event, arg) => {
             else window.close();
             break;
         case 'MAXIMIZE':
-            if (window.isMaximized())
+            if (maximized)
                 window.unmaximize();
             else window.maximize();
+            maximized = !maximized;
             break;
         case 'MINIMIZE':
             window.minimize();

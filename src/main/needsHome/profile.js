@@ -62,11 +62,11 @@ ipcMain.on('profile:screenshot:delete', async (event, payload) => {
 });
 
 // Mods
-ipcMain.on('profile:mod:add', () => {});
-ipcMain.on('profile:mod:list', () => {});
-ipcMain.on('profile:mod:update', () => {});
-ipcMain.on('profile:mod:disable', () => {}); //todo this will just be a toggle.
-ipcMain.on('profile:mod:delete', () => {});
+ipcMain.on('profile:mod:add', async (event, payload) => event.returnValue = await this.addMod(payload.profile, payload.data));
+ipcMain.on('profile:mod:list', (event, payload) => this.getMods(payload).then(mods => mainWindow.send('profile:mod:list', mods)));
+ipcMain.on('profile:mod:update', () => {}); //todo this will probably be changed to `setVersion` or something
+ipcMain.on('profile:mod:disable', (event, payload) => this.disableMod(payload.profile, payload.mod, payload.restrict)); //todo this will just be a toggle.
+ipcMain.on('profile:mod:delete', (event, payload) => this.deleteMod(payload.profile, payload.mod));
 
 // Resource Packs
 //todo resource pack listing and adding
@@ -140,7 +140,7 @@ exports.createProfile = async data => {
     const now = new Date().getTime();
     const created = await profileDb.insert({
         name, directory,
-        icon: files.downloadImage(icon),
+        icon: await files.downloadImage(icon),
         type: data.modpack === undefined ? 'custom' : 'curse',
         packData,
         created: now, played: 0,
@@ -302,14 +302,6 @@ exports.deleteScreenshot = async (profile, image) => {
     return shell.moveItemToTrash(target);
 };
 
-ipcMain.on('testicles', async () => {
-    console.log('adding mod');
-    // console.log(await this.disableMod('fwvfa', 'ERkyujh63J1zqKE'))
-    console.log(await this.deleteMod('fwvfa', 'ERkyujh63J1zqKE'))
-    // console.log(await this.addMod('fwvfa', { path: 'C:\\Users\\mattworzala\\Downloads\\RoughlyEnoughItems-2.9.5+build.131.jar' }))
-    // console.log(await this.addMod('abcde', { mod: 235279, file: 2619468 }))
-});
-
 /**
  * Add a mod to a profile
  *
@@ -359,7 +351,12 @@ exports.addMod = async (profile, data) => {
  */
 exports.getMods = async profile => {
     const target = await this.getProfile(profile);
-    return Object.values(target.mods).sort((a, b) => a.name.localeCompare(b.name)); //a.name < b.name ? -1 : a.name > b.name ? 1 : 0
+    let mods = Object.keys(target.mods).map(key => {
+        let mod = target.mods[key];
+        mod._id = key;
+        return mod;
+    });
+    return mods.sort((a, b) => a.name.localeCompare(b.name)); //a.name < b.name ? -1 : a.name > b.name ? 1 : 0
 };
 
 /**
