@@ -16,7 +16,7 @@ class Sidebar extends React.Component {
             links: [],
         };
         let index = 0;
-        props.children.forEach(child => {
+        React.Children.forEach(this.props.children, child => {
             if (index === 0)
                 p.header = child;
             else if (index === 4)
@@ -53,8 +53,11 @@ class Sidebar extends React.Component {
     setActive(group, item, stop) {
         if (stop)
             return;
-        let active = this.state.links[group][item];
-        if (active.type.hasOwnProperty('onClick')) {
+        let active;
+        for (const child of React.Children.toArray(this.props.children))
+            if (child.props.index === group)
+                active = React.Children.toArray(child.props.children)[item];
+        if (active.props.hasOwnProperty('onClick')) {
             active.props.onClick();
             return;
         }

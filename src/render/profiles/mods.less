@@ -31,12 +31,49 @@
 }
 
 .profile-mods-header {
+  position: relative;
   box-sizing: border-box;
+  display: flex;
 
   width: calc(100% - 25px);
   height: 40px;
+  margin-bottom: 10px;
 
-  background-color: red;
+  border-radius: 3px;
+  background-color: @backgroundOpaque;
+  box-shadow: 0 10px 9px -10px rgba(0,0,0,0.75);
+
+  .btn {
+    position: absolute;
+    right: 7px;
+
+    width: 80px;
+    height: 30px;
+    padding: 0;
+    margin-top: 5px;
+
+    background-color: @downloadsBackground;
+
+    &:hover {
+      background-color: @backgroundVibrant;
+    }
+  }
+
+  .pmh-filter {
+    width: 360px;
+    height: 30px;
+
+    margin-top: 5px;
+    margin-left: 53px;
+  }
+
+  .check {
+    margin-left: 5px;
+  }
+
+  .textfield {
+    background-color: @downloadsBackground !important;
+  }
 }
 
 .profile-mods-content {
@@ -53,11 +90,31 @@
     width: 100%;
     height: 30px;
 
+    transition: 0.3s;
+
+    &.even {
+      background-color: @backgroundVibrant3;
+    }
+
+    &.odd {
+      background-color: @downloadsBackground;
+    }
+
+    &:hover {
+      box-shadow: 0 10px 9px -10px rgba(0,0,0,0.75);
+
+      & + div {
+        box-shadow: inset 0 10px 9px -10px rgba(0,0,0,0.75);
+      }
+    }
+
     .pmm-select {
-      width: 7%;
+      width: 5%;
       height: 100%;
 
-      background-color: greenyellow;
+      .check {
+        margin-left: 5px;
+      }
     }
 
     .pmm-switch {
@@ -71,7 +128,7 @@
     }
 
     .pmm-title {
-      width: 76%;
+      width: 78%;
       height: 100%;
 
       p {
@@ -86,7 +143,12 @@
         overflow: hidden;
         text-overflow: ellipsis;
 
-        span {
+        .pmm-title-dep-warn {
+          margin-right: 5px;
+          color: @Warning;
+        }
+
+        .pmm-title-author {
           color: @offGrey;
         }
       }
@@ -94,19 +156,21 @@
 
     .pmm-delete {
       box-sizing: border-box;
-      width: 7%;
+      width: 8%;
       height: 100%;
 
-      padding-left: 4px;
-      padding-top: 2px;
+      padding-left: 6px;
+      padding-top: 3px;
 
       .pmm-delete-btn {
-        padding: 3px 7px;
+        padding: 2px 7px;
         background-color: @ErrorVibrant;
-        border: 1px solid @Error;
+        border: 1px solid @backgroundVibrant2;
+        color: @offGrey;
 
         &:hover {
           color: @Error;
+          border: 1px solid @Error;
         }
       }
     }

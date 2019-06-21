@@ -26,7 +26,7 @@ import './screenshots.css';
 import './mods.css';
 import { ModalPageWrapper, ModalPage } from '../layout/ModalPages';
 import { ContextMenu, ContextMenuTrigger, MenuItem } from 'react-contextmenu';
-import { Switch, Button } from '../input/Input';
+import { SwitchV2, Button, StandaloneCheckbox, TextField } from '../input/Input';
 import Snackbar from '../snackbar/Snackbar';
 
 class ProfileOptions extends React.Component {
@@ -80,42 +80,80 @@ class Mods extends React.Component {
     constructor(props) {
         super(props);
 
+        this.findJar = React.createRef();
+
         this.state = {
             loading: true,
             mods: [],
+            selected: [],
+            filter: '',
         };
 
-        window.ipc.once('profile:mod:list', this.handleRenderMods);
+        window.ipc.on('profile:mod:list', this.handleRenderMods);
         window.ipc.send('profile:mod:list', this.props.profile);
     }
 
     handleRenderMods = (event, mods) => this.setState({ loading: false, mods });
-    componentWillUnmount() {
-        window.ipc.removeListener('profile:mod:list', this.handleRenderMods);
-    }
+    componentWillUnmount() { window.ipc.removeListener('profile:mod:list', this.handleRenderMods); }
+
+    handleAddModFile = path => {
+        window.ipc.send('profile:mod:add', { profile: this.props.profile, data: { path } });
+        window.ipc.once('profile:mod:add', (event, payload) => {
+            alert(JSON.stringify(payload));
+        });
+    };
+
+    handleSelect = id => {
+        let newSelected = this.state.selected.slice();
+        if (id === undefined) {
+            if (newSelected.length === this.state.mods.length)
+                newSelected = [];
+            else newSelected = this.state.mods.map(mod => mod._id);
+        } else {
+            if (newSelected.includes(id)) {
+                let removed = [];
+                newSelected.forEach(el => {
+                    if (el !== id)
+                        removed.push(el);
+                });
+                newSelected = removed;
+            } else newSelected.push(id);
+        }
+        this.setState({ selected: newSelected });
+    };
 
     render() {
+        let i = 1;
         return (
             <div className="profile-mods-wrapper">
                 <div className={`profile-mods-loading ${this.state.loading ? '' : 'hidden'}`}>
                     <div className="lds-dual-ring"></div>
                 </div>
                 <div className="profile-mods-header">
+                    <StandaloneCheckbox value={`all-mods`} active={this.state.selected.length === this.state.mods.length} onToggle={() => this.handleSelect()} />
+                    <div className="pmh-filter">
+                        <TextField id="modSearch" icon="fas fa-pencil-alt" placeholder="Search..." timeout={750} getValue={() => this.state.filter} setValue={next => this.setState({ filter: next })} />
+                    </div>
+                    <input ref={this.findJar} type="file" accept=".jar" onChange={e => this.handleAddModFile(e.target.files[0].path)} hidden />
+                    <Button onClick={() => this.findJar.current.click()}>Add Mod</Button>
                 </div>
                 <div className="profile-mods-content">
                     {this.state.mods.map(mod => {
+                        if (!mod.name.toLowerCase().startsWith(this.state.filter.toLowerCase()))
+                            return null;
                         return (
-                            <div key={mod._id} className="profile-mods-mod">
+                            <div key={mod._id} className={`profile-mods-mod ${i++ % 2 === 0 ? 'even' : 'odd'}`}>
                                 <div className="pmm-select">
+                                    <StandaloneCheckbox value={`${mod._id}.selected`} active={this.state.selected.includes(mod._id)} onToggle={() => this.handleSelect(mod._id)} />
                                 </div>
                                 <div className="pmm-switch">
-                                    <Switch id={`${mod._id}.enabled`} getValue={() => true} setValue={next => {}} />
+                                    <SwitchV2 id={`${mod._id}.enabled`} default={mod.enabled} onToggle={next => window.ipc.send('profile:mod:disable', { profile: this.props.profile, mod: mod._id, restrict: next })} />
                                 </div>
                                 <div className="pmm-title">
-                                    <p>{mod.name} <span>{mod.authors.length > 0 ? `by ${mod.authors[0]}` : ``}</span></p>
+                                    <p>{mod.missingDeps && mod.missingDeps.length !== 0 ? (<span className="pmm-title-dep-warn"><i className="fas fa-exclamation"></i></span>) : null}{mod.name} <span className="pmm-title-author">{mod.authors !== undefined && mod.authors.length > 0 ? `by ${mod.authors[0]}` : ``}</span></p>
                                 </div>
                                 <div className="pmm-delete">
-                                    <Button classList="pmm-delete-btn" onClick={() => alert('deleting mod')}>
+                                    <Button classList="pmm-delete-btn" onClick={() => window.ipc.send('profile:mod:delete', { profile: this.props.profile, mod: mod._id })}>
                                         <i className="fas fa-trash-alt"></i>
                                     </Button>
                                 </div>

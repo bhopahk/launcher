@@ -62,11 +62,21 @@ ipcMain.on('profile:screenshot:delete', async (event, payload) => {
 });
 
 // Mods
-ipcMain.on('profile:mod:add', async (event, payload) => event.returnValue = await this.addMod(payload.profile, payload.data));
-ipcMain.on('profile:mod:list', (event, payload) => this.getMods(payload).then(mods => mainWindow.send('profile:mod:list', mods)));
+ipcMain.on('profile:mod:add', async (event, payload) => {
+    console.log('adding');
+    const resp = await this.addMod(payload.profile, payload.data);
+    console.log(resp);
+    mainWindow.send('profile:mod:add', resp);
+    // Re render the mods.
+    this.renderMods(payload.profile);
+});
+ipcMain.on('profile:mod:list', (event, payload) => this.renderMods(payload));
 ipcMain.on('profile:mod:update', () => {}); //todo this will probably be changed to `setVersion` or something
 ipcMain.on('profile:mod:disable', (event, payload) => this.disableMod(payload.profile, payload.mod, payload.restrict)); //todo this will just be a toggle.
-ipcMain.on('profile:mod:delete', (event, payload) => this.deleteMod(payload.profile, payload.mod));
+ipcMain.on('profile:mod:delete', async (event, payload) => {
+    mainWindow.send('profile:mod:delete', await this.deleteMod(payload.profile, payload.mod));
+    this.renderMods(payload.profile);
+});
 
 // Resource Packs
 //todo resource pack listing and adding
@@ -360,6 +370,16 @@ exports.getMods = async profile => {
 };
 
 /**
+ * Render loaded mods for a profile.
+ *
+ * @since 0.2.2
+ *
+ * @param {String} profile The profile which should have its mods rendered.
+ * @returns {Promise<Array<Object>>} Completion
+ */
+exports.renderMods = profile => this.getMods(profile).then(mods => mainWindow.send('profile:mod:list', mods));
+
+/**
  * Update a curse mod to a new version.
  *
  * This will return an error if the update fails or the mod is not a registered curse mod or it has no update.
@@ -583,7 +603,7 @@ const loadModInfo = (file, profileDirectory) => new Promise(async resolve => {
                             version: mod.version,
                             flavor: 'fabric',
                             icon: await base64IconSafe(mod.icon),
-                            url: mod.contact.homepage,
+                            url: mod.contact ? mod.contact.homepage : '',
                         }
                     }
                     info.path = path.join(profileDirectory, 'mods', path.basename(file, file.endsWith('dis') ? '.dis' : '.jar'));
@@ -630,5 +650,3 @@ ipcMain.on('profile:launch', async (event, payload) => {
         console.log('Launched');
     });
 });
-
-

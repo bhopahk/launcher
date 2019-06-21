@@ -87,6 +87,17 @@ const Check = (props) => {
     )
 };
 
+const StandaloneCheckbox = (props) => {
+    return (
+        <div className="check standalone">
+            <div className="checkbox">
+                <input id={props.value} value={props.value} type="checkbox" checked={props.active} onChange={() => { props.onToggle() }} />
+                <label id={`${props.value}.label`} htmlFor={props.value}></label>
+            </div>
+        </div>
+    )
+};
+
 class Switch extends React.Component {
     constructor(props) {
         super(props);
@@ -107,6 +118,30 @@ class Switch extends React.Component {
         return (
             <div className="switch">
                 <input id={this.props.id} type="checkbox" onChange={this.handleChange.bind(this)} checked={this.state.value} />
+                <label htmlFor={this.props.id}></label>
+            </div>
+        );
+    }
+}
+
+class SwitchV2 extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            value: this.props.default,
+        }
+    }
+
+    handleChange = e => {
+        const value = e.target.checked;
+        this.setState({ value }, () => this.props.onToggle(value));
+    };
+
+    render() {
+        return (
+            <div className="switch">
+                <input id={this.props.id} type="checkbox" onChange={this.handleChange} checked={this.state.value} />
                 <label htmlFor={this.props.id}></label>
             </div>
         );
@@ -344,7 +379,9 @@ class NumberField extends React.Component {
 export {
     Checkbox,
     Check,
+    StandaloneCheckbox,
     Switch,
+    SwitchV2,
     FolderSelect,
     Button,
     Dropdown,

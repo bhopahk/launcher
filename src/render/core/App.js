@@ -38,6 +38,8 @@ class App extends React.Component {
             profile: {},
             errorPath: undefined,
             errorLoading: false,
+            // Quick launch profiles
+            quick: [],
         };
 
         this.registerAppWideIpcListeners();
@@ -103,6 +105,10 @@ class App extends React.Component {
                     break;
             }
         });
+
+        // Quick Launch
+        window.ipc.on('profile:render', (event, profiles) =>
+            this.setState({ quick: profiles.slice(0, 5).map(profile => { return { name: profile.name, flavor: profile.flavor } }) }));
     }
 
     static getConfigValue(path) {
@@ -157,8 +163,10 @@ class App extends React.Component {
                         </Page>
                     </SidebarGroup>
                     <SidebarGroup index={2} title="quick launch">
-                        <Link id="tst" icon="cube" display="Profile Name" onClick={() => {window.ipc.send('quickLaunch', { target: 123456 })}} disabled />
-                        <Link id="tst2" icon="cube" display="Profile Name" onClick={() => {window.ipc.send('quickLaunch', { target: 654321 })}} disabled />
+                        {this.state.quick.map(profile => {
+                            const flavorIcon = profile.flavor === 'fabric' ? 'scroll' : profile.flavor === 'forge' ? 'gavel' : 'cube';
+                            return (<Link id={`${profile.name}.quick`} key={`${profile.name}.quick`} icon={flavorIcon} display={profile.name} onClick={() => window.ipc.send('profile:launch', profile.name)} />)
+                        })}
                     </SidebarGroup>
                     <SidebarFooter />
                 </Sidebar>
