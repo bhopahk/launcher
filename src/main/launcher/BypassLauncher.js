@@ -28,6 +28,7 @@ const cache = require('../game/versionCache');
 const path = require('path');
 const fs = require('fs-extra');
 const StreamZip = require('node-stream-zip');
+const xmlJs = require('xml-js');
 
 const baseDir = app.getPath('userData');
 const osName = {
@@ -86,19 +87,19 @@ class BypassLauncher {
         let envars = {};
         envars.auth_player_name = '3640'; //todo accounts
         envars.auth_uuid = 'aceb326fda1545bcbf2f11940c21780c'; //todo accounts
-        envars.auth_access_token = ''; //todo accounts
+        envars.auth_access_token = 'a3032ec9b8834164ade4f6cce37a6d03'; //todo accounts
         envars.version_name = this.profile.targetVersion;
         envars.game_directory = `${this.profile.directory}`;
         envars.assets_root = `${path.join(baseDir, 'Install', 'assets')}`;
         envars.assets_index_name = versionJson.assets;
         envars.user_type = 'mojang'; // When is this different? Demo users?
-        envars.version_type = 'snapshot'; //todo this needs to be accurate.
+        envars.version_type = versionJson.type;
         envars.natives_directory = this.nativeDirectory;
         envars.launcher_name = 'proton';
         envars.launcher_version = updater.CURRENT;
         envars.resolution_width = this.profile.resolution.width;
         envars.resolution_height = this.profile.resolution.height;
-        envars.classpath = '"';
+        envars.classpath = 'C:\\Users\\Matt Worzala\\Desktop\\launchwrapper-1.0.jar;';
         envars.features = {};
         envars.features.is_demo_user = false;
         envars.features.has_custom_resolution = true;
@@ -113,7 +114,7 @@ class BypassLauncher {
             envars.classpath += path.join(baseDir, 'Install', 'libraries', library.downloads.artifact.path) + ';';
         }
         envars.classpath += path.join(baseDir, 'Install', 'versions', this.profile.targetVersion, `${this.profile.targetVersion}.jar`);
-        envars.classpath += '"';
+        envars.classpath += '';
 
         let args = [];
 
@@ -138,8 +139,9 @@ class BypassLauncher {
         // Logger
         args.push(versionJson.logging.client.argument.replace('${path}', path.join(baseDir, 'Install', 'assets', 'log_configs', versionJson.logging.client.file.id)));
 
-        // Main Class - This could be an alternate launch wrapper ;)
-        args.push(versionJson.mainClass);
+        // Main Class
+        args.push(`-Dminecraft.launchwrapper=${versionJson.mainClass}`);
+        args.push('me.bhop.proton.launchwrapper.LaunchWrapper');
 
         // Game Arguments
         for (const arg of versionJson.arguments.game) {
@@ -165,14 +167,22 @@ class BypassLauncher {
         this.process.stdout.setEncoding('UTF-8');
         this.process.stderr.setEncoding('UTF-8');
 
-        this.process.stdout.on('data', data => {
-            console.log('stdout: ' + data);
-        });
+        const handleMessage = raw => {
+            let message = {};
+            try {
+                const json = xmlJs.xml2js(raw);
+                message.thread = json.elements[0].attributes.thread;
+                message.level = json.elements[0].attributes.level;
+                message.text = json.elements[0].elements[0].elements[0].cdata;
+            } catch (e) {
+                console.log(raw);
+                return;
+            }
+            console.log(`Minecraft // ${message.level} : ${message.text}`);
+        };
 
-        this.process.stderr.on('data', data => {
-            console.log('stderr: ' + data);
-        });
-
+        this.process.stdout.on('data', handleMessage);
+        this.process.stderr.on('data', handleMessage);
         this.process.on('close', code => console.log(`Process exited with code ${code}`));
     }
 }

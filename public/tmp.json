@@ -829,5 +829,32 @@
   "minimumLauncherVersion": 21,
   "releaseTime": "2019-06-19T11:44:29+00:00",
   "time": "2019-06-19T11:44:29+00:00",
-  "type": "snapshot"
+  "type": "snapshot",
+  "tmp": {
+    "elements": [
+      {
+        "type": "element",
+        "name": "log4j:Event",
+        "attributes": {
+          "logger": "cvo",
+          "timestamp": "1561211205315",
+          "level": "INFO",
+          "thread": "Client thread"
+        },
+        "elements": [
+          {
+            "type": "element",
+            "name": "log4j:Message",
+            "elements": [
+              {
+                "type": "cdata",
+                "cdata": "Setting user: 3640"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
 }
+
