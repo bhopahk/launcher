@@ -650,3 +650,15 @@ ipcMain.on('profile:launch', async (event, payload) => {
         console.log('Launched');
     });
 });
+
+
+
+// TESTING!!!
+
+ipcMain.on('launch-no-launcher', async () => {
+    const BypassLauncher = require('../launcher/BypassLauncher');
+    const game = new BypassLauncher('Vanilla 1.14.3pre4');
+    await game.launch();
+});
+
+

@@ -156,6 +156,8 @@ class App extends React.Component {
                             <button onClick={() => window.ipc.send('accounts:newUser', {})}>Login Window</button>
                             <button onClick={() => window.ipc.send('reporter:test')}>Test Error Report</button>
                             <button onClick={() => window.ipc.send('testicles')}>Random Testing</button>
+                            <br />
+                            <button onClick={() => window.ipc.send('launch-no-launcher')}>Launch no Launcher</button>
                             <br/>
                         </Page>
                         <Page id="custom" icon="tools" display="Custom Profile">
