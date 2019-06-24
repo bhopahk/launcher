@@ -1,6 +1,6 @@
 {
   "name": "proton",
-  "version": "0.2.3",
+  "version": "0.2.2",
   "description": "A custom minecraft launcher",
   "private": false,
   "author": "Matt Worzala <bhop.me>",
@@ -12,7 +12,7 @@
     "dev": "react-scripts start",
     "build": "react-scripts build",
     "package": "electron-builder --dir",
-    "dist": "react-scripts build && build --x64 --win --linux --c.extraMetadata.main=build/gateway.js -p always",
+    "dist": "react-scripts build && build --x64 --win --c.extraMetadata.main=build/gateway.js -p always",
     "test": "mocha \"test/**/*.js\""
   },
   "dependencies": {
@@ -63,7 +63,7 @@
       "buildResources": "assets"
     },
     "win": {
-      "target": "nsis",
+      "target": "zip",
       "icon": "./build/icon.png"
     },
     "nsis": {

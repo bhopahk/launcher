@@ -392,28 +392,29 @@ const validateTypeOneLibraries = (task, taskName, libraries) => {
             if (library.name.startsWith('org.apache.logging.log4j:log4j-api:') || library.name.startsWith('org.apache.logging.log4j:log4j-core:'))
                 library.downloads.artifact.url = `http://central.maven.org/maven2/${library.downloads.artifact.path}`;
 
+            let valid = true;
             if (library.rules) {
                 for (let i = 0; i < library.rules.length; i++) {
                     if (library.rules[i].os === undefined)
                         continue;
                     if ((library.rules[i].os.name !== osName && library.rules[i].action === 'allow') || library.rules[i].os.name === osName && library.rules[i].action === 'deny')
-                        return resolve();
+                        valid = false;
                 }
             }
 
-            if (library.downloads.artifact) {
+            if (valid && library.downloads.artifact) {
                 const filePath = path.join(props.libDir, library.downloads.artifact.path);
                 const lockfile = path.join(path.dirname(filePath), 'library-lock');
-                if (await lock.check(lockfile))
-                    return props.complete();
-                await lock.lock(lockfile, { stale: 60000 });
+                if (!await lock.check(lockfile)) {
+                    await lock.lock(lockfile, { stale: 60000 });
 
-                if (!await fs.pathExists(filePath) || (await files.fileChecksum(filePath, 'sha1')) !== library.downloads.artifact.sha1) {
-                    console.log(`Unable to locate ${library.name}, it will be downloaded.`);
-                    await files.download(library.downloads.artifact.url, filePath);
-                    await lock.unlock(lockfile)
-                } else
-                    console.log(`Found ${library.name}.`);
+                    if (!await fs.pathExists(filePath) || (await files.fileChecksum(filePath, 'sha1')) !== library.downloads.artifact.sha1) {
+                        console.log(`Unable to locate ${library.name}, it will be downloaded.`);
+                        await files.download(library.downloads.artifact.url, filePath);
+                        await lock.unlock(lockfile)
+                    } else
+                        console.log(`Found ${library.name}.`);
+                }
             }
 
             if (!library.natives)
@@ -425,14 +426,14 @@ const validateTypeOneLibraries = (task, taskName, libraries) => {
 
             const nativePath = path.join(props.libDir, library.downloads.classifiers[native].path);
             const lockfile = path.join(path.dirname(nativePath), 'library-lock');
-            if (await lock.check(lockfile))
-                return props.complete();
-            await lock.lock(lockfile, { stale: 60000 });
+            // if (await lock.check(lockfile))
+            //     return props.complete();
+            // await lock.lock(lockfile, { stale: 60000 });
 
             if (!await fs.pathExists(nativePath) || (await files.fileChecksum(nativePath, 'sha1')) !== library.downloads.classifiers[native].sha1) {
                 console.log(`Unable to locate native for ${library.name}, it will be downloaded.`);
                 await files.download(library.downloads.classifiers[native].url, nativePath);
-                await lock.unlock(lockfile);
+                // await lock.unlock(lockfile);
             } else
                 console.log(`Found native for ${library.name}.`);
 
@@ -496,8 +497,8 @@ const runForgeProcessors = (task, processors, vars, mcVersion, forgeVersion) => 
     return workers.createWorker(task, { processors, vars, mcVersion, forgeVersion, installDir, libDir }, async props => {
         const path = require('path');
         const fs = require('fs-extra');
-        const files = require('../util/files');
         const lock = require('../util/lockfile');
+        const artifact = require('../util/artifact');
 
         // Start helper functions
         const exec = cmd => new Promise((resolve, reject) => {
@@ -509,38 +510,6 @@ const runForgeProcessors = (task, processors, vars, mcVersion, forgeVersion) => 
                 });
             });
         });
-        const findLibraryPath = target => {
-            if (target.includes('['))
-                target = target.substring(1, target.length - 1);
-            const parts = target.split(':');
-            let extension;
-            if (parts.length === 4)
-                extension = `-${parts[3].replace('@', '.')}`;
-            else if (parts[2].includes('@')) {
-                extension = `.${parts[2].substring(parts[2].indexOf('@') + 1)}`;
-                parts[2] = parts[2].substring(0, parts[2].indexOf('@'));
-            } else extension = '.jar';
-            if (!extension.includes('.'))
-                extension += '.jar';
-            const folderGroup = path.join(props.libDir, parts[0].split('.').join('/'));
-            return path.join(folderGroup, parts[1], parts[2], `${parts[1]}-${parts[2]}${extension}`);
-        };
-        const findMainClass = async file => {
-            const parentDir = path.join(file, '../');
-            const fileName = path.basename(file);
-            const fileNameNoExt = path.basename(file, '.jar');
-            await files.unzip(path.join(parentDir, fileName), false);
-            const lines = (await fs.readFile(path.join(parentDir, fileNameNoExt, 'META-INF', 'MANIFEST.MF'))).toString('utf8').split(require('os').EOL);
-            let mainClass;
-            for (let i = 0; i < lines.length; i++) {
-                if (lines[i].startsWith('Main-Class')) {
-                    mainClass = lines[i].replace('Main-Class: ', '');
-                    break;
-                }
-            }
-            await fs.remove(path.join(parentDir, fileNameNoExt));
-            return mainClass;
-        };
         // End helper functions
 
         // These are used later, but needed for the completion callback
@@ -573,7 +542,7 @@ const runForgeProcessors = (task, processors, vars, mcVersion, forgeVersion) => 
             if (val.startsWith('/'))
                 val = path.join(props.installDir, '../', 'temp', val);
             if (val.startsWith('['))
-                val = findLibraryPath(val.substring(1, val.length - 1));
+                val = path.join(props.libDir, artifact.findLibraryPath(val.substring(1, val.length - 1)));
             envars[key] = `"${val}"`;
         });
         envars.MINECRAFT_JAR = `"${path.join(props.installDir, 'versions', props.mcVersion, `${props.mcVersion}.jar`)}"`;
@@ -586,16 +555,16 @@ const runForgeProcessors = (task, processors, vars, mcVersion, forgeVersion) => 
         await fs.remove(clientDataPathSource);
 
         const task = processor => new Promise(async resolve => {
-            const processorJar = findLibraryPath(processor.jar);
+            const processorJar = path.join(props.libDir, artifact.findLibraryPath(processor.jar));
 
-            let arguments = ['-cp', `"${processorJar};${processor.classpath.map(cp => findLibraryPath(cp)).join(';')}"`, await findMainClass(processorJar)];
+            let arguments = ['-cp', `"${processorJar};${processor.classpath.map(cp => path.join(props.libDir, artifact.findLibraryPath(cp))).join(';')}"`, await artifact.findMainClass(processorJar)];
             const envarKeys = Object.keys(envars);
             arguments = arguments.concat(processor.args.map(arg => {
                 for (let j = 0; j < envarKeys.length; j++)
                     if (arg.startsWith(`{${envarKeys[j]}}`))
                         return envars[envarKeys[j]];
                 if (arg.startsWith('['))
-                    return `"${findLibraryPath(arg)}"`;
+                    return `"${path.join(props.libDir, artifact.findLibraryPath(arg))}"`;
                 return arg;
             }));
 

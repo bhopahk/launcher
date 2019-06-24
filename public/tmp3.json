@@ -1,0 +1,128 @@
+{
+  "id": "forge-14.23.5.2838",
+  "time": "2019-05-13T17:02:00Z",
+  "releaseTime": "1960-01-01T07:00:00Z",
+  "type": "release",
+  "minecraftArguments": "--username ${auth_player_name} --version ${version_name} --gameDir ${game_directory} --assetsDir ${assets_root} --assetIndex ${assets_index_name} --uuid ${auth_uuid} --accessToken ${auth_access_token} --userType ${user_type} --tweakClass net.minecraftforge.fml.common.launcher.FMLTweaker --versionType Forge",
+  "minimumLauncherVersion": 0,
+  "inheritsFrom": "1.12.2",
+  "jar": "1.12.2",
+  "libraries": [
+    {
+      "name": "net.minecraftforge:forge:1.12.2-14.23.5.2838",
+      "url": "https://modloaders.forgecdn.net/647622546/maven/"
+    },
+    {
+      "name": "net.minecraft:launchwrapper:1.12",
+      "serverreq": true
+    },
+    {
+      "name": "org.ow2.asm:asm-all:5.2",
+      "url": "https://modloaders.forgecdn.net/647622546/maven/",
+      "serverreq": true,
+      "clientreq": true
+    },
+    {
+      "name": "org.jline:jline:3.5.1",
+      "url": "https://modloaders.forgecdn.net/647622546/maven/",
+      "serverreq": true,
+      "clientreq": false
+    },
+    {
+      "name": "net.java.dev.jna:jna:4.4.0",
+      "serverreq": true,
+      "clientreq": false
+    },
+    {
+      "name": "com.typesafe.akka:akka-actor_2.11:2.3.3",
+      "url": "https://modloaders.forgecdn.net/647622546/maven/",
+      "serverreq": true,
+      "clientreq": true
+    },
+    {
+      "name": "com.typesafe:config:1.2.1",
+      "url": "https://modloaders.forgecdn.net/647622546/maven/",
+      "serverreq": true,
+      "clientreq": true
+    },
+    {
+      "name": "org.scala-lang:scala-actors-migration_2.11:1.1.0",
+      "url": "https://modloaders.forgecdn.net/647622546/maven/",
+      "serverreq": true,
+      "clientreq": true
+    },
+    {
+      "name": "org.scala-lang:scala-compiler:2.11.1",
+      "url": "https://modloaders.forgecdn.net/647622546/maven/",
+      "serverreq": true,
+      "clientreq": true
+    },
+    {
+      "name": "org.scala-lang.plugins:scala-continuations-library_2.11:1.0.2",
+      "url": "https://modloaders.forgecdn.net/647622546/maven/",
+      "serverreq": true,
+      "clientreq": true
+    },
+    {
+      "name": "org.scala-lang.plugins:scala-continuations-plugin_2.11.1:1.0.2",
+      "url": "https://modloaders.forgecdn.net/647622546/maven/",
+      "serverreq": true,
+      "clientreq": true
+    },
+    {
+      "name": "org.scala-lang:scala-library:2.11.1",
+      "url": "https://modloaders.forgecdn.net/647622546/maven/",
+      "serverreq": true,
+      "clientreq": true
+    },
+    {
+      "name": "org.scala-lang:scala-parser-combinators_2.11:1.0.1",
+      "url": "https://modloaders.forgecdn.net/647622546/maven/",
+      "serverreq": true,
+      "clientreq": true
+    },
+    {
+      "name": "org.scala-lang:scala-reflect:2.11.1",
+      "url": "https://modloaders.forgecdn.net/647622546/maven/",
+      "serverreq": true,
+      "clientreq": true
+    },
+    {
+      "name": "org.scala-lang:scala-swing_2.11:1.0.1",
+      "url": "https://modloaders.forgecdn.net/647622546/maven/",
+      "serverreq": true,
+      "clientreq": true
+    },
+    {
+      "name": "org.scala-lang:scala-xml_2.11:1.0.2",
+      "url": "https://modloaders.forgecdn.net/647622546/maven/",
+      "serverreq": true,
+      "clientreq": true
+    },
+    {
+      "name": "lzma:lzma:0.0.1",
+      "serverreq": true
+    },
+    {
+      "name": "net.sf.jopt-simple:jopt-simple:5.0.3",
+      "serverreq": true
+    },
+    {
+      "name": "java3d:vecmath:1.5.2",
+      "serverreq": true,
+      "clientreq": true
+    },
+    {
+      "name": "net.sf.trove4j:trove4j:3.0.3",
+      "serverreq": true,
+      "clientreq": true
+    },
+    {
+      "name": "org.apache.maven:maven-artifact:3.5.3",
+      "url": "https://modloaders.forgecdn.net/647622546/maven/",
+      "serverreq": true,
+      "clientreq": true
+    }
+  ],
+  "mainClass": "net.minecraft.launchwrapper.Launch"
+}

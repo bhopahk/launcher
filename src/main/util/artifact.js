@@ -23,7 +23,7 @@ SOFTWARE.
 const path = require('path');
 const ZipStream = require('node-stream-zip');
 
-exporst.findLibraryPath = target => {
+exports.findLibraryPath = target => {
     if (target.includes('['))
         target = target.substring(1, target.length - 1);
     const parts = target.split(':');
@@ -36,23 +36,27 @@ exporst.findLibraryPath = target => {
     } else extension = '.jar';
     if (!extension.includes('.'))
         extension += '.jar';
-    return path.join(parts[1], parts[2], `${parts[1]}-${parts[2]}${extension}`);
+    return path.join(parts[0].split('.').join('/'), parts[1], parts[2], `${parts[1]}-${parts[2]}${extension}`);
 };
 
-//todo this
-const findMainClass = async file => {
-    const parentDir = path.join(file, '../');
-    const fileName = path.basename(file);
-    const fileNameNoExt = path.basename(file, '.jar');
-    await files.unzip(path.join(parentDir, fileName), false);
-    const lines = (await fs.readFile(path.join(parentDir, fileNameNoExt, 'META-INF', 'MANIFEST.MF'))).toString('utf8').split(require('os').EOL);
-    let mainClass;
-    for (let i = 0; i < lines.length; i++) {
-        if (lines[i].startsWith('Main-Class')) {
-            mainClass = lines[i].replace('Main-Class: ', '');
-            break;
+exports.findMainClass = file => new Promise((resolve, reject) => {
+    const zip = new ZipStream({ file, storeEntries: true });
+    zip.on('ready', () => {
+        for (const entry of Object.values(zip.entries())) {
+            if (!entry.name.includes('MANIFEST.MF'))
+                continue;
+            zip.stream(entry.name, (err, stream) => {
+                if (err) return reject(err);
+                let body = '';
+                stream.setEncoding('utf8');
+                stream.on('data', data => body += data);
+                stream.on('end', () => {
+                    body = body.split(require('os').EOL);
+                    for (const line of body)
+                        if (line.startsWith('Main-Class'))
+                            resolve(line.replace('Main-Class: ', ''));
+                });
+            })
         }
-    }
-    await fs.remove(path.join(parentDir, fileNameNoExt));
-    return mainClass;
-};
+    });
+});

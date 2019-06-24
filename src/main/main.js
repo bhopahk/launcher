@@ -183,9 +183,10 @@ ipcMain.on('titlebar', (event, arg) => {
     let window = BrowserWindow.fromWebContents(event.sender);
     switch (arg.action) {
         case 'QUIT':
-            if (window === mainWindow)
-                window.hide();
-            else window.close();
+            // if (window === mainWindow)
+            //     window.hide();
+            // else window.close();
+            window.close();
             break;
         case 'MAXIMIZE':
             if (maximized)

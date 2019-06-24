@@ -40,7 +40,10 @@ exports.MESSAGES = [
     'Lets just hope nothing went horribly wrong...',
     '\'Oops,\' Jason said meekly. \'Oops?\' Connor shouted. \'You blew up half the town.\'',
     'Listen, this could be something minor. Right?',
-    'Well, something did happen, it just was not the intended something.'
+    'Well, something did happen, it just was not the intended something.',
+    '\'It just works!\' -Todd Howard',
+    'Ah, you seem to have accidentally launched crash emulator.',
+    'At least it isn\'t Fallout 76.'
 ];
 
 if (process.platform === 'win32') {

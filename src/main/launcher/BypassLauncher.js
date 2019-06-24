@@ -22,9 +22,9 @@ SOFTWARE.
 
 const { app } = require('electron');
 const profile = require('../needsHome/profile');
+const artifact = require('../util/artifact');
 const config = require('../config/config');
 const updater = require('../app/updater');
-const cache = require('../game/versionCache');
 const path = require('path');
 const fs = require('fs-extra');
 const StreamZip = require('node-stream-zip');
@@ -58,11 +58,18 @@ class BypassLauncher {
         this.profile = await profile.getProfile(this.profileName);
         await fs.mkdirs(this.nativeDirectory);
         const versionJson = await fs.readJson(path.join(baseDir, 'Install', 'versions', this.profile.targetVersion, `${this.profile.targetVersion}.json`));
+        let inheritedVersionJson;
+        if (versionJson.inheritsFrom)
+            inheritedVersionJson = await fs.readJson(path.join(baseDir, 'Install', 'versions', versionJson.inheritsFrom, `${versionJson.inheritsFrom}.json`));
         console.log(`Extracting natives to ${this.nativeDirectory}`);
 
-        for (const library of versionJson.libraries) {
+        let allLibraries = versionJson.libraries;
+        if (inheritedVersionJson)
+            allLibraries = allLibraries.concat(inheritedVersionJson.libraries);
+        for (const library of allLibraries) {
             if (!library.natives || !library.natives[osName])
                 continue;
+
             const nativePath = path.join(baseDir, 'Install', 'libraries', library.downloads.classifiers[library.natives[osName]].path);
             const exclusions = library.extract ? library.extract.exclude : [];
             await new Promise(resolve => {
@@ -85,13 +92,14 @@ class BypassLauncher {
 
         // Construct required variables for launch arguments.
         let envars = {};
+        // Vanilla
         envars.auth_player_name = '3640'; //todo accounts
         envars.auth_uuid = 'aceb326fda1545bcbf2f11940c21780c'; //todo accounts
         envars.auth_access_token = 'a3032ec9b8834164ade4f6cce37a6d03'; //todo accounts
         envars.version_name = this.profile.targetVersion;
         envars.game_directory = `${this.profile.directory}`;
         envars.assets_root = `${path.join(baseDir, 'Install', 'assets')}`;
-        envars.assets_index_name = versionJson.assets;
+        envars.assets_index_name = inheritedVersionJson ? inheritedVersionJson.assets : versionJson.assets;
         envars.user_type = 'mojang'; // When is this different? Demo users?
         envars.version_type = versionJson.type;
         envars.natives_directory = this.nativeDirectory;
@@ -99,7 +107,9 @@ class BypassLauncher {
         envars.launcher_version = updater.CURRENT;
         envars.resolution_width = this.profile.resolution.width;
         envars.resolution_height = this.profile.resolution.height;
-        envars.classpath = 'C:\\Users\\Matt Worzala\\Desktop\\launchwrapper-1.0.jar;';
+        // envars.classpath = 'C:\\Users\\Matt Worzala\\Desktop\\launchwrapper-1.0.jar;';
+        envars.classpath = '';
+        envars.minecraft_jar = inheritedVersionJson ? path.join(baseDir, 'Install', 'versions', inheritedVersionJson.id, `${inheritedVersionJson.id}.jar`) : '';
         envars.features = {};
         envars.features.is_demo_user = false;
         envars.features.has_custom_resolution = true;
@@ -107,19 +117,52 @@ class BypassLauncher {
         envars.os.name = osName;
         envars.os.version = require('os').release();
         envars.os.arch = process.arch;
+        // Fabric
+        // Forge
 
-        for (const library of versionJson.libraries) {
-            if (!library.downloads || !library.downloads.artifact || !library.downloads.artifact.path)
-                continue;
-            envars.classpath += path.join(baseDir, 'Install', 'libraries', library.downloads.artifact.path) + ';';
+        let libraries = versionJson.libraries;
+        if (inheritedVersionJson)
+            libraries = libraries.concat(inheritedVersionJson.libraries);
+        for (const library of libraries) {
+            if (!library.downloads || !library.downloads.artifact || !library.downloads.artifact.path) {
+                if (library.clientreq !== false)
+                    envars.classpath += path.join(baseDir, 'Install', 'libraries', artifact.findLibraryPath(library.name)) + ';';
+            } else {
+                if (library.rules && library.rules[0].os) {
+                    if (library.rules[0].os.name !== envars.os.name)
+                        continue;
+                }
+
+                const lib = path.join(baseDir, 'Install', 'libraries', library.downloads.artifact.path);
+                if (!envars.classpath.includes(lib))
+                    envars.classpath += lib + ';';
+            }
         }
-        envars.classpath += path.join(baseDir, 'Install', 'versions', this.profile.targetVersion, `${this.profile.targetVersion}.jar`);
+        if (inheritedVersionJson)
+            envars.classpath += path.join(baseDir, 'Install', 'versions', inheritedVersionJson.id, `${inheritedVersionJson.id}.jar`) + ';';
+        if (versionJson.jar)
+            envars.classpath += path.join(baseDir, 'Install', 'versions', versionJson.jar, `${versionJson.jar}.jar`);
+        else envars.classpath += path.join(baseDir, 'Install', 'versions', this.profile.targetVersion, `${this.profile.targetVersion}.jar`);
         envars.classpath += '';
 
         let args = [];
 
         // JVM Arguments
-        for (const arg of versionJson.arguments.jvm) {
+        let jvmArguments = [];
+        if (versionJson.arguments && versionJson.arguments.jvm)
+            jvmArguments = jvmArguments.concat(versionJson.arguments.jvm);
+        if (inheritedVersionJson && inheritedVersionJson.arguments && inheritedVersionJson.arguments.jvm)
+            jvmArguments = jvmArguments.concat(inheritedVersionJson.arguments.jvm);
+        if (jvmArguments.length === 0)
+            jvmArguments.push(
+                '-Djava.library.path=${natives_directory}',
+                '-Dminecraft.launcher.brand=${launcher_name}',
+                '-Dminecraft.launcher.version=${launcher_version}',
+                '-Dminecraft.client.jar=${minecraft_jar}',
+                '-cp',
+                '${classpath}'
+            );
+        for (const arg of jvmArguments) {
             const processed = prepareArgument(envars, arg);
             if (Array.isArray(processed))
                 args = args.concat(processed);
@@ -137,14 +180,25 @@ class BypassLauncher {
         args.push('-Duser.country=US'); //todo this should come from language setting
 
         // Logger
-        args.push(versionJson.logging.client.argument.replace('${path}', path.join(baseDir, 'Install', 'assets', 'log_configs', versionJson.logging.client.file.id)));
+        let loggerDefinition = versionJson.logging === undefined || versionJson.logging.client === undefined ? inheritedVersionJson : versionJson;
+        args.push(loggerDefinition.logging.client.argument.replace('${path}', path.join(baseDir, 'Install', 'assets', 'log_configs', loggerDefinition.logging.client.file.id)));
 
         // Main Class
-        args.push(`-Dminecraft.launchwrapper=${versionJson.mainClass}`);
-        args.push('me.bhop.proton.launchwrapper.LaunchWrapper');
+        // args.push(`-Dminecraft.launchwrapper=${versionJson.mainClass}`);
+        args.push(versionJson.mainClass);
+        // args.push('me.bhop.proton.launchwrapper.LaunchWrapper');
 
         // Game Arguments
-        for (const arg of versionJson.arguments.game) {
+        let gameArguments = [];
+        if (versionJson.minecraftArguments)
+            gameArguments = versionJson.minecraftArguments.split(' ');
+        else {
+            if (versionJson.arguments.game)
+                gameArguments = gameArguments.concat(versionJson.arguments.game);
+            if (inheritedVersionJson && inheritedVersionJson.arguments.game)
+                gameArguments = gameArguments.concat(inheritedVersionJson.arguments.game);
+        }
+        for (const arg of gameArguments) {
             const processed = prepareArgument(envars, arg);
             if (Array.isArray(processed))
                 args = args.concat(processed);
@@ -161,8 +215,9 @@ class BypassLauncher {
 
         const spawn = require('child_process').spawn;
         this.process = spawn('C:\\Program Files (x86)\\Java\\jre1.8.0_181\\bin\\java.exe', args, {
-            stdio: [ 'ignore', 'pipe', 'pipe' ]
-        });
+            stdio: [ 'ignore', 'pipe', 'pipe' ],
+            cwd: this.profile.directory,
+        }); //todo i need to check with mojang servers to confirm that they are logging in with a valid account.
 
         this.process.stdout.setEncoding('UTF-8');
         this.process.stderr.setEncoding('UTF-8');
@@ -183,7 +238,10 @@ class BypassLauncher {
 
         this.process.stdout.on('data', handleMessage);
         this.process.stderr.on('data', handleMessage);
-        this.process.on('close', code => console.log(`Process exited with code ${code}`));
+        this.process.on('close', async code => {
+            console.log(`Process exited with code ${code}`);
+            await fs.remove(this.nativeDirectory);
+        });
     }
 }
 
