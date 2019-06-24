@@ -80,43 +80,32 @@ exports.installVanilla = async (version, task, force) => {
     fs.mkdirs(dir);
     const vanilla = await (await fetch(cache.findGameVersion(version).url)).json();
 
-    const lockfile = path.join(dir, 'version-lock');
-    if (!await lock.check(lockfile)) {
-        try {
-            // Lock the version directory
-            await lock.lock(lockfile, { stale: 300000 });
-
-            // Write version json
-            sendTaskUpdate(task, 'writing profile settings', 1/3);
-            const jsonLoc = path.join(dir, `${version}.json`);
-            if (!await fs.pathExists(jsonLoc))
-                await files.download(cache.findGameVersion(version).url, jsonLoc);
-            // Download client jar
-            sendTaskUpdate(task, 'writing profile settings', 2/3);
-            const clientJar = path.join(dir, `${version}.jar`);
-            if (!await fs.pathExists(clientJar) || (await files.fileChecksum(clientJar, 'sha1')) !== vanilla.downloads.client.sha1)
-                await files.download(vanilla.downloads.client.url, clientJar);
-        } catch (e) {
-            reporter.error(e);
-        } finally {
-            await lock.unlock(lockfile);
-        }
+    try {
+        // Write version json
+        console.log('Writing version json...');
+        sendTaskUpdate(task, 'writing profile settings', 1/3);
+        const jsonLoc = path.join(dir, `${version}.json`);
+        if (!await fs.pathExists(jsonLoc))
+            await files.download(cache.findGameVersion(version).url, jsonLoc);
+        // Download client jar
+        sendTaskUpdate(task, 'writing profile settings', 2/3);
+        const clientJar = path.join(dir, `${version}.jar`);
+        if (!await fs.pathExists(clientJar) || (await files.fileChecksum(clientJar, 'sha1')) !== vanilla.downloads.client.sha1)
+            await files.download(vanilla.downloads.client.url, clientJar);
+    } catch (e) {
+        reporter.error(e);
     }
 
     // Download asset index
     sendTaskUpdate(task, 'writing profile settings', 3/3);
     const assetIndex = path.join(installDir, 'assets', 'indexes', `${vanilla.assetIndex.id}.json`);
-    const assetLock = path.join(path.dirname(assetIndex), `ai-${vanilla.assetIndex.id}-lock`);
-    if (!await lock.check(assetLock)) {
-        try {
-            const err = await lock.lock(assetLock, { stale: 300000 });
-            if (!await fs.pathExists(assetIndex) || (await files.fileChecksum(assetIndex, 'sha1')) !== vanilla.assetIndex.sha1)
-                await files.download(vanilla.assetIndex.url, assetIndex);
-        } catch (e) {
-            reporter.error(e);
-        } finally {
-            await lock.unlock(assetLock);
+    try {
+        if (!await fs.pathExists(assetIndex) || (await files.fileChecksum(assetIndex, 'sha1')) !== vanilla.assetIndex.sha1) {
+            console.log(`Downloading asset index to ${assetIndex}...`);
+            await files.download(vanilla.assetIndex.url, assetIndex);
         }
+    } catch (e) {
+        reporter.error(e);
     }
 
     // Download assets
@@ -124,19 +113,13 @@ exports.installVanilla = async (version, task, force) => {
 
     // Download logger config
     const logConfig = path.join(installDir, 'assets', 'log_configs', vanilla.logging.client.file.id);
-    const logLock = path.join(path.dirname(logConfig), `log-${vanilla.logging.client.file.id.replace('.', '-')}-lock`);
-    if (!await lock.check(logLock)) {
-        try {
-            await lock.lock(logLock, { stale: 300000 });
-            if (!await fs.pathExists(logConfig) || (await files.fileChecksum(logConfig, 'sha1')) !== vanilla.logging.client.file.sha1)
-                await files.download(vanilla.logging.client.file.url, assetIndex);
-        } catch (e) {
-            reporter.error(e);
-        } finally {
-            await lock.unlock(logLock);
+    try {
+        if (!await fs.pathExists(logConfig) || (await files.fileChecksum(logConfig, 'sha1')) !== vanilla.logging.client.file.sha1) {
+            console.log(`Downloading log config to ${logConfig}...`);
+            await files.download(vanilla.logging.client.file.url, logConfig);
         }
-    } else {
-        console.log('Skipping asset index due to existing lock.')
+    } catch (e) {
+        reporter.error(e);
     }
 
     // Download libraries
