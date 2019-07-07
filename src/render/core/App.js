@@ -4,6 +4,7 @@ import '../util/contextmenu.css';
 import '../util/tooltip.css';
 import '../util/badge.css';
 import '../util/errorreport.css';
+import '../layout/cards.css'
 import Snackbar from '../snackbar/Snackbar';
 import { ModalConductor, Modal } from '../modal/Modal';
 import Actions from './actions/Actions';
@@ -26,6 +27,7 @@ import { SettingsWrapper, Settings, Separator, Title } from "../settings/Setting
 import { SettingsField, SettingsSwitch } from '../settings/SettingsInput';
 
 import { Checkbox, Check, FolderSelect, Dropdown, Option, TextField, Slider, Button } from '../input/Input';
+import {JavaSettings} from "../settings/JavaSettings";
 
 class App extends React.Component {
     static snackbar = React.createRef();
@@ -202,6 +204,10 @@ class App extends React.Component {
                                 <SettingsField title="Developer Mode" switch description="Enables some extra options and menus for testing. This should not be enabled unless confident or instructed by a developer.">
                                     <SettingsSwitch id="developerMode" />
                                 </SettingsField>
+                            </Settings>
+                            <Settings id="java" display="Java">
+                                <Title>Java Settings</Title>
+                                <JavaSettings/>
                             </Settings>
                             <Settings id="defaults" display="Profile Defaults">
                                 <Title>Profile Defaults</Title>

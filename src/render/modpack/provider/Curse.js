@@ -34,7 +34,8 @@ class CurseModpackListing extends React.Component {
         this.setState({ loading: true });
         let oldModpacks = this.state.modpacks.slice();
         fetch(`https://addons-ecs.forgesvc.net/api/v2/addon/search?gameId=432&pageSize=20&index=${this.page * 20}&sort=${this.state.sort}&searchFilter=${encodeURI(this.state.search)}&gameVersion=${this.state.mcVersion === '-' ? '' : this.state.mcVersion}&categoryId=${this.state.category}&sectionId=4471&sortDescending=${this.state.sort === 'Name' || this.state.sort === 'Author' ? 'false' : 'true'}`, {
-            headers: { "User-Agent": "Launcher (https://github.com/bhopahk/launcher/)" }
+            // headers: { "User-Agent": "Launcher (https://github.com/bhopahk/launcher/)" }
+            headers: { "User-Agent": "User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) twitch-desktop-electron-platform/1.0.0 Chrome/66.0.3359.181 Twitch/3.0.16 Safari/537.36 desklight/8.40.1" }
         }).then(resp => resp.json()).then(json => {
             json.forEach(packJson => {
                 let icon = '';

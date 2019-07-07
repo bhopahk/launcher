@@ -1,0 +1,66 @@
+@import "../core/colors";
+
+.java-settings {
+  position: relative;
+  margin-right: 27px;
+
+  .java-add {
+    position: absolute;
+    top: -45px;
+    right: 10px;
+  }
+}
+
+.java-card {
+  cursor: pointer;
+  margin: 0;
+
+  border: none;
+  border-radius: 5px;
+  background-color: @backgroundVibrant3;
+
+  transition: all 0.3s;
+
+  h1 {
+    padding: 15px 15px 0;
+    margin: 0;
+
+    font-size: 17px;
+    font-family: Raleway, sans-serif;
+
+    text-shadow: none;
+
+    i {
+      font-size: 20px;
+      margin-right: 15px;
+    }
+  }
+
+  p {
+
+    margin: 10px;
+    padding: 5px;
+    //margin: 10px 0 0;
+    //padding: 0 0 5px;
+
+    background-color: @backgroundOpaque;
+
+
+    font-size: 15px;
+    font-family: Source Sans Pro, sans-serif;
+    color: @superOffWhite;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    direction: rtl;
+    text-align: left;
+
+    border: none;
+    border-radius: 3px;
+  }
+
+  &.selected {
+    box-shadow: 0 0 12px 0 rgba(0,0,0,0.75);
+  }
+}

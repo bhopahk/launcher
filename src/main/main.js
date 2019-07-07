@@ -220,3 +220,8 @@ ipcMain.on('argv', event => {
 });
 
 ipcMain.on('util:isDev', event => event.returnValue = isDev);
+
+// require('node-fetch')(`https://addons-ecs.forgesvc.net/api/v2/addon/search?gameId=432&pageSize=20&index=0&sort=Featured&searchFilter=&gameVersion=&categoryId=0&sectionId=4471&sortDescending=false`, {
+//     headers: { "User-Agent": "Launcher (https://github.com/bhopahk/launcher/)" }
+    // headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) twitch-desktop-electron-platform/1.0.0 Chrome/66.0.3359.181 Twitch/3.0.16 Safari/537.36 desklight/8.40.1" }
+// }).then(resp => resp.json()).then(json => console.log(json));
