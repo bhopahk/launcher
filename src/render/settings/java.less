@@ -3,15 +3,69 @@
 .java-settings {
   position: relative;
   margin-right: 27px;
+  min-height: 405px;
 
   .java-add {
     position: absolute;
     top: -45px;
     right: 10px;
   }
+
+  .java-none {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+
+    height: 375px;
+
+    h1 {
+      margin: 0;
+      padding: 0;
+
+      color: @Error;
+      font-size: 30px;
+    }
+
+    h2 {
+      margin: 10px;
+
+      font-size: 20px;
+      font-family: Raleway, sans-serif;
+      color: @offWhite;
+      text-shadow: 2px 2px @offBlack;
+    }
+
+    p {
+      width: 350px;
+
+      font-size: 17px;
+      line-height: 22px;
+      text-align: center;
+      font-family: Source Sans Pro, sans-serif;
+      color: @offGrey;
+
+      span {
+        box-sizing: border-box;
+        cursor: pointer;
+        outline: none;
+
+        padding: 2px 5px;
+
+        border: 1px solid @backgroundOpaque;
+        border-radius: 5px;
+        background-color: @backgroundVibrant3;
+
+        font-size: 15px;
+        font-family: Raleway, sans-serif;
+        color: @superOffWhite;
+      }
+    }
+  }
 }
 
 .java-card {
+  position: relative;
   cursor: pointer;
   margin: 0;
 
@@ -37,7 +91,6 @@
   }
 
   p {
-
     margin: 10px;
     padding: 5px;
     //margin: 10px 0 0;
@@ -58,6 +111,17 @@
 
     border: none;
     border-radius: 3px;
+  }
+
+  .java-remove {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+
+    padding: 3px;
+
+    background-color: @ErrorVibrant;
+    border-color: @Error;
   }
 
   &.selected {

@@ -21,7 +21,7 @@ SOFTWARE.
 */
 
 import React from 'react';
-import {Button, FolderSelect} from '../input/Input';
+import { Button } from '../input/Input';
 import './java.css';
 
 class JavaSettings extends React.Component {
@@ -31,28 +31,23 @@ class JavaSettings extends React.Component {
         this.folderSelect = React.createRef();
 
         this.state = {
-            javaVersions: [
-                {
-                    _id: '21512vqw3fawfa',
-                    version: '1.8.0_121',
-                    path: 'C:/Program Files (x86)/Java/1.8.0_121/',
-                    selected: true
-                },
-                {
-                    _id: '21512vq212fw3fawfa',
-                    version: '11.0.3',
-                    path: 'C:/Program Files (x86)/Java/11.0.3/',
-                    selected: false
-                }
-            ]
+            canInstallPortable: false,
+            javaVersions: []
         }
     }
 
     componentDidMount() {
+        window.ipc.on('java:render', this.handleRender);
+        window.ipc.send('java:render');
         // Workaround to unsupported attribute. According to V, this is fixed but it does not seem to work.
         // https://reactjs.org/blog/2017/09/08/dom-attributes-in-react-16.html
         this.folderSelect.current.webkitdirectory = true;
     }
+    componentWillUnmount() {
+        window.ipc.removeListener('java:render', this.handleRender);
+    }
+
+    handleRender = (event, versions) => this.setState({ javaVersions: versions });
 
     select = _id => {
         const vers = this.state.javaVersions.slice();
@@ -65,20 +60,38 @@ class JavaSettings extends React.Component {
     add = event => {
         if (!event.target.files[0])
             return;
-        const path = event.target.files[0].path;
-        alert(path)
+        window.ipc.send('java:add', event.target.files[0].path);
     };
 
+    remove = _id => window.ipc.send('java:remove', _id);
+
+    install = () => window.ipc.send('java:install');
+
     render() {
-        return (
+        if (this.state.javaVersions.length === 0) return (
             <div className="java-settings">
                 <div className="java-add">
                     <input type="file" ref={this.folderSelect} onChange={this.add} hidden />
+                    <Button disabled={!this.state.canInstallPortable} onClick={() => this.install()}>Install Java</Button>
+                    <Button onClick={() => this.folderSelect.current.click()}>Add Java Instance</Button>
+                </div>
+                <div className="java-none">
+                    <h1><i className="fab fa-java"></i></h1>
+                    <h2>No Java Versions Detected!</h2>
+                    <p>Minecraft requires Java to run! If you have java, please use click <span>Add Java Instance</span> above. If not, please click <span>Install Java</span></p>
+                </div>
+            </div>
+        ); else return (
+            <div className="java-settings">
+                <div className="java-add">
+                    <input type="file" ref={this.folderSelect} onChange={this.add} hidden />
+                    <Button disabled={!this.state.canInstallPortable} onClick={() => this.install()}>Install Java</Button>
                     <Button onClick={() => this.folderSelect.current.click()}>Add Java Instance</Button>
                 </div>
                 <div className="cards">
                     {this.state.javaVersions.map(ver => (
                         <div key={ver._id} className={`card java-card ${ver.selected ? 'selected' : ''}`} onClick={() => this.select(ver._id)}>
+                            <Button classList="java-remove" onClick={(e) => { e.stopPropagation(); this.remove(ver._id) }}>Remove</Button>
                             <h1><i className="fab fa-java"></i>{ver.version}</h1>
                             <p>{ver.path}</p>
                         </div>

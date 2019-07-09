@@ -141,6 +141,7 @@ app.on('ready',  async () => {
     require('./app/reporter');
     require('./app/updater');
     require('./needsHome/profile');
+    require('./config/java');
     require('./mojang/accounts');
     require('./game/versionCache');
     require('./app/rpc');

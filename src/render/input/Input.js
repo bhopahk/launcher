@@ -187,8 +187,8 @@ class FolderSelect extends React.Component {
 
 const Button = (props) => {
     return (
-        <button className={`btn ${props.classList} ${props.disabled ? 'disabled' : ''}`} onClick={() => {
-            if (!props.disabled) props.onClick();
+        <button className={`btn ${props.classList} ${props.disabled ? 'disabled' : ''}`} onClick={e => {
+            if (!props.disabled) props.onClick(e);
         }}>{props.children}</button>
     );
 };
