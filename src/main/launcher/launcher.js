@@ -38,19 +38,25 @@ exports.launchProfile = async (profile) => {
     await this.selectProfile(profile);
     await updateLastLaunched(profile.name);
 
-    let game;
-    if (isNative)
-        game = new NativeLauncher();
-    else game = new LegacyLauncher();
+    if (profile.flavor === 'vanilla' || profile.flavor === 'fabric') {
+        const BypassLauncher = require('../launcher/BypassLauncher');
+        const game = new BypassLauncher(profile.name);
+        await game.launch();
+    } else {
+        let game;
+        if (isNative)
+            game = new NativeLauncher();
+        else game = new LegacyLauncher();
 
-    rpc.setToPlaying({
-        name: profile.name,
-        type: profile.type,
-        gameVersion: profile.version
-    });
-    game.on('stop', code => {
-        rpc.setToIdle();
-    });
+        rpc.setToPlaying({
+            name: profile.name,
+            type: profile.type,
+            gameVersion: profile.version
+        });
+        game.on('stop', code => {
+            rpc.setToIdle();
+        });
+    }
 };
 
 exports.selectProfile = async (profile) => {

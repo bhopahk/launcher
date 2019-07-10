@@ -22,6 +22,7 @@ SOFTWARE.
 
 const { app, BrowserWindow, shell, ipcMain, Tray, Menu } = require('electron');
 const log = require('electron-log');
+const vibrancy = require('electron-vibrancy');
 
 const path = require('path');
 const isDev = require('electron-is-dev');
@@ -68,7 +69,10 @@ const createWindow = () => {
         isDev
             ? 'http://localhost:3000'
             : `file://${path.join(__dirname, '../../build/index.html')}`,
-    );
+    ).then(() => {
+        if (config.getValue('app/vibrancy'))
+            vibrancy.SetVibrancy(mainWindow, 2);
+    });
 
     if (isDev) {
         const {
@@ -221,6 +225,10 @@ ipcMain.on('argv', event => {
 });
 
 ipcMain.on('util:isDev', event => event.returnValue = isDev);
+
+ipcMain.once('sync', event => {
+    event.returnValue = config.getValue('app/vibrancy')
+});
 
 // require('node-fetch')(`https://addons-ecs.forgesvc.net/api/v2/addon/search?gameId=432&pageSize=20&index=0&sort=Featured&searchFilter=&gameVersion=&categoryId=0&sectionId=4471&sortDescending=false`, {
 //     headers: { "User-Agent": "Launcher (https://github.com/bhopahk/launcher/)" }

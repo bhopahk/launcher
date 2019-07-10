@@ -4,12 +4,14 @@
     "prerelease": false,
     "parallelDownloads": false,
     "endOnClose": false,
-    "developerMode": false
+    "developerMode": false,
+    "vibrancy": false
   },
   "defaults": {
     "resolution": "1280x720",
     "maxMemory": 2048,
-    "javaArgs": ""
+    "javaArgs": "",
+    "patchy": false
   },
   "minecraft": {
     "launcherPref": "native",

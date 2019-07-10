@@ -657,10 +657,10 @@ ipcMain.on('profile:launch', async (event, payload) => {
 
 ipcMain.on('launch-no-launcher', async () => {
     const BypassLauncher = require('../launcher/BypassLauncher');
-    const game = new BypassLauncher('forge is shit');
+    // const game = new BypassLauncher('forge is shit');
     // const game = new BypassLauncher('actually forge');
     // const game = new BypassLauncher('Fabric Again');
-    // const game = new BypassLauncher('Vanilla 1.14.3pre4');
+    const game = new BypassLauncher('fabric');
     await game.launch();
 });
 

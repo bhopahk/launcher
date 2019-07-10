@@ -39,12 +39,13 @@
     "xml-js": "^1.6.11"
   },
   "devDependencies": {
+    "concurrently": "^4.1.0",
     "electron": "^5.0.0",
     "electron-builder": "^20.39.0",
     "electron-devtools-installer": "^2.2.4",
-    "concurrently": "^4.1.0",
-    "typescript": "^3.4.5",
-    "react-scripts": "3.0.0"
+    "electron-rebuild": "^1.8.5",
+    "react-scripts": "3.0.0",
+    "typescript": "^3.4.5"
   },
   "build": {
     "appId": "me.bhop.proton",

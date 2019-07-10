@@ -142,7 +142,8 @@ class BypassLauncher {
             envars.classpath += path.join(baseDir, 'Install', 'versions', inheritedVersionJson.id, `${inheritedVersionJson.id}.jar`) + ';';
         if (versionJson.jar)
             envars.classpath += path.join(baseDir, 'Install', 'versions', versionJson.jar, `${versionJson.jar}.jar`);
-        else envars.classpath += path.join(baseDir, 'Install', 'versions', this.profile.targetVersion, `${this.profile.targetVersion}.jar`);
+        else if (this.profile.flavor !== 'fabric')
+            envars.classpath += path.join(baseDir, 'Install', 'versions', this.profile.targetVersion, `${this.profile.targetVersion}.jar`);
         envars.classpath += '';
 
         let args = [];
@@ -173,7 +174,7 @@ class BypassLauncher {
         // args.push(`-Xmx${this.profile.memory.max}m`);
         args.push(`-Xmx1024m`);
         args.push(`-Xms${this.profile.memory.min}m`);
-        args.push(`-Dminecraft.applet.TargetDirectory="${this.profile.directory}"`);
+        args.push(`-Dminecraft.applet.TargetDirectory=${this.profile.directory}`);
         args.push('-Dfml.ignorePatchDiscrepancies=true');
         args.push('-Dfml.ignoreInvalidMinecraftCertificates=true');
         args.push('-Duser.language=en'); //todo this should come from language setting

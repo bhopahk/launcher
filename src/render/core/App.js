@@ -52,7 +52,7 @@ class App extends React.Component {
     }
 
     registerAppWideIpcListeners() {
-        window.ipc.send('sync');
+        this.isVibrant = window.ipc.sendSync('sync').vibrancy;
 
         // Warning about pasting anything in devtools
         window.ipc.on('devtools-openend', () => {
@@ -125,7 +125,10 @@ class App extends React.Component {
 
     render() {
         return (
-            <div>
+            <div style={{
+                width: 'calc(100vw-300px)',
+                backgroundColor: this.isVibrant ? 'rgba(25, 25, 25, 0.6)' : 'rgba(25, 25, 25, 0.85)',
+            }}>
                 <Actions />
                 <div className={"alpha"}>
                     <i className="fas fa-exclamation-triangle"></i>
@@ -138,7 +141,7 @@ class App extends React.Component {
                         <Page id="profiles" icon="list" display="Profiles">
                             <Profiles onProfileOptions={profile => this.setState({ profile: profile })} />
                         </Page>
-                        <Page id="accounts" icon="user" display="Accounts" disabled>
+                        <Page id="accounts" icon="user" display="Accounts">
                             <AccountManager />
                         </Page>
                         <Page id="profiles3" icon="lock" display="Coming Soon" disabled>
@@ -204,6 +207,9 @@ class App extends React.Component {
                                 <SettingsField title="Developer Mode" switch description="Enables some extra options and menus for testing. This should not be enabled unless confident or instructed by a developer.">
                                     <SettingsSwitch id="developerMode" />
                                 </SettingsField>
+                                <SettingsField title="Background Vibrancy" switch description="Enable at your own risk. It is not guarenteed to work, and it will specifically not work on linux. Requires a restart to apply.">
+                                    <SettingsSwitch id="vibrancy" />
+                                </SettingsField>
                             </Settings>
                             <Settings id="java" display="Java">
                                 <Title>Java Settings</Title>
@@ -222,6 +228,9 @@ class App extends React.Component {
                                 </SettingsField>
                                 <SettingsField title="Java Arguments" description="Any additional Java arguments which will be passed into every profile by default. These can be changed for individual profiles separately.">
                                     <TextField id="javaArgs" placeholder="Enter arguments..." />
+                                </SettingsField>
+                                <SettingsField ni title="Server Blacklist" description="Whether Mojang's server blacklist will be loaded when the game is launched. With this disabled, you can connect to blacklisted ips.">
+                                    <SettingsSwitch id="patchy" />
                                 </SettingsField>
                             </Settings>
                             <Settings id="minecraft" display="Minecraft">
