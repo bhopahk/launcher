@@ -20,12 +20,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-const fork = require('child_process').fork;
-const sendTaskUpdate = require('../needsHome/profile').sendTaskUpdate;
+const util = require('../taskutil');
+util.tid = 5;
 
-const temp = require('path').join(app.getPath('userData'), 'temp');
+console.log('hello, world, ' + util.update());
 
-exports.createWorker = (target, args) => new Promise(resolve => {
-    const child = fork(target, args, { cwd: temp });
-    child.on('complete', resolve);
-});
+process.send({ msg: 'I AM THE RESULT OF THE SHIT TASK!' });

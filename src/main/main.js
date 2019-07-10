@@ -150,6 +150,9 @@ app.on('ready',  async () => {
     require('./game/versionCache');
     require('./app/rpc');
 
+    const taskmaster = require('./task/taskmaster');
+    console.log(await taskmaster.runTask(-1, 'test'));
+
     setTimeout(() => {
         require('./needsHome/installer').installBaseGame(process.platform, process.platform === 'win32').then(result => {
             if (result)

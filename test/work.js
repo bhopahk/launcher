@@ -20,12 +20,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-const fork = require('child_process').fork;
-const sendTaskUpdate = require('../needsHome/profile').sendTaskUpdate;
+// const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-const temp = require('path').join(app.getPath('userData'), 'temp');
 
-exports.createWorker = (target, args) => new Promise(resolve => {
-    const child = fork(target, args, { cwd: temp });
-    child.on('complete', resolve);
-});
+process.send('msg', 'Hello!!!!');
+
+console.log('Hello, world, ' + process.argv[2]);
+// sleep(process.argv[2]);

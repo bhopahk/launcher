@@ -141,7 +141,7 @@ class App extends React.Component {
                         <Page id="profiles" icon="list" display="Profiles">
                             <Profiles onProfileOptions={profile => this.setState({ profile: profile })} />
                         </Page>
-                        <Page id="accounts" icon="user" display="Accounts">
+                        <Page id="accounts" icon="user" display="Accounts" disabled>
                             <AccountManager />
                         </Page>
                         <Page id="profiles3" icon="lock" display="Coming Soon" disabled>

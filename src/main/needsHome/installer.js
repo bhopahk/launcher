@@ -28,7 +28,7 @@ const fetch = require('node-fetch');
 const cache = require('../game/versionCache');
 const config = require('../config/config');
 const fabric = require('../util/fabric');
-const workers = require('../worker/workers');
+const workers = require('../worker/workers_old');
 const lock = require('../util/lockfile');
 const reporter = require('../app/reporter');
 

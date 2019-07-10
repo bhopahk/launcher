@@ -1,6 +1,19 @@
 const assert = require('assert');
 
 describe('random tests', () => {
+
+    describe('work', () => {
+        const { fork } = require('child_process');
+
+        console.log('Hello');
+        const tgt = require('path').join(__dirname, 'work.js');
+        console.log(tgt);
+        const t = fork(tgt, ['5'], { silent: true });
+        t.on('msg', console.log);
+
+        assert.ok(false);
+    });
+
     describe('function sending', () => {
         it('should create a function, toString it, and recreate it to return 5', async () => {
             const func = () => { return 5; };
