@@ -58,6 +58,6 @@ process.on('message', async props => {
     else {
         for (i = 0; i < props.mods.length; i++)
             await task(i, props.mods[i]);
-        process.send({ end: true });
+        process.send({ exit: true });
     }
 });

@@ -30,6 +30,7 @@ const fabric = require('../util/fabric');
 const workers = require('../worker/workers_old');
 const lock = require('../util/lockfile');
 const reporter = require('../app/reporter');
+const tasks = require('../task/taskmaster');
 
 const baseDir = require('electron').app.getPath('userData');
 const tempDir = path.join(baseDir, 'temp');
@@ -41,88 +42,72 @@ fs.mkdirs(tempDir);
 
 const sendTaskUpdate = (id, task, progress) => require('./profile').sendTaskUpdate(id, task, progress);
 
-//todo needs redo
-exports.installBaseGame = async (platform = 'win32', modern = true) => {
-    const launcherPath = path.join(installDir, `minecraft.${platform === 'win32' ? 'exe' : 'jar'}`);
-    if (await fs.pathExists(launcherPath))
-        return false;
-
-    if (platform !== 'win32' && modern) {
-        console.log('Cannot install native minecraft launcher for any os other than windows!');
-        return false;
-    }
-
-    // if (!modern) {
-    //     console.log('Installing legacy Minecraft launcher.');
-    //     const compressedPath = path.join(tempDir, 'launcher.jar.lzma');
-    //     await files.download('http://launcher.mojang.com/mc/launcher/jar/fa896bd4c79d4e9f0d18df43151b549f865a3db6/launcher.jar.lzma', compressedPath);
-    //     fs.writeFileSync(launcherPath, lzma.decompressFile(fs.readFileSync(compressedPath)));
-    //     await fs.remove(compressedPath);
-    //     return true;
-    // }
-
-    if (platform === 'win32') {
-        console.log('Installing native Minecraft launcher.');
-        await files.download('https://launcher.mojang.com/download/Minecraft.exe', launcherPath);
-        return true;
-    }
-};
-
-exports.installVanilla = async (version, task, force) => {
+/**
+ * Installs a vanilla version.
+ *
+ * This will end immediately if the version is already installed.
+ * If `validate` is true, the version data will be downloaded/validated no matter what.
+ *
+ * @param {String} version the minecraft version
+ * @param {Boolean} validate version files
+ * @return {Promise<String>} the final name of the version.
+ */
+exports.installVanilla = async (version, validate) => {
     const dir = path.join(installDir, 'versions', version);
 
+    // Attach to exist
+    let tid = tasks.getTaskByName(`Vanilla ${version}`);
+    if (tid !== undefined) {
+        const result = await tasks.waitOn(tid);
+        if (!result.cancelled && !validate)
+            return version;
+    }
+
     // Create version directory and find the version json
-    console.log(`Installing (or validating) Minecraft ${version}`);
-    if (await fs.pathExists(dir) && !force)
+    console.log(`${validate ? 'Installing' : 'Validating'} Minecraft@${version}`);
+    if (await fs.pathExists(dir) && !validate)
         return version;
 
     fs.mkdirs(dir);
+    tid = tasks.createTask(`Vanilla ${version}`);
+    await tasks.updateTask(tid, 'writing profile settings', 0/3);
     const vanilla = await (await fetch(cache.findGameVersion(version).url)).json();
 
-    try {
-        // Write version json
-        console.log('Writing version json...');
-        sendTaskUpdate(task, 'writing profile settings', 1/3);
-        const jsonLoc = path.join(dir, `${version}.json`);
-        if (!await fs.pathExists(jsonLoc))
-            await files.download(cache.findGameVersion(version).url, jsonLoc);
-        // Download client jar
-        sendTaskUpdate(task, 'writing profile settings', 2/3);
-        const clientJar = path.join(dir, `${version}.jar`);
-        if (!await fs.pathExists(clientJar) || (await files.fileChecksum(clientJar, 'sha1')) !== vanilla.downloads.client.sha1)
-            await files.download(vanilla.downloads.client.url, clientJar);
-    } catch (e) {
-        reporter.error(e);
-    }
+    console.debug(`Writing version files for Minecraft@${version}`);
+    // Write version json
+    await tasks.updateTask(tid, 'writing profile settings', 1/3);
+    const jsonLoc = path.join(dir, `${version}.json`);
+    if (!await fs.pathExists(jsonLoc))
+        await files.download(cache.findGameVersion(version).url, jsonLoc);
+    // Download client jar
+    await tasks.updateTask(tid, 'writing profile settings', 2/3);
+    const clientJar = path.join(dir, `${version}.jar`);
+    if (!await fs.pathExists(clientJar) || (await files.fileChecksum(clientJar, 'sha1')) !== vanilla.downloads.client.sha1)
+        await files.download(vanilla.downloads.client.url, clientJar);
 
     // Download asset index
-    sendTaskUpdate(task, 'writing profile settings', 3/3);
+    await tasks.updateTask(tid, 'writing profile settings', 3/3);
     const assetIndex = path.join(installDir, 'assets', 'indexes', `${vanilla.assetIndex.id}.json`);
-    try {
-        if (!await fs.pathExists(assetIndex) || (await files.fileChecksum(assetIndex, 'sha1')) !== vanilla.assetIndex.sha1) {
-            console.log(`Downloading asset index to ${assetIndex}...`);
-            await files.download(vanilla.assetIndex.url, assetIndex);
-        }
-    } catch (e) {
-        reporter.error(e);
-    }
+
+    let valid = false;
+    if (await fs.pathExists(assetIndex) && !validate && (await files.fileChecksum(assetIndex, 'sha1')) === vanilla.assetIndex.sha1) {
+        console.debug(`Minecraft@${version} has a valid asset index. (${assetIndex})`);
+        valid = true;
+    } else await files.download(vanilla.assetIndex.url, assetIndex);
 
     // Download assets
-    await validateGameAssets(task, (await fs.readJson(assetIndex)).objects);
+    if (!valid)
+        await tasks.runJob(tid, 'assets', (await fs.readJson(assetIndex)).objects);
 
     // Download logger config
     const logConfig = path.join(installDir, 'assets', 'log_configs', vanilla.logging.client.file.id);
-    try {
-        if (!await fs.pathExists(logConfig) || (await files.fileChecksum(logConfig, 'sha1')) !== vanilla.logging.client.file.sha1) {
-            console.log(`Downloading log config to ${logConfig}...`);
-            await files.download(vanilla.logging.client.file.url, logConfig);
-        }
-    } catch (e) {
-        reporter.error(e);
-    }
+    if (await fs.pathExists(logConfig) && !validate && (await files.fileChecksum(logConfig, 'sha1')) === vanilla.logging.client.file.sha1)
+        console.debug(`Minecraft@${version} has a log config. (${logConfig})`);
+    else await files.download(vanilla.logging.client.file.url, logConfig);
 
     // Download libraries
-    await validateTypeOneLibraries(task, 'validating vanilla libraries', vanilla.libraries);
+    await tasks.runJob(tid, 'lib.1', vanilla.libraries);
+    await tasks.endTask(tid, false);
 
     return version;
 };

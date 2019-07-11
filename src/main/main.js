@@ -106,7 +106,7 @@ const createTrayMenu = () => {
         { type: 'separator' },
         { label: 'Item3', type: 'normal' }
     ]));
-    tray.setToolTip('Launcher');
+    tray.setToolTip('Proton Launcher');
     tray.addListener('click', () => mainWindow.focus());
 };
 const createContextMenu = () => {
@@ -154,11 +154,12 @@ app.on('ready',  async () => {
     require('./game/versionCache');
     require('./app/rpc');
 
+    //todo why is this settimeout here?
     setTimeout(() => {
-        require('./needsHome/installer').installBaseGame(process.platform, process.platform === 'win32').then(result => {
-            if (result)
-                console.log('Installed Minecraft launcher.');
-        });
+        // require('./needsHome/installer').installBaseGame(process.platform, process.platform === 'win32').then(result => {
+        //     if (result)
+        //         console.log('Installed Minecraft launcher.');
+        // });
 
         createWindow();
 

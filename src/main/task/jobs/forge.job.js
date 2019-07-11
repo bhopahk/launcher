@@ -96,7 +96,7 @@ process.on('message', async props => {
         for (i = 0; i < props.processors.length; i++)
             await task(i, processors.mods[i]);
         await fs.remove(clientDataPathTarget);
-        process.send({ end: true });
+        process.send({ exit: true });
     }
 });
 

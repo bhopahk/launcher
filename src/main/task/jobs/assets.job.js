@@ -40,7 +40,7 @@ process.on('message', async objects => {
         process.send({ task: 'validating game assets', progress: i/keys.length });
         console.debug(`Objects@${i + 1} is ${keys[i]}`);
         const object = objects[keys[i]];
-        const file = path.join(objectDir, object.hash.substring(0, 2), object.hash.substring(2));
+        const file = path.join(objectDir, object.hash.substring(0, 2), object.hash);
 
         if (await fs.pathExists(file)) {
             if ((await files.fileChecksum(file, 'sha1')) === object.hash) {
@@ -54,5 +54,5 @@ process.on('message', async objects => {
         await files.download(`https://resources.download.minecraft.net/${object.hash.substring(0, 2)}/${object.hash}`, file);
     }
     process.send({ task: 'validating game assets', progress: 1 });
-    process.send({ end: true });
+    process.send({ exit: true });
 });

@@ -24,6 +24,7 @@ const { app } = require('electron');
 const profile = require('../needsHome/profile');
 const artifact = require('../util/artifact');
 const config = require('../config/config');
+const java = require('../config/java');
 const updater = require('../app/updater');
 const path = require('path');
 const fs = require('fs-extra');
@@ -72,7 +73,7 @@ class BypassLauncher {
 
             const nativePath = path.join(baseDir, 'Install', 'libraries', library.downloads.classifiers[library.natives[osName]].path);
             const exclusions = library.extract ? library.extract.exclude : [];
-            await new Promise(resolve => {
+            const name = await new Promise(resolve => {
                 const zip = new StreamZip({ file: nativePath, storeEntries: true });
                 zip.on('ready', async () => {
                     for (const entry of Object.values(zip.entries())) {
@@ -84,10 +85,11 @@ class BypassLauncher {
                             continue;
                         if (entry.name.indexOf('.') === -1)
                             await fs.mkdirs(path.join(this.nativeDirectory, entry.name));
-                        zip.extract(entry.name, path.join(this.nativeDirectory, entry.name), err => resolve(console.log(`Extracted ${entry.name}`)));
+                        zip.extract(entry.name, path.join(this.nativeDirectory, entry.name), err => resolve(entry.name));
                     }
                 });
             });
+            console.debug(`Extracted ${name}`)
         }
 
         // Construct required variables for launch arguments.
@@ -171,8 +173,8 @@ class BypassLauncher {
         }
 
         // Extra arguments
-        // args.push(`-Xmx${this.profile.memory.max}m`);
-        args.push(`-Xmx1024m`);
+        args.push(`-Xmx${this.profile.memory.max}m`);
+        // args.push(`-Xmx1024m`);
         args.push(`-Xms${this.profile.memory.min}m`);
         args.push(`-Dminecraft.applet.TargetDirectory=${this.profile.directory}`);
         args.push('-Dfml.ignorePatchDiscrepancies=true');
@@ -215,7 +217,10 @@ class BypassLauncher {
         await fs.writeFile('C:\\Users\\Matt Worzala\\Desktop\\cmd15.txt', args.join(' '));
 
         const spawn = require('child_process').spawn;
-        this.process = spawn('C:\\Program Files (x86)\\Java\\jre1.8.0_181\\bin\\java.exe', args, {
+
+        const javaExecutable = path.join((await java.getSelectedJavaInstance()).path, 'bin', 'javaw.exe'); //todo this needs to allow for non windows.
+
+        this.process = spawn(javaExecutable, args, {
             stdio: [ 'ignore', 'pipe', 'pipe' ],
             cwd: this.profile.directory,
         }); //todo i need to check with mojang servers to confirm that they are logging in with a valid account.

@@ -38,8 +38,8 @@ ipcMain.on('task:cancel', (event, tid) => this.endTask(tid, true));
  *
  * @since 0.2.3
  *
- * @param name The name of the task.
- * @return Number The newly created task id.
+ * @param {String} name The name of the task.
+ * @return {Number} The newly created task id.
  */
 exports.createTask = name => {
     const tid = Math.floor(Math.random()*90000) + 10000;
@@ -53,7 +53,7 @@ exports.createTask = name => {
  *
  * @since 0.2.3
  *
- * @param name The name of the task to locate.
+ * @param {String} name The name of the task to locate.
  * @return {Number|null} The corresponding task id, or undefined
  */
 exports.getTaskByName = name => Object.keys(tasks).filter(key => tasks[key].name === name)[0];
@@ -64,8 +64,8 @@ exports.getTaskByName = name => Object.keys(tasks).filter(key => tasks[key].name
  * If the task is currently running a job, this will wait until the job is complete before deleting the task.
  * If `cancel` is enabled, any running task will be killed.
  *
- * @param tid The task to end.
- * @param cancel Cancel a job if running.
+ * @param {Number} tid The task to end.
+ * @param {Boolean} cancel Cancel a job if running.
  * @return {Promise<Object>} Empty object on success, error on failure.
  */
 exports.endTask = (tid, cancel) => new Promise((resolve, reject) => {
@@ -91,7 +91,7 @@ exports.endTask = (tid, cancel) => new Promise((resolve, reject) => {
 /**
  * Wait on completion of a different running job on another task.
  *
- * @param tid The task to wait on
+ * @param {Number} tid The task to wait on
  * @return {Promise<Object|void>} The result of the task, or null if it did not complete due to an error or cancellation.
  */
 exports.waitOn = tid => new Promise(resolve => {
@@ -100,6 +100,13 @@ exports.waitOn = tid => new Promise(resolve => {
     tasks[tid].listen.push(resolve);
 });
 
+/**
+ * Update a task's current task or progress
+ *
+ * @param {Number} tid The task to update
+ * @param {String} task The current task to set as.
+ * @param {Number} progress a percentage represented by 0.0-1.0
+ */
 exports.updateTask = (tid, task, progress) => {
     if (!tasks[tid])
         throw "Cannot update nonexistent task!";
@@ -133,9 +140,9 @@ exports.renderTasks = () =>
  *
  * @since 0.2.3
  *
- * @param tid the task to run the job against.
- * @param job the name of the job file {JOB_NAME}.
- * @param props extra variables to be passed in the start message. All must be JSON serializable.
+ * @param {Number} tid the task to run the job against.
+ * @param {String} job the name of the job file {JOB_NAME}.
+ * @param {Object} props extra variables to be passed in the start message. All must be JSON serializable.
  * @return {Promise<Object>} Completion, with either an error, a response, or a cancellation. All resolutions will contain the task id in the returned object.
  */
 exports.runJob = async (tid, job, props = {}) => new Promise((resolve, reject) => {
@@ -150,7 +157,7 @@ exports.runJob = async (tid, job, props = {}) => new Promise((resolve, reject) =
             BASE_DIR: baseDir,
             DEBUG: config.getValue('app/developerMode'),
             IS_DEV: require('electron-is-dev'),
-            DO_PARALLEL: config.getValue('app/parallelDownloads') } });
+            DO_PARALLEL: config.getValue('app/parallelDownloads') }});
     tasks[tid].job = child;
     tasks[tid].listen = [];
     child.on('message', message => {

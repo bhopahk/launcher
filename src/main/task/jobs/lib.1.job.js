@@ -85,14 +85,14 @@ process.on('message', async libraries => {
             console.debug(`Library@${i + 1} has no (non native) libraries for the current platform.`);
 
         if (!library.natives)
-            return resolve(console.debug(`Library@${i + 1} has no natives.`));
+            return resolve();
         const native = library.natives[osName];
         if (native === undefined)
             return resolve(console.debug(`Library@${i + 1} has no natives for the current platform.`));
 
         const nativeFile = path.join(libDir, library.downloads.classifiers[native].path);
         if (await fs.pathExists(nativeFile)) {
-            if ((await files.fileChecksum(nativePath, 'sha1')) === library.downloads.classifiers[native].sha1)
+            if ((await files.fileChecksum(nativeFile, 'sha1')) === library.downloads.classifiers[native].sha1)
                 return resolve(console.debug(`Library@${i + 1} has an existing native file with matching checksum.`));
             else {
                 await fs.remove(nativeFile);
@@ -104,13 +104,15 @@ process.on('message', async libraries => {
     });
 
     let i = 0;
+    let c = 0;
     if (process.env.DO_PARALLEL)
-        libraries.forEach(library => task(i, library)).then(() => {
-            if (++i === libraries.length) process.send({ end: true });
-        });
+        libraries.forEach(library => task(i++, library).then(() => {
+            console.log(c + ' ' + libraries.length);
+            if (++c === libraries.length) process.send({ exit: true });
+        }));
     else {
-        for (i = 0; i < libraries.length; i++)
+        for (let i = 0; i < libraries.length; i++)
             await task(i, libraries[i]);
-        process.send({ end: true });
+        process.send({ exit: true });
     }
 });

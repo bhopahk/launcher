@@ -115,14 +115,14 @@ exports.createProfile = async data => {
     const directory = path.join(instanceDir, name);
     await fs.mkdirs(directory);
 
-    const tId = await sendSync(mainWindow, 'tasks:create', { name });
+    // const tId = await sendSync(mainWindow, 'tasks:create', { name });
     mainWindow.send('profile:create:response'); //todo probably change this channel id
 
     let versionId;
     if (data.modpack === undefined) {
         switch (data.version.flavor) {
             case 'vanilla':
-                versionId = await installer.installVanilla(data.version.version, tId);
+                versionId = await installer.installVanilla(data.version.version);
                 break;
             case 'forge':
                 versionId = await installer.installForge(data.version.forge, tId);
@@ -148,7 +148,7 @@ exports.createProfile = async data => {
     }
 
     const now = new Date().getTime();
-    const created = await profileDb.insert({
+    await profileDb.insert({
         name, directory,
         icon: await files.downloadImage(icon),
         type: data.modpack === undefined ? 'custom' : 'curse',
@@ -169,7 +169,7 @@ exports.createProfile = async data => {
         javaArgs: config.getValue('defaults/javaArgs'),
         mods: {},
     });
-    await exportLauncherProfile(created);
+    //await exportLauncherProfile(created);
     await this.renderProfiles();
 
     console.log(`Finished installing '${name}'!`);
@@ -179,7 +179,7 @@ exports.createProfile = async data => {
         icon: 'https://github.com/bhopahk/launcher/blob/master/public/icon.png'
     });
     notification.show();
-    mainWindow.send('tasks:delete', { tId });
+    //mainWindow.send('tasks:delete', { tId });
 };
 
 /**

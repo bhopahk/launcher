@@ -58,11 +58,11 @@ process.on('message', async libraries => {
     let i = 0;
     if (process.env.DO_PARALLEL)
         libraries.forEach(library => task(i, library)).then(() => {
-            if (++i === libraries.length) process.send({ end: true });
+            if (++i === libraries.length) process.send({ exit: true });
         });
     else {
         for (i = 0; i < libraries.length; i++)
             await task(i, libraries[i]);
-        process.send({ end: true });
+        process.send({ exit: true });
     }
 });
