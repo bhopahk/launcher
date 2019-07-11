@@ -38,7 +38,7 @@ const files = require('../../util/files');
 
 process.on('message', async props => {
     const modsDir = path.join(props.profileDir, 'mods');
-    fs.mkdirs(modsDir);
+    await fs.mkdirs(modsDir);
 
     const task = async (i, mod) => {
         console.debug(`Mod@${i + 1} is ${mod.projectID}.`);
@@ -55,7 +55,9 @@ process.on('message', async props => {
         props.mods.forEach(mod => task(i, mod)).then(() => {
             if (++i === props.mods.length) process.send({ end: true });
         });
-    else for (i = 0; i < props.mods.length; i++)
-        await task(i, props.mods[i]);
-    process.send({ end: true });
+    else {
+        for (i = 0; i < props.mods.length; i++)
+            await task(i, props.mods[i]);
+        process.send({ end: true });
+    }
 });

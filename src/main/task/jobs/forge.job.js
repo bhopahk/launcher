@@ -24,16 +24,81 @@ SOFTWARE.
  * Installation script for running forge installation requirements.
  * This is for forge 1.14+ only.
  *
+ * Props:
+ * `mcVersion` the minecraft version to target.
+ * `forgeVersion` the forge version to target.
+ * `java` the path the selected java executable.
+ * `vars` a map of possible variables for the processes.
+ * `processors` array of processor objects.
+ *
  * @since 0.2.3
  */
 
 require('../tasklogger');
 const path = require('path');
 const fs = require('fs-extra');
-const lock = require('../util/lockfile');
 const artifact = require('../util/artifact');
+const libDir = path.join(process.env.BASE_DIR, 'Install', 'libraries');
 
-//todo forge processing
+process.on('message', async props => {
+    await fs.mkdirs(libDir);
+
+    // Generate Environment Variables
+    let envars = {};
+    const keys = Object.keys(props.vars);
+    keys.forEach(key => {
+        let val = props.vars[key].client;
+        if (val.startsWith('/'))
+            val = path.join('./', val);
+        if (val.startsWith('['))
+            val = path.join(libDir, artifact.findLibraryPath(val.substring(1, val.length - 1)));
+        envars[key] = `"${val}"`;
+    });
+    envars.MINECRAFT_JAR = `"${path.join(process.env.BASE_DIR, 'Install', 'versions', props.mcVersion, `${props.mcVersion}.jar`)}"`;
+
+    const task = async (i, processor) => {
+        console.debug(`ForgeProcess@${i + 1} is ${processor.jar}`);
+        process.send({ task: `installing forge`, progress: i/props.processors.length });
+        const processorJar = path.join(libDir, artifact.findLibraryPath(processor.jar));
+
+        let arguments = ['-cp', `"${processorJar};${processor.classpath.map(cp => path.join(libDir, artifact.findLibraryPath(cp))).join(';')}"`, await artifact.findMainClass(processorJar)];
+        const envarKeys = Object.keys(envars);
+        arguments = arguments.concat(processor.args.map(arg => {
+            for (let j = 0; j < envarKeys.length; j++)
+                if (arg.startsWith(`{${envarKeys[j]}}`))
+                    return envars[envarKeys[j]];
+            if (arg.startsWith('['))
+                return `"${path.join(libDir, artifact.findLibraryPath(arg))}"`;
+            return arg;
+        }));
+
+        const resp = await exec(`java ${arguments.join(' ')}`);
+        console.debug(`ForgeProcess@${i + 1} has finished successfully.`);
+        //todo detection of failure
+        resolve(resp);
+    };
+
+    // These are required for the installer to run.
+    const clientDataPathSource = path.join(props.libDir, 'net', 'minecraftforge', 'forge', `${props.mcVersion}-${props.forgeVersion}`, `forge-${props.mcVersion}-${props.forgeVersion}-clientdata.lzma`);
+    const clientDataPathTarget = path.join('./', 'data', 'client.lzma');
+    await fs.copy(clientDataPathSource, clientDataPathTarget);
+    await fs.remove(clientDataPathSource);
+
+    let i = 0;
+    if (process.env.DO_PARALLEL)
+        props.processors.forEach(processor => task(i, processor)).then(async () => {
+            if (++i === props.processors.length) {
+                await fs.remove(clientDataPathTarget);
+                process.send({ end: true });
+            }
+        });
+    else {
+        for (i = 0; i < props.processors.length; i++)
+            await task(i, processors.mods[i]);
+        await fs.remove(clientDataPathTarget);
+        process.send({ end: true });
+    }
+});
 
 const exec = cmd => new Promise((resolve, reject) => {
     require('child_process').exec(cmd, {maxBuffer: 1024 * 1024}, (err, stdout, stderr) => {

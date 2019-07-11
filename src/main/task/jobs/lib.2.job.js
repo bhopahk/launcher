@@ -60,7 +60,9 @@ process.on('message', async libraries => {
         libraries.forEach(library => task(i, library)).then(() => {
             if (++i === libraries.length) process.send({ end: true });
         });
-    else for (i = 0; i < libraries.length; i++)
-        await task(i, libraries[i]);
-    process.send({ end: true });
+    else {
+        for (i = 0; i < libraries.length; i++)
+            await task(i, libraries[i]);
+        process.send({ end: true });
+    }
 });
