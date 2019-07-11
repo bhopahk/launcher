@@ -23,7 +23,6 @@ SOFTWARE.
 const fs = require('fs-extra');
 const path = require('path');
 const files = require('../util/files');
-const lzma = require('lzma-purejs');
 const fetch = require('node-fetch');
 const cache = require('../game/versionCache');
 const config = require('../config/config');
@@ -53,14 +52,14 @@ exports.installBaseGame = async (platform = 'win32', modern = true) => {
         return false;
     }
 
-    if (!modern) {
-        console.log('Installing legacy Minecraft launcher.');
-        const compressedPath = path.join(tempDir, 'launcher.jar.lzma');
-        await files.download('http://launcher.mojang.com/mc/launcher/jar/fa896bd4c79d4e9f0d18df43151b549f865a3db6/launcher.jar.lzma', compressedPath);
-        fs.writeFileSync(launcherPath, lzma.decompressFile(fs.readFileSync(compressedPath)));
-        await fs.remove(compressedPath);
-        return true;
-    }
+    // if (!modern) {
+    //     console.log('Installing legacy Minecraft launcher.');
+    //     const compressedPath = path.join(tempDir, 'launcher.jar.lzma');
+    //     await files.download('http://launcher.mojang.com/mc/launcher/jar/fa896bd4c79d4e9f0d18df43151b549f865a3db6/launcher.jar.lzma', compressedPath);
+    //     fs.writeFileSync(launcherPath, lzma.decompressFile(fs.readFileSync(compressedPath)));
+    //     await fs.remove(compressedPath);
+    //     return true;
+    // }
 
     if (platform === 'win32') {
         console.log('Installing native Minecraft launcher.');

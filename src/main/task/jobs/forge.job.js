@@ -20,8 +20,27 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-exports.update = () => {
-    return this.tid;
-};
+/**
+ * Installation script for running forge installation requirements.
+ * This is for forge 1.14+ only.
+ *
+ * @since 0.2.3
+ */
 
-exports.tid = -1;
+require('../tasklogger');
+const path = require('path');
+const fs = require('fs-extra');
+const lock = require('../util/lockfile');
+const artifact = require('../util/artifact');
+
+//todo forge processing
+
+const exec = cmd => new Promise((resolve, reject) => {
+    require('child_process').exec(cmd, {maxBuffer: 1024 * 1024}, (err, stdout, stderr) => {
+        if (err) reject(err);
+        resolve({
+            stdout: stdout.split(require('os').EOL),
+            stderr: stderr.split(require('os').EOL)
+        });
+    });
+});

@@ -30,59 +30,16 @@ class Downloads extends React.Component {
         this.iconOverlay = React.createRef();
 
         this.state = {
-            tasks: {
-                // 109515215: {
-                //     name: 'Sevtech: Ages and really long name',
-                //     task: 'downloading mods and really long thing wow',
-                //     progress: .5,
-                // },
-                // 5152162: {
-                //     name: 'All the Mods 3',
-                //     task: 'downloading mods',
-                //     progress: .5,
-                // },
-                // 21626126: {
-                //     name: 'FTB Beyond',
-                //     task: 'Finalizing',
-                //     progress: 1,
-                // },
-            },
+            tasks: [],
         };
-
-        // Tasks ipc api
-        window.ipc.on('tasks:create', (event, data) => {
-            const tId = Math.floor(Math.random()*90000) + 10000;
-            let tasks = JSON.parse(JSON.stringify(this.state.tasks));
-            tasks[tId] = {
-                name: data.name,
-                task: 'initializing',
-                progress: 0.0,
-            };
-
-            this.setState({ tasks });
-            window.ipc.send('tasks:create', tId);
-        });
-
-        window.ipc.on('tasks:update', (event, data) => {
-            let tasks = JSON.parse(JSON.stringify(this.state.tasks));
-            if (tasks[data.tId] === undefined)
-                return; //todo this is a temp fix, it will probably break tasks.
-            tasks[data.tId].task = data.task;
-            tasks[data.tId].progress = data.progress;
-
-            this.setState({ tasks });
-        });
-
-        window.ipc.on('tasks:delete', (event, data) => {
-            let tasks = JSON.parse(JSON.stringify(this.state.tasks));
-            delete tasks[data.tId];
-
-            this.setState({ tasks });
-        })
     }
 
     componentDidMount() {
         this.componentDidUpdate();
+        window.ipc.on('task:render', this.renderTasks)
+    }
+    componentWillUnmount() {
+        window.ipc.removeListener('task:render', this.renderTasks);
     }
 
     componentDidUpdate() {
@@ -92,25 +49,27 @@ class Downloads extends React.Component {
         this.iconOverlay.current.style.webkitBackgroundClip = `text`;
     }
 
+    renderTasks = (event, tasks) => this.setState({ tasks });
+    cancelTask = tid => window.ipc.send('task:cancel', tid);
+
     calculateTotalProgress() {
-        const tasks = Object.keys(this.state.tasks);
         let sum = 0;
-        tasks.forEach(key => sum += this.state.tasks[key].progress);
-        if (tasks.length === 0)
+        this.state.tasks.forEach(task => sum += task.progress);
+        if (this.state.tasks.length === 0)
             return 0;
-        return sum / tasks.length;
+        return sum / this.state.tasks.length;
     }
 
     render() {
         return (
-            <button id="downloads-button"> {/*arrow-alt-circle-down*/}
+            <button id="downloads-button">
                 <i ref={this.iconOverlay} className="fas fa-cloud-download-alt"
                    onClick={() => { document.getElementById('downloads-button').classList.toggle('active') }}></i>
                 <div className="downloads">
                     <h1>Tasks</h1>
                     <div className="tasks">
-                        {Object.keys(this.state.tasks).map(key => {
-                            return (<Task key={key} {...this.state.tasks[key]} />);
+                        {this.state.tasks.map(task => {
+                            return (<Task key={task.tid} {...task} />);
                         })}
                     </div>
                 </div>

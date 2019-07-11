@@ -141,17 +141,18 @@ const registerUriListeners = () => {
 
 app.on('ready',  async () => {
     await config.loadConfig();
+    // Setup console debug
+    const debug = config.getValue('app/developerMode');
+    console.debug = message => { if (debug) log.debug(message); };
 
     require('./app/reporter');
     require('./app/updater');
+    require('./task/taskmaster');
     require('./needsHome/profile');
     require('./config/java');
     require('./mojang/accounts');
     require('./game/versionCache');
     require('./app/rpc');
-
-    const taskmaster = require('./task/taskmaster');
-    console.log(await taskmaster.runTask(-1, 'test'));
 
     setTimeout(() => {
         require('./needsHome/installer').installBaseGame(process.platform, process.platform === 'win32').then(result => {
@@ -220,8 +221,7 @@ ipcMain.on('open-item', async (event, arg) => {
     await shell.showItemInFolder(arg);
 });
 
-ipcMain.on('argv', event => {
-
+ipcMain.on('argv', async event => {
     event.sender.send('argv', process.argv);
     event.sender.send('argv', app.getAppPath());
     event.sender.send('argv', path.join(require('electron').app.getPath('userData'), 'Install'));
