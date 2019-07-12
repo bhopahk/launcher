@@ -135,7 +135,7 @@ exports.installForge = async (version, validate) => {
     const afterOneFourteen = parseInt(forge.minecraftVersion.split('.')[1]) >= 14;
     const name = afterOneFourteen ? `${forge.minecraftVersion}-${forge.name}` : version;
     const dir = path.join(installDir, 'versions', name);
-    const total = afterOneFourteen ? 5 : 5;
+    const total = afterOneFourteen ? 4 : 3;
 
     // Attach to existing task
     let tid = tasks.getTaskByName(`Forge ${name}`);
@@ -181,24 +181,12 @@ exports.installForge = async (version, validate) => {
     } else {
         versionJson.jar = forge.minecraftVersion;
 
-        const lockfile = path.join(dir, 'version-lock');
-        if (!await lock.check(lockfile)) {
-            lock.lock(lockfile, { stale: 300000 });
-            try {
-                // Write version json
-                sendTaskUpdate(task, 'writing version settings', 1);
-                const versionJsonPath = path.join(dir, `${name}.json`);
-                if (!await fs.pathExists(versionJsonPath))
-                    await fs.writeJson(versionJsonPath, versionJson);
-            } finally {
-                //todo error handling
-                await lock.unlock(lockfile);
-            }
-        } else {
-            console.log('Skipping forge <1.14 version json due to existing lock')
-        }
+        await tasks.updateTask(tid, 'writing profile settings', 2/total);
+        const versionJsonPath = path.join(dir, `${name}.json`);
+        if (!await fs.pathExists(versionJsonPath))
+            await fs.writeJson(versionJsonPath, versionJson);
 
-        await validateTypeTwoLibraries(task, 'validating forge libraries', versionJson.libraries);
+        await tasks.runJob(tid, 'lib.2', versionJson.libraries);
     }
     await tasks.endTask(tid);
     return name;
@@ -314,235 +302,6 @@ exports.installCurseModpack = async (task, name, fileUrl) => {
 };
 
 // Helper Functions
-
-const validateTypeOneLibraries = (task, taskName, libraries) => {
-    return workers.createWorker(task, { libraries, taskName, libDir }, async props => {
-        const path = require('path');
-        const fs = require('fs-extra');
-        const files = require('../util/files');
-        const lock = require('../util/lockfile');
-
-        const osName = {
-            win32: 'windows',
-            darwin: 'osx',
-            linux: 'linux',
-            sunos: 'linux',
-            openbsd: 'linux',
-            android: 'linux',
-            aix: 'linux',
-        }[process.platform];
-
-        // Completion Callback
-        let complete = 0, total = props.libraries.length;
-        const callback = () => {
-            props.updateTask(props.taskName, ++complete/total);
-            if (complete === total)
-                props.complete();
-        };
-
-        const task = library => new Promise(async resolve => {
-            console.log(`Validating ${library.name}`);
-
-            if (!library.downloads)
-                return resolve();
-
-            // Forge universal has an empty url.
-            if (library.name.startsWith('net.minecraftforge:forge:') && library.name.endsWith(':universal'))
-                library.downloads.artifact.url = `https://files.minecraftforge.net/maven/${library.downloads.artifact.path}`;
-            // The hosted version of log4j is corrupt.
-            if (library.name.startsWith('org.apache.logging.log4j:log4j-api:') || library.name.startsWith('org.apache.logging.log4j:log4j-core:'))
-                library.downloads.artifact.url = `http://central.maven.org/maven2/${library.downloads.artifact.path}`;
-
-            let valid = true;
-            if (library.rules) {
-                for (let i = 0; i < library.rules.length; i++) {
-                    if (library.rules[i].os === undefined)
-                        continue;
-                    if ((library.rules[i].os.name !== osName && library.rules[i].action === 'allow') || library.rules[i].os.name === osName && library.rules[i].action === 'deny')
-                        valid = false;
-                }
-            }
-
-            if (valid && library.downloads.artifact) {
-                const filePath = path.join(props.libDir, library.downloads.artifact.path);
-                const lockfile = path.join(path.dirname(filePath), 'library-lock');
-                if (!await lock.check(lockfile)) {
-                    await lock.lock(lockfile, { stale: 60000 });
-
-                    if (!await fs.pathExists(filePath) || (await files.fileChecksum(filePath, 'sha1')) !== library.downloads.artifact.sha1) {
-                        console.log(`Unable to locate ${library.name}, it will be downloaded.`);
-                        await files.download(library.downloads.artifact.url, filePath);
-                        await lock.unlock(lockfile)
-                    } else
-                        console.log(`Found ${library.name}.`);
-                }
-            }
-
-            if (!library.natives)
-                return resolve();
-            console.log(`${library.name} has a native file.`);
-            const native = library.natives[osName];
-            if (native === undefined)
-                return resolve();
-
-            const nativePath = path.join(props.libDir, library.downloads.classifiers[native].path);
-            const lockfile = path.join(path.dirname(nativePath), 'library-lock');
-            // if (await lock.check(lockfile))
-            //     return props.complete();
-            // await lock.lock(lockfile, { stale: 60000 });
-
-            if (!await fs.pathExists(nativePath) || (await files.fileChecksum(nativePath, 'sha1')) !== library.downloads.classifiers[native].sha1) {
-                console.log(`Unable to locate native for ${library.name}, it will be downloaded.`);
-                await files.download(library.downloads.classifiers[native].url, nativePath);
-                // await lock.unlock(lockfile);
-            } else
-                console.log(`Found native for ${library.name}.`);
-
-            resolve();
-        });
-
-        if (props.isParallel)
-            props.libraries.forEach(library => task(library).catch(props.error).finally(callback));
-        else
-            for (let i = 0; i < props.libraries.length; i++)
-                await task(props.libraries[i]).catch(props.error).finally(callback);
-    });
-};
-
-const validateTypeTwoLibraries = (task, taskName, libraries) => {
-    return workers.createWorker(task, { libraries, taskName, libDir }, async props => {
-        const path = require('path');
-        const fs = require('fs-extra');
-        const files = require('../util/files');
-        const lock = require('../util/lockfile');
-
-        let complete = 0, total = props.libraries.length;
-        const callback = () => {
-            props.updateTask(props.taskName, ++complete/total);
-            if (complete === total)
-                props.complete();
-        };
-
-        const task = library => new Promise(async resolve => {
-            console.log(`Validating ${library.name}`);
-            if (library.clientreq === false)
-                return resolve();
-
-            const baseUrl = library.url === undefined ? 'https://repo1.maven.org/maven2/' : library.url;
-            const name = library.name.split(':');
-            const url = `${baseUrl}${name[0].split('.').join('/')}/${name[1]}/${name[2]}/${name[1]}-${name[2]}.jar`;
-            const filePath = path.join(props.libDir, name[0].split('.').join('/'), name[1], name[2], `${name[1]}-${name[2]}.jar`);
-
-            const lockfile = path.join(path.dirname(filePath), 'library-lock');
-            if (await lock.check(lockfile))
-                return props.complete();
-            await lock.lock(lockfile, { stale: 60000 });
-
-            if (!await fs.pathExists(filePath)) {
-                console.log(`Unable to locate ${library.name}, it will be downloaded.`);
-                await files.download(url, filePath);
-                await lock.unlock(lockfile)
-            } else
-                console.log(`Found ${library.name}.`);
-            resolve();
-        });
-
-        if (props.isParallel)
-            props.libraries.forEach(async library => task(library).catch(props.error).finally(callback));
-        else for (let i = 0; i < props.libraries.length; i++)
-            await task(props.libraries[i]).catch(props.error).finally(callback);
-    });
-};
-
-const runForgeProcessors = (task, processors, vars, mcVersion, forgeVersion) => {
-    return workers.createWorker(task, { processors, vars, mcVersion, forgeVersion, installDir, libDir }, async props => {
-        const path = require('path');
-        const fs = require('fs-extra');
-        const lock = require('../util/lockfile');
-        const artifact = require('../util/artifact');
-
-        // Start helper functions
-        const exec = cmd => new Promise((resolve, reject) => {
-            require('child_process').exec(cmd, {maxBuffer: 1024 * 1024}, (err, stdout, stderr) => {
-                if (err) reject(err);
-                resolve({
-                    stdout: stdout.split(require('os').EOL),
-                    stderr: stderr.split(require('os').EOL)
-                });
-            });
-        });
-        // End helper functions
-
-        // These are used later, but needed for the completion callback
-        const clientDataPathSource = path.join(props.libDir, 'net', 'minecraftforge', 'forge', `${props.mcVersion}-${props.forgeVersion}`, `forge-${props.mcVersion}-${props.forgeVersion}-clientdata.lzma`);
-        const clientDataPathTarget = path.join(props.installDir, '../', 'temp', 'data', 'client.lzma');
-
-        // Locking
-        const lockfile = path.join(props.installDir, 'forge-installer-lock');
-        if (await lock.check(lockfile))
-            return props.complete();
-        await lock.lock(lockfile, { stale: 600000 });
-
-        // Completion Callback
-        let complete = -1, total = props.processors.length;
-        const callback = async () => {
-            props.updateTask('installing forge', ++complete/total);
-            if (complete === total) {
-                props.complete();
-                await fs.remove(clientDataPathTarget);
-                await lock.unlock(lockfile);
-            }
-        };
-        await callback();
-
-        // Generate Environment Variables
-        let envars = {};
-        const keys = Object.keys(props.vars);
-        keys.forEach(key => {
-            let val = props.vars[key].client;
-            if (val.startsWith('/'))
-                val = path.join(props.installDir, '../', 'temp', val);
-            if (val.startsWith('['))
-                val = path.join(props.libDir, artifact.findLibraryPath(val.substring(1, val.length - 1)));
-            envars[key] = `"${val}"`;
-        });
-        envars.MINECRAFT_JAR = `"${path.join(props.installDir, 'versions', props.mcVersion, `${props.mcVersion}.jar`)}"`;
-
-        console.log('Starting forge installer...');
-        console.log('Using variables: ', envars);
-
-        // Move files around
-        await fs.copy(clientDataPathSource, clientDataPathTarget);
-        await fs.remove(clientDataPathSource);
-
-        const task = processor => new Promise(async resolve => {
-            const processorJar = path.join(props.libDir, artifact.findLibraryPath(processor.jar));
-
-            let arguments = ['-cp', `"${processorJar};${processor.classpath.map(cp => path.join(props.libDir, artifact.findLibraryPath(cp))).join(';')}"`, await artifact.findMainClass(processorJar)];
-            const envarKeys = Object.keys(envars);
-            arguments = arguments.concat(processor.args.map(arg => {
-                for (let j = 0; j < envarKeys.length; j++)
-                    if (arg.startsWith(`{${envarKeys[j]}}`))
-                        return envars[envarKeys[j]];
-                if (arg.startsWith('['))
-                    return `"${path.join(props.libDir, artifact.findLibraryPath(arg))}"`;
-                return arg;
-            }));
-
-            console.log(`Starting ${arguments[2]}.`);
-            const resp = await exec(`java ${arguments.join(' ')}`);
-            console.log(resp);
-
-            resolve();
-        });
-
-        if (props.isParallel)
-            props.processors.forEach(async processor => task(processor).catch(props.error).finally(callback));
-        else
-            for (let i = 0; i < props.processors.length; i++)
-                await task(props.processors[i]).catch(props.error).finally(callback);
-    });
-};
 
 const curseCopyOverrides = (task, profileDir, overrideDir, overrides) => {
     return workers.createWorker(task, { profileDir, overrideDir, overrides }, async props => {

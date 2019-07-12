@@ -42,6 +42,8 @@ process.on('message', async libraries => {
 
         if (library.clientreq === false)
             return resolve(console.debug(`Library@${i + 1} is serverside only.`));
+        if (library.name.includes('net.minecraft:launchwrapper') || library.name.includes('lzma') || library.name.includes('java3d:vecmath'))
+            library.url = 'https://libraries.minecraft.net/';
 
         const baseUrl = library.url === undefined ? 'https://repo1.maven.org/maven2/' : library.url;
         const name = library.name.split(':');
