@@ -96,6 +96,8 @@ const createWindow = () => {
             mainWindow.setSize(mainWindow.getSize()[0] - 1, mainWindow.getSize()[1] - 1);
         }, 50);
     });
+
+    exports.window = mainWindow;
 };
 
 const createTrayMenu = () => {
@@ -152,6 +154,7 @@ app.on('ready',  async () => {
     require('./config/java');
     require('./mojang/accounts');
     require('./game/versionCache');
+    require('./game/curseCache');
     require('./app/rpc');
 
     //todo why is this settimeout here?

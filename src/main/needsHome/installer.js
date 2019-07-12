@@ -27,15 +27,11 @@ const fetch = require('node-fetch');
 const cache = require('../game/versionCache');
 const config = require('../config/config');
 const java = require('../config/java');
-const workers = require('../worker/workers_old');
-const lock = require('../util/lockfile');
-const reporter = require('../app/reporter');
 const tasks = require('../task/taskmaster');
 
 const baseDir = require('electron').app.getPath('userData');
 const tempDir = path.join(baseDir, 'temp');
 const installDir = path.join(baseDir, 'Install');
-const libDir = path.join(installDir, 'libraries');
 const instanceDir = config.getValue('minecraft/instanceDir');
 
 fs.mkdirs(tempDir);
@@ -251,46 +247,63 @@ exports.installFabric = async (mappings, loader, validate) => {
     return versionName;
 };
 
-exports.installCurseModpack = async (task, name, fileUrl) => {
+/**
+ * Install a modpack from CurseForge.
+ *
+ * @since 0.1.8
+ *
+ * @param {String} name
+ * @param {String} fileUrl
+ * @param {Number} tid
+ * @return {Promise<{localVersionId: (*|string), version: {flavor: string, forge: *, version: *}}|void>}
+ */
+exports.installCurseModpack = async (name, fileUrl, tid) => {
     const profileDir = path.join(instanceDir, name);
-    const readDir = path => new Promise((resolve, reject) => { fs.readdir(path, (err, items) => { if (err) reject(err); else resolve(items); }); });
 
-    const zipLoc = path.join(tempDir, `${name}.zip`);
-    sendTaskUpdate(task, 'preparing', 0/2);
-    await files.download(fileUrl, zipLoc);
-    sendTaskUpdate(task, 'preparing', 1/2);
-    const dir = await files.unzip(zipLoc);
-    const manifest = await fs.readJson(path.join(dir, 'manifest.json'));
-    sendTaskUpdate(task, 'preparing', 2/2);
+    if (await fs.pathExists(profileDir))
+        await fs.remove(profileDir);
+    await fs.mkdirs(profileDir);
+
+    const packData = path.join(tempDir, `${name}.zip`);
+    await tasks.updateTask(tid, 'preparing', 0);
+    await files.download(fileUrl, packData);
+    const zipDir = await files.unzip(packData);
+    const manifest = await fs.readJson(path.join(zipDir, 'manifest.json'));
 
     // Copy overrides
-    const overridesDir = path.join(dir, manifest.overrides);
-    const overrides = await readDir(overridesDir);
-    await curseCopyOverrides(task, profileDir, overridesDir, overrides);
+    const overridesDir = path.join(zipDir, manifest.overrides);
+    const overrides = await fs.readdir(overridesDir);
+    const total = 1 + overrides.length;
+
+    const copyOverride = override => fs.copy(path.join(overridesDir, override), path.join(profileDir, override));
+    for (let i = 0; i < overrides.length; i++)
+        await copyOverride(overrides[i]).then(() => tasks.updateTask(tid, 'copying overrides', (i + 1) / total));
 
     // Install primary modloader
+    // this is limited to just forge right now, will need to see what is changed to allow for fabric.
     let localVersionId;
     let forgeVersion;
+    await tasks.updateTask(tid, 'installing forge', (overrides.length + 1) / total);
     for (let i = 0; i < manifest.minecraft.modLoaders.length; i++) {
         const modloader = manifest.minecraft.modLoaders[i];
-        console.log(modloader);
-        if (modloader.primary) { //todo this is limited to just forge right now, will need to see what is changed to allow for fabric.
+        if (modloader.primary) {
             forgeVersion = modloader.id;
-            localVersionId = await this.installForge(modloader.id, task);
+            localVersionId = await this.installForge(modloader.id);
         }
     }
     if (localVersionId === undefined) {
         console.log('NO VALID MODLOADER HAS BEEN FOUND!!!');
+        await fs.remove(zipDir);
         //todo this should display error and clean up.
         return;
     }
 
     // Download mods
     const mods = manifest.files;
-    await curseInstallMods(task, profileDir, mods);
+    await tasks.runJob(tid, 'mods', { profileDir, mods });
 
     // cleanup temporary folder.
-    await fs.remove(dir);
+    await fs.remove(zipDir);
     return {
         localVersionId,
         version: {
@@ -299,79 +312,4 @@ exports.installCurseModpack = async (task, name, fileUrl) => {
             forge: forgeVersion
         }
     };
-};
-
-// Helper Functions
-
-const curseCopyOverrides = (task, profileDir, overrideDir, overrides) => {
-    return workers.createWorker(task, { profileDir, overrideDir, overrides }, async props => {
-        const path = require('path');
-        const fs = require('fs-extra');
-        const lock = require('../util/lockfile');
-
-        // Directory Lock
-        const lockfile = path.join(props.profileDir, 'override-lock');
-        if (await lock.check(lockfile))
-            return props.complete();
-        await lock.lock(lockfile, { stale: 60000 });
-
-        // Completion Callback
-        let complete = 0, total = props.overrides.length;
-        const callback = async () => {
-            props.updateTask('copying overrides', ++complete/total);
-            if (complete === total) {
-                props.complete();
-                await lock.unlock(lockfile);
-            }
-        };
-
-        const task = override => fs.copy(path.join(props.overrideDir, override), path.join(props.profileDir, override));
-
-        if (props.isParallel)
-            props.overrides.forEach(override => task(override).catch(props.error).finally(callback));
-        else
-            for (let i = 0; i < props.overrides.length; i++)
-                await task(props.overrides[i]).catch(props.error).finally(callback);
-    });
-};
-
-const curseInstallMods = (task, profileDir, mods) => {
-    return workers.createWorker(task, { profileDir, mods }, async props => {
-        const path = require('path');
-        const fs = require('fs-extra');
-        const files = require('../util/files');
-        const lock = require('../util/lockfile');
-
-        const modsDir = path.join(props.profileDir, 'mods');
-        await fs.mkdirs(modsDir);
-
-        // Directory locking
-        const lockfile = path.join(modsDir, 'mods-lock');
-        if (await lock.check(lockfile))
-            return props.complete();
-        await lock.lock(lockfile, { stale: 600000 });
-
-        // Completion Callback
-        let complete = 0, total = props.mods.length;
-        const callback = async name => {
-            props.updateTask(`downloading ${name}`, ++complete/total);
-            if (complete === total) {
-                props.complete();
-                await lock.unlock(lockfile)
-            }
-        };
-
-        const task = mod => new Promise(async resolve => {
-            const name = (await (await fetch(`https://addons-ecs.forgesvc.net/api/v2/addon/${mod.projectID}`)).json()).name;
-            const fileJson = await (await fetch(`https://addons-ecs.forgesvc.net/api/v2/addon/${mod.projectID}/file/${mod.fileID}`)).json();
-            await files.download(fileJson.downloadUrl, path.join(modsDir, fileJson.fileName));
-            resolve(name);
-        });
-
-        if (props.isParallel)
-            props.mods.forEach(mod => task(mod).then(callback).catch(props.error));
-        else
-            for (let i = 0; i < props.mods.length; i++)
-                await task(props.mods[i]).then(callback).catch(props.error);
-    });
 };

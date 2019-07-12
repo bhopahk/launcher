@@ -114,7 +114,7 @@ const Modpack = (props) => {
                     <div className="modpack-info">
                         <div className="modpack-info-ext">
                             <h1>{props.name}</h1>
-                            <h2>by <span>{props.primaryAuthor}</span></h2>
+                            <h2>by <span>{props.authors[0].name}</span></h2>
                             <p>{props.summary}</p>
                             <i data-tip="" data-for="sad2" className={`fas ${props.featured ? 'fa-star' : ''}`}></i>
                             <ReactTooltip id='sad2' place="bottom">

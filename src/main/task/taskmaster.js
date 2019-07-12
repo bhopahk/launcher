@@ -124,8 +124,14 @@ exports.updateTask = (tid, task, progress) => {
  *
  * @since 0.2.3
  */
-exports.renderTasks = () =>
-    mainWindow.send('task:render', Object.keys(tasks).map(key => { return { tid: key, name: tasks[key].name, task: tasks[key].task, progress: tasks[key].progress } }));
+exports.renderTasks = () => {
+    let sum = 0, values = Object.values(tasks);
+    values.forEach(task => sum += task.progress);
+    const progress = values.length === 0 ? 0 : sum / values.length;
+
+    require('../main').window.setProgressBar(progress);
+    mainWindow.send('task:render', Object.keys(tasks).map(key => { return { tid: key, name: tasks[key].name, task: tasks[key].task, progress: tasks[key].progress } }))
+};
 
 /**
  * Executes a job in a new process.

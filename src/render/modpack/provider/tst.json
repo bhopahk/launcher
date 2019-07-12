@@ -1,0 +1,320 @@
+[
+  {
+    "id": 296062,
+    "name": "SkyFactory 4",
+    "authors": [
+      {
+        "name": "Darkosto",
+        "url": "https://www.curseforge.com/members/15754032-darkosto?username=Darkosto",
+        "projectId": 296062,
+        "id": 196009,
+        "projectTitleId": null,
+        "projectTitleTitle": null,
+        "userId": 15754032,
+        "twitchId": 63937599
+      },
+      {
+        "name": "Blargerist",
+        "url": "https://www.curseforge.com/members/15911169-blargerist?username=Blargerist",
+        "projectId": 296062,
+        "id": 221856,
+        "projectTitleId": 1,
+        "projectTitleTitle": "Author",
+        "userId": 15911169,
+        "twitchId": 58423212
+      },
+      {
+        "name": "Thenecron",
+        "url": "https://www.curseforge.com/members/809144-thenecron?username=Thenecron",
+        "projectId": 296062,
+        "id": 221857,
+        "projectTitleId": 1,
+        "projectTitleTitle": "Author",
+        "userId": 809144,
+        "twitchId": 36108934
+      }
+    ],
+    "attachments": [
+      {
+        "id": 157621,
+        "projectId": 296062,
+        "description": "",
+        "isDefault": false,
+        "thumbnailUrl": "https://media.forgecdn.net/avatars/thumbnails/157/621/256/256/636646986533428173.png",
+        "title": "636646986533428173.png",
+        "url": "https://media.forgecdn.net/avatars/157/621/636646986533428173.png",
+        "status": 1
+      },
+      {
+        "id": 199573,
+        "projectId": 296062,
+        "description": "",
+        "isDefault": true,
+        "thumbnailUrl": "https://media.forgecdn.net/avatars/thumbnails/199/573/256/256/636907930795697123.png",
+        "title": "636907930795697123.png",
+        "url": "https://media.forgecdn.net/avatars/199/573/636907930795697123.png",
+        "status": 1
+      }
+    ],
+    "websiteUrl": "https://www.curseforge.com/minecraft/modpacks/skyfactory-4",
+    "gameId": 432,
+    "summary": "The ultimate skyblock modpack!",
+    "defaultFileId": 2724357,
+    "downloadCount": 860665.0,
+    "latestFiles": [
+      {
+        "id": 2720596,
+        "displayName": "SkyFactory 4 - 4.0.6",
+        "fileName": "SkyFactory4-4.0.6.zip",
+        "fileDate": "2019-06-05T22:22:23.44Z",
+        "fileLength": 19828128,
+        "releaseType": 3,
+        "fileStatus": 4,
+        "downloadUrl": "https://edge.forgecdn.net/files/2720/596/SkyFactory4-4.0.6.zip",
+        "isAlternate": false,
+        "alternateFileId": 0,
+        "dependencies": [],
+        "isAvailable": true,
+        "modules": [
+          {
+            "foldername": "manifest.json",
+            "fingerprint": 3458593623,
+            "type": 3
+          }
+        ],
+        "packageFingerprint": 3315506908,
+        "gameVersion": [
+          "1.12.2"
+        ],
+        "sortableGameVersion": [
+          {
+            "gameVersionPadded": "0000000001.0000000012.0000000002",
+            "gameVersion": "1.12.2",
+            "gameVersionReleaseDate": "2017-09-18T05:00:00Z",
+            "gameVersionName": "1.12.2"
+          }
+        ],
+        "installMetadata": null,
+        "changelog": null,
+        "hasInstallScript": false,
+        "isCompatibleWithClient": true,
+        "categorySectionPackageType": 5,
+        "restrictProjectFileAccess": 1,
+        "projectStatus": 4,
+        "renderCacheId": 1571098,
+        "fileLegacyMappingId": null,
+        "projectId": 296062,
+        "parentProjectFileId": null,
+        "parentFileLegacyMappingId": null,
+        "fileTypeId": null,
+        "exposeAsAlternative": null,
+        "packageFingerprintId": 321589125,
+        "gameVersionDateReleased": "2017-09-18T05:00:00Z",
+        "gameVersionMappingId": 1827930,
+        "gameVersionId": 6756,
+        "gameId": 432,
+        "isServerPack": false,
+        "serverPackFileId": 2720605
+      },
+      {
+        "id": 2723959,
+        "displayName": "SkyFactory 4 - 4.0.7",
+        "fileName": "SkyFactory4-4.0.7.zip",
+        "fileDate": "2019-06-12T22:50:38.63Z",
+        "fileLength": 19569331,
+        "releaseType": 2,
+        "fileStatus": 4,
+        "downloadUrl": "https://edge.forgecdn.net/files/2723/959/SkyFactory4-4.0.7.zip",
+        "isAlternate": false,
+        "alternateFileId": 0,
+        "dependencies": [],
+        "isAvailable": true,
+        "modules": [
+          {
+            "foldername": "manifest.json",
+            "fingerprint": 779729812,
+            "type": 3
+          }
+        ],
+        "packageFingerprint": 324586964,
+        "gameVersion": [
+          "1.12.2"
+        ],
+        "sortableGameVersion": [
+          {
+            "gameVersionPadded": "0000000001.0000000012.0000000002",
+            "gameVersion": "1.12.2",
+            "gameVersionReleaseDate": "2017-09-18T05:00:00Z",
+            "gameVersionName": "1.12.2"
+          }
+        ],
+        "installMetadata": null,
+        "changelog": null,
+        "hasInstallScript": false,
+        "isCompatibleWithClient": true,
+        "categorySectionPackageType": 5,
+        "restrictProjectFileAccess": 1,
+        "projectStatus": 4,
+        "renderCacheId": 1575030,
+        "fileLegacyMappingId": null,
+        "projectId": 296062,
+        "parentProjectFileId": null,
+        "parentFileLegacyMappingId": null,
+        "fileTypeId": null,
+        "exposeAsAlternative": null,
+        "packageFingerprintId": 323604454,
+        "gameVersionDateReleased": "2017-09-18T05:00:00Z",
+        "gameVersionMappingId": 1833122,
+        "gameVersionId": 6756,
+        "gameId": 432,
+        "isServerPack": false,
+        "serverPackFileId": 2724211
+      },
+      {
+        "id": 2724357,
+        "displayName": "SkyFactory 4 - 4.0.8",
+        "fileName": "SkyFactory4-4.0.8.zip",
+        "fileDate": "2019-06-14T00:06:23.923Z",
+        "fileLength": 19569613,
+        "releaseType": 1,
+        "fileStatus": 4,
+        "downloadUrl": "https://edge.forgecdn.net/files/2724/357/SkyFactory4-4.0.8.zip",
+        "isAlternate": false,
+        "alternateFileId": 0,
+        "dependencies": [],
+        "isAvailable": true,
+        "modules": [
+          {
+            "foldername": "manifest.json",
+            "fingerprint": 1102589663,
+            "type": 3
+          }
+        ],
+        "packageFingerprint": 3090254525,
+        "gameVersion": [
+          "1.12.2"
+        ],
+        "sortableGameVersion": [
+          {
+            "gameVersionPadded": "0000000001.0000000012.0000000002",
+            "gameVersion": "1.12.2",
+            "gameVersionReleaseDate": "2017-09-18T05:00:00Z",
+            "gameVersionName": "1.12.2"
+          }
+        ],
+        "installMetadata": null,
+        "changelog": null,
+        "hasInstallScript": false,
+        "isCompatibleWithClient": true,
+        "categorySectionPackageType": 5,
+        "restrictProjectFileAccess": 1,
+        "projectStatus": 4,
+        "renderCacheId": 1575507,
+        "fileLegacyMappingId": null,
+        "projectId": 296062,
+        "parentProjectFileId": null,
+        "parentFileLegacyMappingId": null,
+        "fileTypeId": null,
+        "exposeAsAlternative": null,
+        "packageFingerprintId": 323850632,
+        "gameVersionDateReleased": "2017-09-18T05:00:00Z",
+        "gameVersionMappingId": 1833815,
+        "gameVersionId": 6756,
+        "gameId": 432,
+        "isServerPack": false,
+        "serverPackFileId": 2725984
+      }
+    ],
+    "categories": [
+      {
+        "categoryId": 4472,
+        "name": "Tech",
+        "url": "https://www.curseforge.com/minecraft/modpacks/tech",
+        "avatarUrl": "https://media.forgecdn.net/avatars/14/479/635596761534662757.png",
+        "parentId": 4471,
+        "rootId": 4471,
+        "projectId": 296062,
+        "avatarId": 14479,
+        "gameId": 432
+      },
+      {
+        "categoryId": 4473,
+        "name": "Magic",
+        "url": "https://www.curseforge.com/minecraft/modpacks/magic",
+        "avatarUrl": "https://media.forgecdn.net/avatars/14/474/635596760578719019.png",
+        "parentId": 4471,
+        "rootId": 4471,
+        "projectId": 296062,
+        "avatarId": 14474,
+        "gameId": 432
+      },
+      {
+        "categoryId": 4736,
+        "name": "Skyblock",
+        "url": "https://www.curseforge.com/minecraft/modpacks/skyblock",
+        "avatarUrl": "https://media.forgecdn.net/avatars/162/818/636678840408956323.png",
+        "parentId": 4471,
+        "rootId": 4471,
+        "projectId": 296062,
+        "avatarId": 162818,
+        "gameId": 432
+      },
+      {
+        "categoryId": 4478,
+        "name": "Quests",
+        "url": "https://www.curseforge.com/minecraft/modpacks/quests",
+        "avatarUrl": "https://media.forgecdn.net/avatars/14/487/635596816137981263.png",
+        "parentId": 4471,
+        "rootId": 4471,
+        "projectId": 296062,
+        "avatarId": 14487,
+        "gameId": 432
+      }
+    ],
+    "status": 4,
+    "primaryCategoryId": 4736,
+    "categorySection": {
+      "id": 11,
+      "gameId": 432,
+      "name": "Modpacks",
+      "packageType": 5,
+      "path": "downloads",
+      "initialInclusionPattern": "$^",
+      "extraIncludePattern": null,
+      "gameCategoryId": 4471
+    },
+    "slug": "skyfactory-4",
+    "gameVersionLatestFiles": [
+      {
+        "gameVersion": "1.12.2",
+        "projectFileId": 2724357,
+        "projectFileName": "SkyFactory4-4.0.8.zip",
+        "fileType": 1
+      },
+      {
+        "gameVersion": "1.12.2",
+        "projectFileId": 2723959,
+        "projectFileName": "SkyFactory4-4.0.7.zip",
+        "fileType": 2
+      },
+      {
+        "gameVersion": "1.12.2",
+        "projectFileId": 2720596,
+        "projectFileName": "SkyFactory4-4.0.6.zip",
+        "fileType": 3
+      }
+    ],
+    "isFeatured": true,
+    "popularityScore": 31626.484375,
+    "gamePopularityRank": 354,
+    "primaryLanguage": "enUS",
+    "gameSlug": "minecraft",
+    "gameName": "Minecraft",
+    "portalName": "www.curseforge.com",
+    "dateModified": "2019-06-18T19:45:51.28Z",
+    "dateCreated": "2018-06-15T22:30:53.297Z",
+    "dateReleased": "2019-06-17T19:18:05.693Z",
+    "isAvailable": true,
+    "isExperiemental": false
+  }
+]

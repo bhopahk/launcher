@@ -26,104 +26,42 @@ class CurseModpackListing extends React.Component {
         }).then(keys => this.setState({ mcVersions: keys }));
 
         setTimeout(() => {
-            this.fetchNextPage();
+            window.ipc.send('curse:search', { search: this.state.search, sort: this.state.sort, category: this.state.category, mcVersion: this.state.mcVersion })
         }, 100);
-    }
-
-    fetchNextPage() {
-        this.setState({ loading: true });
-        let oldModpacks = this.state.modpacks.slice();
-        fetch(`https://addons-ecs.forgesvc.net/api/v2/addon/search?gameId=432&pageSize=20&index=${this.page * 20}&sort=${this.state.sort}&searchFilter=${encodeURI(this.state.search)}&gameVersion=${this.state.mcVersion === '-' ? '' : this.state.mcVersion}&categoryId=${this.state.category}&sectionId=4471&sortDescending=${this.state.sort === 'Name' || this.state.sort === 'Author' ? 'false' : 'true'}`, {
-            // headers: { "User-Agent": "Launcher (https://github.com/bhopahk/launcher/)" }
-            headers: { "User-Agent": "User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) twitch-desktop-electron-platform/1.0.0 Chrome/66.0.3359.181 Twitch/3.0.16 Safari/537.36 desklight/8.40.1" }
-        }).then(resp => resp.json()).then(json => {
-            json.forEach(packJson => {
-                let icon = '';
-                let attachments = [];
-                packJson.attachments.forEach(attachmentJson => {
-                    if (attachmentJson.isDefault)
-                        icon = attachmentJson.thumbnailUrl;
-                    else attachments.push({
-                            id: attachmentJson.id,
-                            title: attachmentJson.title,
-                            description: attachmentJson.description,
-                            url: attachmentJson.thumbnailUrl,
-                        });
-                });
-
-                let categories = [];
-                packJson.categories.forEach(category => {
-                    categories.push({
-                        id: category.id,
-                        name: category.name,
-                        url: category.avatarUrl,
-                    });
-                });
-
-                let gameVersionLatestFiles = [];
-                packJson.gameVersionLatestFiles.forEach(gameVersionFile => {
-                    gameVersionLatestFiles.push({
-                        version: gameVersionFile.gameVersion,
-                        defaultFile: gameVersionFile.projectFileId,
-                        type: gameVersionFile.fileType,
-                    });
-                });
-
-                oldModpacks.push({
-                    disabled: false,
-                    id: packJson.id,
-                    name: packJson.name,
-                    slug: packJson.slug,
-                    websiteUrl: packJson.websiteUrl,
-                    icon: icon,
-                    summary: packJson.summary,
-                    description: packJson.fullDescription,
-                    featured: packJson.isFeatured,
-                    popularity: packJson.popularityScore,
-                    downloads: packJson.downloadCount,
-                    modified: new Date(packJson.dateModified).getTime(),
-                    created: new Date(packJson.dateCreated).getTime(),
-                    released: new Date(packJson.dateReleased).getTime(),
-                    primaryAuthor: packJson.primaryAuthorName,
-                    authors: packJson.authors,
-                    attachments: attachments,
-                    categories: categories,
-                    gameVersionLatestFiles: gameVersionLatestFiles,
-                    defaultFile: packJson.defaultFileId,
-                });
-            });
-
-            this.setState({
-                modpacks: oldModpacks,
-                loading: false,
-            }, () => {
-                this.page++;
-            });
-        });
-    }
-
-    clearRefresh() {
-        this.page = 0;
-        this.setState({
-            modpacks: [],
-        }, () => {
-            this.fetchNextPage();
-        });
-    }
-
-    onRefresh() {
-        Snackbar.sendSnack({
-            body: 'Refreshing modpack listings...',
-        });
-        this.clearRefresh();
     }
 
     componentWillMount() {
         window.ipc.on('profile:create:response', this.handleResponse);
+        window.ipc.on('curse:page', this.onNextPage)
     }
     componentWillUnmount() {
         window.ipc.removeListener('profile:create:response', this.handleResponse);
+        window.ipc.removeListener('curse:page', this.onNextPage)
     }
+
+    componentWillUpdate(nextProps, nextState, nextContext) {
+        if (this.state.sort === nextState.sort && this.state.search === nextState.search && this.state.category === nextState.category && this.state.mcVersion === nextState.mcVersion)
+            return;
+        window.ipc.send('curse:search', { search: nextState.search, sort: nextState.sort, category: nextState.category, mcVersion: nextState.mcVersion });
+    }
+
+    getNextPage = () => {
+        window.ipc.send('curse:page');
+        this.setState({ loading: true });
+    };
+
+    onNextPage = (event, modpacks) => {
+        this.setState({ loading: false, modpacks })
+    };
+
+    onRefresh = () => {
+        Snackbar.sendSnack({ body: 'Refreshing modpack listings...' });
+        window.ipc.send('curse:search', { search: this.state.search, sort: this.state.sort, category: this.state.category, mcVersion: this.state.mcVersion });
+    };
+
+    clearRefresh = () =>
+        this.setState({ loading: true }, () =>
+            window.ipc.send('curse:search', { search: this.state.search, sort: this.state.sort, category: this.state.category, mcVersion: this.state.mcVersion }));
 
     handleResponse = () => {
         this.setState({
@@ -202,7 +140,7 @@ class CurseModpackListing extends React.Component {
                 </div>
                 <ModpackBrowser modpacks={this.state.modpacks} loading={!this.state.loading} onRefresh={() => this.onRefresh()} onScrollBottom={() => {
                     if (!this.state.loading)
-                        this.fetchNextPage();
+                        this.getNextPage();
                 }} onModpackInstall={(id, version) => {this.installModpack(id, version)}} onModpackFetchVersions={(id) => {this.fetchVersions(id)}} />
             </div>
         );
