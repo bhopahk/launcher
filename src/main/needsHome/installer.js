@@ -26,7 +26,6 @@ const files = require('../util/files');
 const fetch = require('node-fetch');
 const cache = require('../game/versionCache');
 const config = require('../config/config');
-const fabric = require('../util/fabric');
 const workers = require('../worker/workers_old');
 const lock = require('../util/lockfile');
 const reporter = require('../app/reporter');
@@ -40,6 +39,10 @@ const instanceDir = config.getValue('minecraft/instanceDir');
 
 fs.mkdirs(tempDir);
 
+/**
+ * //todo remove
+ * @deprecated 1.2.3
+ */
 const sendTaskUpdate = (id, task, progress) => require('./profile').sendTaskUpdate(id, task, progress);
 
 /**
@@ -48,6 +51,8 @@ const sendTaskUpdate = (id, task, progress) => require('./profile').sendTaskUpda
  * This will end immediately if the version is already installed.
  * If `validate` is true, the version data will be downloaded/validated no matter what.
  *
+ * @since 0.1.5
+ *
  * @param {String} version the minecraft version
  * @param {Boolean} validate version files
  * @return {Promise<String>} the final name of the version.
@@ -55,7 +60,7 @@ const sendTaskUpdate = (id, task, progress) => require('./profile').sendTaskUpda
 exports.installVanilla = async (version, validate) => {
     const dir = path.join(installDir, 'versions', version);
 
-    // Attach to exist
+    // Attach to existing task
     let tid = tasks.getTaskByName(`Vanilla ${version}`);
     if (tid !== undefined) {
         const result = await tasks.waitOn(tid);
@@ -64,7 +69,7 @@ exports.installVanilla = async (version, validate) => {
     }
 
     // Create version directory and find the version json
-    console.log(`${validate ? 'Installing' : 'Validating'} Minecraft@${version}`);
+    console.debug(`${validate ? 'Installing' : 'Validating'} Minecraft@${version}`);
     if (await fs.pathExists(dir) && !validate)
         return version;
 
@@ -112,20 +117,39 @@ exports.installVanilla = async (version, validate) => {
     return version;
 };
 
-exports.installForge = async (version, task, force) => {
+/**
+ * Installs a forge version.
+ *
+ * This will end immediately if the version is already installed.
+ * If `validate` is true, the version data will be downloaded no matter what.
+ *
+ * @since 0.1.5
+ *
+ * @param version
+ * @param validate
+ * @return {Promise<string|*>}
+ */
+exports.installForge = async (version, validate) => {
     const forge = await (await fetch(`https://addons-ecs.forgesvc.net/api/v2/minecraft/modloader/${version}`)).json();
     const afterOneFourteen = parseInt(forge.minecraftVersion.split('.')[1]) >= 14;
+    const name = afterOneFourteen ? `${forge.minecraftVersion}-${forge.name}` : version;
+    const dir = path.join(installDir, 'versions', name);
 
-    // Create version directory and fetch version info.
-    const realName = afterOneFourteen ? `${forge.minecraftVersion}-${forge.name}` : version;
-    const dir = path.join(installDir, 'versions', realName);
+    // Attach to existing task
+    let tid = tasks.getTaskByName(`Forge ${name}`);
+    if (tid !== undefined) {
+        const result = await tasks.waitOn(tid);
+        if (!result.cancelled && !validate)
+            return name;
+    }
 
+    console.debug(`${validate ? 'Installing' : 'Validating'} Forge@${name}.`);
     if (await fs.pathExists(dir) && !force)
-        return realName;
+        return name;
 
     await fs.mkdirs(dir);
     let versionJson = JSON.parse(forge.versionJson);
-    versionJson.id = realName;
+    versionJson.id = name;
 
     await this.installVanilla(forge.minecraftVersion, task);
 
@@ -143,13 +167,13 @@ exports.installForge = async (version, task, force) => {
             try {
                 // Write version json
                 sendTaskUpdate(task, 'writing version settings', 1/2);
-                const versionJsonPath = path.join(dir, `${realName}.json`);
+                const versionJsonPath = path.join(dir, `${name}.json`);
                 if (!await fs.pathExists(versionJsonPath))
                     await fs.writeJson(versionJsonPath, versionJson);
 
 
                 sendTaskUpdate(task, 'writing profile settings', 2/2);
-                const clientJar = path.join(dir, `${realName}.jar`);
+                const clientJar = path.join(dir, `${name}.jar`);
                 if (!await fs.pathExists(clientJar))
                     await fs.copy(path.join(installDir, 'versions', forge.minecraftVersion, `${forge.minecraftVersion}.jar`), clientJar);
             } finally {
@@ -173,7 +197,7 @@ exports.installForge = async (version, task, force) => {
             try {
                 // Write version json
                 sendTaskUpdate(task, 'writing version settings', 1);
-                const versionJsonPath = path.join(dir, `${realName}.json`);
+                const versionJsonPath = path.join(dir, `${name}.json`);
                 if (!await fs.pathExists(versionJsonPath))
                     await fs.writeJson(versionJsonPath, versionJson);
             } finally {
@@ -187,19 +211,47 @@ exports.installForge = async (version, task, force) => {
         await validateTypeTwoLibraries(task, 'validating forge libraries', versionJson.libraries);
     }
 
-    return realName;
+    return name;
 };
 
-exports.installFabric = async (mappings, loader, task, force) => {
+/**
+ * Installs a fabric version.
+ *
+ * This will end immediately if the version is already installed.
+ * If `validate` is true, the version data will be downloaded no matter what.
+ *
+ * @since 0.1.5
+ *
+ * @param {String} mappings Yarn version.
+ * @param {String} loader Loader version.
+ * @param {Boolean} validate validate version files
+ * @return {Promise<string>} the final name of the version.
+ */
+exports.installFabric = async (mappings, loader, validate) => {
+    const fabric = require('../util/fabric');
     const version = fabric.fabricify(mappings);
     const versionName = `${fabric.LOADER_NAME}-${loader}-${version.version}`;
     const versionDir = path.join(installDir, 'versions', versionName);
 
-    if (await fs.pathExists(versionDir) && !force)
+    // Attach to existing task
+    let tid = tasks.getTaskByName(`Fabric ${versionName}`);
+    if (tid !== undefined) {
+        const result = await tasks.waitOn(tid);
+        if (!result.cancelled && !validate)
+            return versionName;
+    }
+
+    console.debug(`${validate ? 'Installing' : 'Validating'} Fabric@${versionName}.`);
+    if (await fs.pathExists(versionDir) && !validate)
         return versionName;
 
+    await fs.mkdirs(versionDir);
+    tid = tasks.createTask(`Fabric ${versionName}`);
+    await tasks.updateTask(tid, 'writing profile settings', 0/4);
+
     // Install corresponding vanilla version.
-    await this.installVanilla(version.minecraftVersion, task);
+    await tasks.updateTask(tid, 'installing vanilla', 1/4);
+    await this.installVanilla(version.minecraftVersion, validate);
 
     let versionJson = await fabric.getLaunchMeta(loader);
     versionJson.id = versionName;
@@ -211,24 +263,14 @@ exports.installFabric = async (mappings, loader, task, force) => {
     const versionJsonPath = path.join(versionDir, `${versionName}.json`);
     const versionJarPath = path.join(versionDir, `${versionName}.jar`);
 
-    const lockfile = path.join(versionDir, 'version-lock');
-    if (!await lock.check(lockfile)) {
-        await lock.lock(lockfile, { stale: 300000 });
-        try {
-            // Empty jar to trick the launcher into thinking this is a valid version.
-            await fs.ensureFile(versionJarPath);
-            await fs.writeJson(versionJsonPath, versionJson);
-        } catch (e) {
-            reporter.error(e);
-        } finally {
-            await lock.unlock(lockfile);
-        }
-    } else {
-        console.log('Skipping fabric version json & jar due to existing lock.')
-    }
+    await tasks.updateTask(tid, 'writing profile settings', 2/4);
+    await fs.ensureFile(versionJarPath); // Empty jar file, this is only required to trick the mojang launcher, however it is included for continuity.
+    await tasks.updateTask(tid, 'writing profile settings', 3/4);
+    await fs.writeJson(versionJsonPath, versionJson);
+    await tasks.updateTask(tid, 'writing profile settings', 4/4);
 
-    await validateTypeTwoLibraries(task, 'validating fabric libraries', versionJson.libraries);
-
+    await tasks.runJob(tid, 'lib.2', versionJson.libraries);
+    await tasks.endTask(tid, false);
     return versionName;
 };
 
@@ -283,43 +325,6 @@ exports.installCurseModpack = async (task, name, fileUrl) => {
 };
 
 // Helper Functions
-
-const validateGameAssets = (task, objects) => {
-    return workers.createWorker(task, { objects, installDir }, async props => {
-        const path = require('path');
-        const fs = require('fs-extra');
-        const files = require('../util/files');
-        const lock = require('../util/lockfile');
-
-        const keys = Object.keys(props.objects);
-        const objectDir = path.join(props.installDir, 'assets', 'objects');
-        const lockfile = path.join(objectDir, 'assets-lock');
-        let complete = 0, total = keys.length;
-
-        if (await lock.check(lockfile))
-            return props.complete();
-        // Lock this directory so others will skip it, however expire it in 10 minutes in case anything goes wrong and it does not get expired.
-        await lock.lock(lockfile, { stale: 600000 });
-
-        for (let i = 0; i < keys.length; i++) {
-            const object = props.objects[keys[i]];
-            try {
-                console.log(`Processing ${keys[i]}`);
-                const file = path.join(objectDir, object.hash.substring(0, 2), object.hash.substring(2));
-                if (!(await fs.pathExists(file) && (await files.fileChecksum(file, 'sha1')) === object.hash)) {
-                    console.log(`Downloading ${keys[i]}`);
-                    await files.download(`https://resources.download.minecraft.net/${object.hash.substring(0, 2)}/${object.hash}`, file);
-                } else console.log(`Found valid version of ${keys[i]} with matching checksum.`);
-                props.updateTask('validating game assets', ++complete/total);
-            } catch (e) {
-                props.error(e);
-            }
-        }
-        lock.unlock(lockfile);
-
-        props.complete();
-    });
-};
 
 const validateTypeOneLibraries = (task, taskName, libraries) => {
     return workers.createWorker(task, { libraries, taskName, libDir }, async props => {

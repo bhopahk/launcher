@@ -107,7 +107,6 @@ process.on('message', async libraries => {
     let c = 0;
     if (process.env.DO_PARALLEL)
         libraries.forEach(library => task(i++, library).then(() => {
-            console.log(c + ' ' + libraries.length);
             if (++c === libraries.length) process.send({ exit: true });
         }));
     else {

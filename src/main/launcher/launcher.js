@@ -35,7 +35,7 @@ const isNative = process.platform === 'win32'; //todo this should come from conf
 exports.launchProfile = async (profile) => {
     console.log(profile);
 
-    await this.selectProfile(profile);
+    // await this.selectProfile(profile);
     await updateLastLaunched(profile.name);
 
     if (profile.flavor === 'vanilla' || profile.flavor === 'fabric') {

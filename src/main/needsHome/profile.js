@@ -33,6 +33,7 @@ const fs = require('fs-extra');
 const files = require('../util/files');
 const StreamZip = require('node-stream-zip');
 const fetch = require('node-fetch');
+const taskmaster = require('../task/taskmaster');
 const sendSync = require('../util/ipcMainSync').sendSync; //todo maybe make a main process api for tasks.
 
 // Useful paths
@@ -96,6 +97,10 @@ ipcMain.on('profile:mod:delete', async (event, payload) => {
  * @returns {Promise<void>} Completion.
  */
 exports.createProfile = async data => {
+    const name = await findName(data.name);
+    const tid = taskmaster.createTask(name);
+    const total = data.modpack === undefined ? 4 : 5;
+
     let icon;
     let packData = {};
     if (data.modpack !== undefined) {
@@ -111,7 +116,7 @@ exports.createProfile = async data => {
         data.name = packData.name
     } else icon = 'https://via.placeholder.com/240';
 
-    const name = await findName(data.name);
+    await taskmaster.updateTask(tid, 'creating directory', 1/total);
     const directory = path.join(instanceDir, name);
     await fs.mkdirs(directory);
 
@@ -122,13 +127,16 @@ exports.createProfile = async data => {
     if (data.modpack === undefined) {
         switch (data.version.flavor) {
             case 'vanilla':
+                await taskmaster.updateTask(tid, 'installing minecraft', 2/total);
                 versionId = await installer.installVanilla(data.version.version);
                 break;
             case 'forge':
-                versionId = await installer.installForge(data.version.forge, tId);
+                await taskmaster.updateTask(tid, 'installing forge', 2/total);
+                versionId = await installer.installForge(data.version.forge);
                 break;
             case 'fabric':
-                versionId = await installer.installFabric(data.version.mappings, data.version.loader, tId);
+                await taskmaster.updateTask(tid, 'installing fabric', 2/total);
+                versionId = await installer.installFabric(data.version.mappings, data.version.loader);
                 break;
             default:
                 mainWindow.send('profile:create:response', {
@@ -138,15 +146,17 @@ exports.createProfile = async data => {
                 break;
         }
     } else {
+        await taskmaster.updateTask(tid, 'preparing modpack info', 3/total);
         const fileJson = await (await fetch(`https://addons-ecs.forgesvc.net/api/v2/addon/${data.modpack}/file/${data.file}`)).json();
         packData.version = fileJson.displayName;
         packData.versionId = fileJson.id;
 
-        const versionInfo = await installer.installCurseModpack(tId, name, fileJson.downloadUrl);
+        const versionInfo = await installer.installCurseModpack(tid, name, fileJson.downloadUrl);
         versionId = versionInfo.localVersionId;
         data.version = versionInfo.version;
     }
 
+    await taskmaster.updateTask(tid, 'creating profile', 3/total);
     const now = new Date().getTime();
     await profileDb.insert({
         name, directory,
@@ -169,7 +179,8 @@ exports.createProfile = async data => {
         javaArgs: config.getValue('defaults/javaArgs'),
         mods: {},
     });
-    //await exportLauncherProfile(created);
+
+    await taskmaster.updateTask(tid, 'finishing up', 4/total);
     await this.renderProfiles();
 
     console.log(`Finished installing '${name}'!`);
@@ -178,8 +189,8 @@ exports.createProfile = async data => {
         body: `${name} has finished installing!`,
         icon: 'https://github.com/bhopahk/launcher/blob/master/public/icon.png'
     });
+    await taskmaster.endTask(tid);
     notification.show();
-    //mainWindow.send('tasks:delete', { tId });
 };
 
 /**

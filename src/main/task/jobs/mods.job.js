@@ -51,12 +51,13 @@ process.on('message', async props => {
     };
 
     let i = 0;
+    let c = 0;
     if (process.env.DO_PARALLEL)
-        props.mods.forEach(mod => task(i, mod)).then(() => {
-            if (++i === props.mods.length) process.send({ end: true });
-        });
+        props.mods.forEach(mod => task(i++, mod).then(() => {
+            if (++c === props.mods.length) process.send({ exit: true });
+        }));
     else {
-        for (i = 0; i < props.mods.length; i++)
+        for (let i = 0; i < props.mods.length; i++)
             await task(i, props.mods[i]);
         process.send({ exit: true });
     }

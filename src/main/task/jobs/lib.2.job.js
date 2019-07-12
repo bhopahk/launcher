@@ -46,7 +46,7 @@ process.on('message', async libraries => {
         const baseUrl = library.url === undefined ? 'https://repo1.maven.org/maven2/' : library.url;
         const name = library.name.split(':');
         const url = `${baseUrl}${name[0].split('.').join('/')}/${name[1]}/${name[2]}/${name[1]}-${name[2]}.jar`;
-        const file = path.join(props.libDir, name[0].split('.').join('/'), name[1], name[2], `${name[1]}-${name[2]}.jar`);
+        const file = path.join(libDir, name[0].split('.').join('/'), name[1], name[2], `${name[1]}-${name[2]}.jar`);
 
         if (await fs.pathExists(file))
             return resolve(console.error(`Library@${i + 1} exists.`));
@@ -56,12 +56,13 @@ process.on('message', async libraries => {
     });
 
     let i = 0;
+    let c = 0;
     if (process.env.DO_PARALLEL)
-        libraries.forEach(library => task(i, library)).then(() => {
-            if (++i === libraries.length) process.send({ exit: true });
-        });
+        libraries.forEach(library => task(i++, library).then(() => {
+            if (++c === libraries.length) process.send({ exit: true });
+        }));
     else {
-        for (i = 0; i < libraries.length; i++)
+        for (let i = 0; i < libraries.length; i++)
             await task(i, libraries[i]);
         process.send({ exit: true });
     }

@@ -84,20 +84,10 @@ process.on('message', async props => {
     await fs.copy(clientDataPathSource, clientDataPathTarget);
     await fs.remove(clientDataPathSource);
 
-    let i = 0;
-    if (process.env.DO_PARALLEL)
-        props.processors.forEach(processor => task(i, processor)).then(async () => {
-            if (++i === props.processors.length) {
-                await fs.remove(clientDataPathTarget);
-                process.send({ end: true });
-            }
-        });
-    else {
-        for (i = 0; i < props.processors.length; i++)
-            await task(i, processors.mods[i]);
-        await fs.remove(clientDataPathTarget);
-        process.send({ exit: true });
-    }
+    for (let i = 0; i < props.processors.length; i++)
+        await task(i, processors.mods[i]);
+    await fs.remove(clientDataPathTarget);
+    process.send({ exit: true });
 });
 
 const exec = cmd => new Promise((resolve, reject) => {
