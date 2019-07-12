@@ -35,10 +35,11 @@ const isNative = process.platform === 'win32'; //todo this should come from conf
 exports.launchProfile = async (profile) => {
     console.log(profile);
 
+
     // await this.selectProfile(profile);
     await updateLastLaunched(profile.name);
 
-    if (profile.flavor === 'vanilla' || profile.flavor === 'fabric') {
+    if (profile.flavor === 'vanilla' || profile.flavor === 'fabric' || profile.flavor === 'forge') {
         const BypassLauncher = require('../launcher/BypassLauncher');
         const game = new BypassLauncher(profile.name);
         await game.launch();

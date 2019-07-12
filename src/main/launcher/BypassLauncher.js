@@ -55,8 +55,7 @@ class BypassLauncher {
         this.javaPath = `"C:\\Users\\Matt Worzala\\AppData\\Roaming\\proton\\Install\\runtime\\jre-x64\\bin\\javaw.exe"`;
     }
 
-    launch = async () => {
-        this.profile = await profile.getProfile(this.profileName);
+    launch = async () => {this.profile = await profile.getProfile(this.profileName);
         await fs.mkdirs(this.nativeDirectory);
         const versionJson = await fs.readJson(path.join(baseDir, 'Install', 'versions', this.profile.targetVersion, `${this.profile.targetVersion}.json`));
         let inheritedVersionJson;

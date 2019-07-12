@@ -26,6 +26,7 @@ const files = require('../util/files');
 const fetch = require('node-fetch');
 const cache = require('../game/versionCache');
 const config = require('../config/config');
+const java = require('../config/java');
 const workers = require('../worker/workers_old');
 const lock = require('../util/lockfile');
 const reporter = require('../app/reporter');
@@ -134,6 +135,7 @@ exports.installForge = async (version, validate) => {
     const afterOneFourteen = parseInt(forge.minecraftVersion.split('.')[1]) >= 14;
     const name = afterOneFourteen ? `${forge.minecraftVersion}-${forge.name}` : version;
     const dir = path.join(installDir, 'versions', name);
+    const total = afterOneFourteen ? 5 : 5;
 
     // Attach to existing task
     let tid = tasks.getTaskByName(`Forge ${name}`);
@@ -144,50 +146,38 @@ exports.installForge = async (version, validate) => {
     }
 
     console.debug(`${validate ? 'Installing' : 'Validating'} Forge@${name}.`);
-    if (await fs.pathExists(dir) && !force)
+    if (await fs.pathExists(dir) && !validate)
         return name;
 
     await fs.mkdirs(dir);
+    tid = tasks.createTask(`Forge ${name}`);
     let versionJson = JSON.parse(forge.versionJson);
     versionJson.id = name;
 
-    await this.installVanilla(forge.minecraftVersion, task);
+    await tasks.updateTask(tid, 'installing vanilla', 1/total);
+    await this.installVanilla(forge.minecraftVersion, validate);
 
     if (afterOneFourteen) {
-        // Extra tasks - todo check if older versions have this as well.
+        // Installation Tasks
         const installerJson = JSON.parse(forge.installProfileJson);
 
         delete versionJson.jar;
         delete versionJson.minimumLauncherVersion;
         versionJson.logging = {};
 
-        const lockfile = path.join(dir, 'version-lock');
-        if (!await lock.check(lockfile)) {
-            lock.lock(lockfile, { stale: 300000 });
-            try {
-                // Write version json
-                sendTaskUpdate(task, 'writing version settings', 1/2);
-                const versionJsonPath = path.join(dir, `${name}.json`);
-                if (!await fs.pathExists(versionJsonPath))
-                    await fs.writeJson(versionJsonPath, versionJson);
+        // Write version json
+        await tasks.updateTask(tid, 'writing profile settings', 2/total);
+        const versionJsonPath = path.join(dir, `${name}.json`);
+        await fs.writeJson(versionJsonPath, versionJson);
 
-
-                sendTaskUpdate(task, 'writing profile settings', 2/2);
-                const clientJar = path.join(dir, `${name}.jar`);
-                if (!await fs.pathExists(clientJar))
-                    await fs.copy(path.join(installDir, 'versions', forge.minecraftVersion, `${forge.minecraftVersion}.jar`), clientJar);
-            } finally {
-                //todo error handling
-                await lock.unlock(lockfile);
-            }
-        } else {
-            console.log('Skipping forge >1.14 version json & jar due to existing lock.')
-        }
+        await tasks.updateTask(tid, 'writing profile settings', 3/total);
+        const clientJar = path.join(dir, `${name}.jar`);
+        await fs.copy(path.join(installDir, 'versions', forge.minecraftVersion, `${forge.minecraftVersion}.jar`), clientJar);
 
         const libraries = versionJson.libraries.concat(installerJson.libraries);
-        await validateTypeOneLibraries(task, 'validating forge versions', libraries);
+        await tasks.runJob(tid, 'lib.1', libraries);
 
-        await runForgeProcessors(task, installerJson.processors, installerJson.data, forge.minecraftVersion, forge.forgeVersion);
+        await tasks.runJob(tid, 'forge', { mcVersion: forge.minecraftVersion, forgeVersion: forge.forgeVersion, java: path.join((await java.getSelectedJavaInstance()).path, 'bin', 'javaw.exe'), vars: installerJson.data, processors: installerJson.processors });
     } else {
         versionJson.jar = forge.minecraftVersion;
 
@@ -210,7 +200,7 @@ exports.installForge = async (version, validate) => {
 
         await validateTypeTwoLibraries(task, 'validating forge libraries', versionJson.libraries);
     }
-
+    await tasks.endTask(tid);
     return name;
 };
 
@@ -247,7 +237,6 @@ exports.installFabric = async (mappings, loader, validate) => {
 
     await fs.mkdirs(versionDir);
     tid = tasks.createTask(`Fabric ${versionName}`);
-    await tasks.updateTask(tid, 'writing profile settings', 0/4);
 
     // Install corresponding vanilla version.
     await tasks.updateTask(tid, 'installing vanilla', 1/4);

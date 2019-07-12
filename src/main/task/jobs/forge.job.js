@@ -37,7 +37,7 @@ SOFTWARE.
 require('../tasklogger');
 const path = require('path');
 const fs = require('fs-extra');
-const artifact = require('../util/artifact');
+const artifact = require('../../util/artifact');
 const libDir = path.join(process.env.BASE_DIR, 'Install', 'libraries');
 
 process.on('message', async props => {
@@ -56,7 +56,7 @@ process.on('message', async props => {
     });
     envars.MINECRAFT_JAR = `"${path.join(process.env.BASE_DIR, 'Install', 'versions', props.mcVersion, `${props.mcVersion}.jar`)}"`;
 
-    const task = async (i, processor) => {
+    const task = (i, processor) => new Promise(async resolve => {
         console.debug(`ForgeProcess@${i + 1} is ${processor.jar}`);
         process.send({ task: `installing forge`, progress: i/props.processors.length });
         const processorJar = path.join(libDir, artifact.findLibraryPath(processor.jar));
@@ -76,16 +76,16 @@ process.on('message', async props => {
         console.debug(`ForgeProcess@${i + 1} has finished successfully.`);
         //todo detection of failure
         resolve(resp);
-    };
+    });
 
     // These are required for the installer to run.
-    const clientDataPathSource = path.join(props.libDir, 'net', 'minecraftforge', 'forge', `${props.mcVersion}-${props.forgeVersion}`, `forge-${props.mcVersion}-${props.forgeVersion}-clientdata.lzma`);
+    const clientDataPathSource = path.join(libDir, 'net', 'minecraftforge', 'forge', `${props.mcVersion}-${props.forgeVersion}`, `forge-${props.mcVersion}-${props.forgeVersion}-clientdata.lzma`);
     const clientDataPathTarget = path.join('./', 'data', 'client.lzma');
     await fs.copy(clientDataPathSource, clientDataPathTarget);
     await fs.remove(clientDataPathSource);
 
     for (let i = 0; i < props.processors.length; i++)
-        await task(i, processors.mods[i]);
+        await task(i, props.processors[i]);
     await fs.remove(clientDataPathTarget);
     process.send({ exit: true });
 });
