@@ -106,11 +106,11 @@ exports.loadConfig = async () => {
     while (maxMem % 128 !== 0)
         maxMem++;
 
-    if (!created)
+    if (!created) {
         this.setValue('defaults/maxMemory', maxMem / 2);
-
-    if (this.getValue('clientKey').length === 0)
         this.setValue('clientKey', Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15));
+        this.saveConfig();
+    }
 
     if (this.getValue('minecraft/instanceDir').length === 0)
         this.setValue('minecraft/instanceDir', path.join(baseDir, 'Instances'));

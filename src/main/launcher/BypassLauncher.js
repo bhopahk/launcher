@@ -223,11 +223,11 @@ class BypassLauncher {
         console.log('LAUNCHING');
         console.log(JSON.stringify(this.profile));
         // console.log(JSON.stringify(args));
-        await fs.writeFile('C:\\Users\\Matt Worzala\\Desktop\\cmd15.txt', args.join(' '));
+        // await fs.writeFile('C:\\Users\\Matt Worzala\\Desktop\\cmd15.txt', args.join(' '));
 
         const spawn = require('child_process').spawn;
 
-        const javaExecutable = path.join((await java.getSelectedJavaInstance()).path, 'bin', 'javaw.exe'); //todo this needs to allow for non windows.
+        const javaExecutable = path.join((await java.getSelectedJavaInstance()).path, 'bin', 'java.exe'); //todo this needs to allow for non windows.
 
         this.process = spawn(javaExecutable, args, {
             stdio: [ 'ignore', 'pipe', 'pipe' ],

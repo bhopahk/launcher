@@ -162,7 +162,7 @@ exports.renderJavaInstances = async () => mainWindow.send('java:render', await t
 const getOsDefaultJavaDirectory = () => {
     switch (process.platform) {
         case "win32":
-            return [ path.normalize('C:/Program Files/Java/'), path.normalize('C:/Program Files (x86)/Java/') ];
+            return [ path.normalize('C:/Program Files/Java/') ];
         case "darwin":
             throw "Unsupported Operation";
         default:

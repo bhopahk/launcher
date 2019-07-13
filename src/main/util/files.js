@@ -21,6 +21,7 @@ SOFTWARE.
 */
 
 const fs = require('fs-extra');
+const StreamZip = require('node-stream-zip');
 const crypto = require('crypto');
 
 exports.download = (url, location, oneTry) => {
@@ -55,13 +56,19 @@ exports.download = (url, location, oneTry) => {
 
 exports.unzip = (file, cleanup = true) => {
     return new Promise((resolve, reject) => {
-        const target = file.substring(0, file.length - 4);
-        require('extract-zip')(file, { dir: target }, err => {
-            if (err) reject(err);
-            else {
+        const zip = new StreamZip({
+            file,
+            storeEntries: true
+        });
+        zip.on('error', err => reject(err));
+        zip.on('ready', async () => {
+            const target = file.substring(0, file.length - 4);
+            await fs.mkdir(target);
+            zip.extract(null, target, (err, count) => {
+                zip.close();
                 if (cleanup) fs.removeSync(file);
                 resolve(target);
-            }
+            });
         });
     });
 };

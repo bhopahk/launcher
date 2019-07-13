@@ -157,6 +157,7 @@ app.on('ready',  async () => {
     require('./game/curseCache');
     require('./app/rpc');
 
+
     //todo why is this settimeout here?
     setTimeout(() => {
         // require('./needsHome/installer').installBaseGame(process.platform, process.platform === 'win32').then(result => {
@@ -226,6 +227,11 @@ ipcMain.on('open-item', async (event, arg) => {
 });
 
 ipcMain.on('argv', async event => {
+
+    const t = require('./task/taskmaster');
+    const tid = t.createTask("test");
+    await t.runJob(tid, 'test', {});
+
     event.sender.send('argv', process.argv);
     event.sender.send('argv', app.getAppPath());
     event.sender.send('argv', path.join(require('electron').app.getPath('userData'), 'Install'));
@@ -235,6 +241,16 @@ ipcMain.on('util:isDev', event => event.returnValue = isDev);
 
 ipcMain.once('sync', event => {
     event.returnValue = config.getValue('app/vibrancy')
+});
+
+process.on('unhandledRejection', (reason, p) => {
+    console.log('UNHANDLED REJECTION');
+    console.log(reason);
+    console.log(p);
+});
+process.on('uncaughtException', err => {
+    console.log('UNHANDLED EXCEPTION');
+    console.log(err);
 });
 
 // require('node-fetch')(`https://addons-ecs.forgesvc.net/api/v2/addon/search?gameId=432&pageSize=20&index=0&sort=Featured&searchFilter=&gameVersion=&categoryId=0&sectionId=4471&sortDescending=false`, {

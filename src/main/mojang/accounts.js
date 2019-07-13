@@ -36,16 +36,16 @@ const accounts = new Database(path.join(baseDir, 'accounts.db'));
 let mainWindow;
 ipcMain.on('sync', event => {
     mainWindow = event.sender;
-    // console.log('Synchronizing Minecraft accounts...');
-    // const clientToken = config.getValue('clientKey');
-    // accounts.find({ }).then(accounts => accounts.forEach(async account => {
-    //     if (await mojang.validateToken(account.token, clientToken))
-    //         return console.debug(`Account@${account.username} has a valid token.`);
-    //     console.debug(`Account@${account.username} has an invalid token, it will be refreshed.`);
-    //     const resp = await mojang.refreshToken(account.token, clientToken, false);
-    //     account.token = resp.accessToken;
-    //     await accounts.update({ _id: account._id }, account);
-    // }));
+    console.log('Synchronizing Minecraft accounts...');
+    const clientToken = config.getValue('clientKey');
+    accounts.find({ }).then(accounts => accounts.forEach(async account => {
+        if (await mojang.validateToken(account.token, clientToken))
+            return console.debug(`Account@${account.username} has a valid token.`);
+        console.debug(`Account@${account.username} has an invalid token, it will be refreshed.`);
+        const resp = await mojang.refreshToken(account.token, clientToken, false);
+        account.token = resp.accessToken;
+        await accounts.update({ _id: account._id }, account);
+    }));
 });
 
 ipcMain.on('account:inst', () => this.addAccount());
@@ -59,7 +59,7 @@ exports.addAccount = () => {
         autoHideMenuBar: true,
         width: 250,
         height: 300,
-        resizable: false,
+        resizable: true,
         webPreferences: {
             nodeIntegration: true,
         }

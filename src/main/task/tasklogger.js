@@ -25,11 +25,11 @@ const log = require('electron-log');
 log.transports.console.format = '[{h}:{i}:{s} {level}] {text}';
 log.transports.file.format = '[{m}/{d}/{y} {h}:{i}:{s} {level}] {text}';
 log.transports.file.maxSize = 10 * 1024 * 1024;
-log.transports.file.file = process.env.BASE_DIR + `/launcher_log${process.env.IS_DEV ? '_dev' : ''}.log`;
+log.transports.file.file = process.env.BASE_DIR + `/launcher_log${process.env.IS_DEV === 'true' ? '_dev' : ''}.log`;
 // Use electron log for console.log calls.
 console.log = (message) => {
     log.info(message);
 };
 console.debug = message => {
-    if (process.env.DEBUG) log.debug(message);
+    if (process.env.DEBUG === 'true') log.debug(message);
 };

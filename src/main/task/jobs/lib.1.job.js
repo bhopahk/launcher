@@ -49,7 +49,7 @@ process.on('message', async libraries => {
         process.send({ task: 'validating libraries', progress: i/libraries.length });
         console.debug(`Library@${i + 1} is ${library.name}.`);
         if (!library.downloads)
-            return resolve(console.log(`Library@${i + 1} does not have any downloadable artifacts, it is being skipped!`));
+            return resolve(console.debug(`Library@${i + 1} does not have any downloadable artifacts, it is being skipped!`));
 
         // Forge universal has an empty url.
         if (library.name.startsWith('net.minecraftforge:forge:') && library.name.endsWith(':universal'))
@@ -105,7 +105,7 @@ process.on('message', async libraries => {
 
     let i = 0;
     let c = 0;
-    if (process.env.DO_PARALLEL)
+    if (process.env.DO_PARALLEL === 'true')
         libraries.forEach(library => task(i++, library).then(() => {
             if (++c === libraries.length) process.send({ exit: true });
         }));
