@@ -106,15 +106,13 @@ exports.loadConfig = async () => {
     while (maxMem % 128 !== 0)
         maxMem++;
 
-    if (!created) {
+    if (!created)
         this.setValue('defaults/maxMemory', maxMem / 2);
-        this.setValue('clientKey', Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15));
-    }
 
-    if (this.getValue('app/instanceDir').length === 0) {
+    if (this.getValue('app/instanceDir').length === 0)
         this.setValue('app/instanceDir', path.join(baseDir, 'Instances'));
-        this.saveConfig();
-    }
+
+    this.saveConfig();
 };
 
 exports.addEventListener = (target, callback) => {

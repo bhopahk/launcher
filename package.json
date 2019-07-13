@@ -1,6 +1,6 @@
 {
   "name": "proton",
-  "version": "0.2.11",
+  "version": "0.2.12",
   "description": "A custom minecraft launcher",
   "private": false,
   "author": "Matt Worzala <bhop.me>",
@@ -57,6 +57,10 @@
       "src/**",
       "*.js"
     ],
+    "protocols": [{
+      "name": "Proton Launcher",
+      "schemes": ["proton"]
+    }],
     "extends": null,
     "directories": {
       "buildResources": "assets"

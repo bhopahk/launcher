@@ -9,8 +9,9 @@
         const mojang = require('../mojang/mojang');
 
         const login = async () => {
-            const clientKey = (await require('fs-extra').readJson(require('path').join(require('electron').remote.app.getPath('userData'), 'launcher_config.json'))).clientKey;
-            console.log(clientKey);
+            let clientKey = (await require('fs-extra').readJson(require('path').join(require('electron').remote.app.getPath('userData'), 'launcher_config.json'))).clientKey;
+            if (!clientKey)
+                clientKey = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             const resp = await mojang.login(username, password, clientKey, true);
@@ -23,6 +24,7 @@
                 login: resp.user.username,
                 username: resp.availableProfiles[0].name,
                 selected: false,
+                clientKey
             });
         }
     </script>

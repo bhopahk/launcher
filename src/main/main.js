@@ -132,10 +132,19 @@ const createContextMenu = () => {
     ])
 };
 const registerUriListeners = () => {
+    app.setAsDefaultProtocolClient('proton');
+
     const locked = app.requestSingleInstanceLock();
     if (!locked)
         app.quit();
     app.on('second-instance', (event, argv, cwd) => {
+        console.log('WOW A NEW INSTANCE HAS BEEN LAUNCHED');
+        console.log(event);
+        console.log('--------------------------------');
+        console.log(argv);
+        console.log('--------------------------------');
+        console.log(cwd);
+        console.log('--------------------------------');
 
         mainWindow.show();
     })
@@ -170,10 +179,10 @@ app.on('ready',  async () => {
         // createTrayMenu();
         // if (process.platform === 'win32')
         //     createContextMenu();
-        // registerUriListeners();
+        registerUriListeners();
 
         // Send warning about not pasting stuff.
-        mainWindow.webContents.on('devtools-opened', () => mainWindow.webContents.send('devtools-opened'));
+        // mainWindow.webContents.on('devtools-opened', () => mainWindow.webContents.send('devtools-opened'));
     }, 100);
 });
 

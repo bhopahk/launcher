@@ -65,6 +65,10 @@ exports.addAccount = () => {
         }
     });
     window.loadURL(`file://${__dirname}/login.html`).then(() => ipcMain.on('login:complete', async (event, data) => {
+        if (data.clientKey !== config.getValue('clientKey')) {
+            config.setValue('clientKey', data.clientKey);
+            await config.saveConfig();
+        }
         const acc = await this.getAccount(data.uuid);
         if (acc != null) {
             acc.token = data.token;
