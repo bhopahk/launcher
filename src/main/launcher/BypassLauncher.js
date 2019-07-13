@@ -103,8 +103,9 @@ class BypassLauncher {
         let envars = {};
         // Vanilla
         envars.auth_player_name = account.username;
-        envars.auth_uuid = account._id.replace('-', '');
-        console.log(account.token);
+        envars.auth_uuid = account._id.replace(/-/g, '');
+
+
         envars.auth_access_token = account.token;
         envars.version_name = this.profile.targetVersion;
         envars.game_directory = `${this.profile.directory}`;
