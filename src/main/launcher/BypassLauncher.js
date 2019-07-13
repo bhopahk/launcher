@@ -24,6 +24,7 @@ const { app } = require('electron');
 const profile = require('../needsHome/profile');
 const artifact = require('../util/artifact');
 const config = require('../config/config');
+const accounts = require('../mojang/accounts');
 const java = require('../config/java');
 const updater = require('../app/updater');
 const path = require('path');
@@ -51,11 +52,18 @@ class BypassLauncher {
     constructor(profile) {
         this.profileName = profile;
         this.nativeDirectory = path.join(app.getPath('temp'), `proton-mc-natives-${uniqueId(5)}`);
-        //todo this should come from config VVV
-        this.javaPath = `"C:\\Users\\Matt Worzala\\AppData\\Roaming\\proton\\Install\\runtime\\jre-x64\\bin\\javaw.exe"`;
     }
 
-    launch = async () => {this.profile = await profile.getProfile(this.profileName);
+    launch = async () => {
+
+        const account = await accounts.getSelectedAccount();
+        if (account == null) {
+            console.error('Please add a Minecraft account!');
+            return;
+        }
+
+        this.profile = await profile.getProfile(this.profileName);
+
         await fs.mkdirs(this.nativeDirectory);
         const versionJson = await fs.readJson(path.join(baseDir, 'Install', 'versions', this.profile.targetVersion, `${this.profile.targetVersion}.json`));
         let inheritedVersionJson;
@@ -94,9 +102,10 @@ class BypassLauncher {
         // Construct required variables for launch arguments.
         let envars = {};
         // Vanilla
-        envars.auth_player_name = '3640'; //todo accounts
-        envars.auth_uuid = 'aceb326fda1545bcbf2f11940c21780c'; //todo accounts
-        envars.auth_access_token = 'a3032ec9b8834164ade4f6cce37a6d03'; //todo accounts
+        envars.auth_player_name = account.username;
+        envars.auth_uuid = account._id.replace('-', '');
+        console.log(account.token);
+        envars.auth_access_token = account.token;
         envars.version_name = this.profile.targetVersion;
         envars.game_directory = `${this.profile.directory}`;
         envars.assets_root = `${path.join(baseDir, 'Install', 'assets')}`;

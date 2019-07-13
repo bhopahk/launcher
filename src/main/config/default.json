@@ -1,4 +1,5 @@
 {
+  "clientKey": "",
   "app": {
     "checkInterval": 30,
     "prerelease": false,

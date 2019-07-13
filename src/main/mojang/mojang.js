@@ -112,7 +112,7 @@ const BASE_URL = 'https://authserver.mojang.com/';
 
 exports.login = (username, password, clientToken, requestUser) => {
     if (!clientToken)
-        throw 'A valid access token must be provided';
+        throw 'A valid client token must be provided';
     const url = BASE_URL + '/authenticate';
     const payload = {
         agent: {
@@ -160,16 +160,14 @@ exports.refreshToken = async (accessToken, clientToken, requestUser) => {
     }).then(resp => resp.json());
 };
 
-exports.validateToken = async (accessToken) => {
+exports.validateToken = async (accessToken, clientToken) => {
     const url = BASE_URL + 'validate';
-    const payload = {
-        accessToken: accessToken,
-    };
+    const payload = { accessToken, clientToken };
     return (await fetch(url, {
         method: 'post',
         body: JSON.stringify(payload),
         headers: { 'Content-Type': 'application/json' },
-    }).then(resp => resp.text())).length === 0;
+    }).then(resp => resp.status)) === 204;
 };
 
 exports.invalidateToken = async (accessToken, clientToken) => {

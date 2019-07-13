@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login to Minecraft</title>
+
+    <script>
+        const ipc = require('electron').ipcRenderer;
+        const mojang = require('../mojang/mojang');
+
+        const login = async () => {
+            const clientKey = (await require('fs-extra').readJson(require('path').join(require('electron').remote.app.getPath('userData'), 'launcher_config.json'))).clientKey;
+            console.log(clientKey);
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const resp = await mojang.login(username, password, clientKey, true);
+            if (resp.error) {
+                console.error(`Received ${resp.error} from login request.`);
+                document.getElementById('errorDisplay').innerText = resp.errorMessage;
+            } else ipc.send('login:complete', {
+                _id: resp.availableProfiles[0].id.substring(0, 8) + '-' + resp.availableProfiles[0].id.substring(8, 12) + '-' + resp.availableProfiles[0].id.substring(12, 16) + '-' + resp.availableProfiles[0].id.substring(16, 20) + '-' + resp.availableProfiles[0].id.substring(20),
+                token: resp.accessToken,
+                login: resp.user.username,
+                username: resp.availableProfiles[0].name,
+                selected: false,
+            });
+        }
+    </script>
+
+    <!--  This needs to be moved to dedicated styling for this window at some point, this should also probably use some of the ui components.  -->
+    <style>
+        body {
+            width: calc(100% - 20px);
+            /*width: 100%;*/
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Mojang Login</h1>
+    <label>
+        Username:<br>
+        <input id="username" type="text" placeholder="Username or Email..." />
+    </label><br>
+    <label>
+        Password:&nbsp;&nbsp;&nbsp;<a href="javascript:void(0)" onclick="ipc.send('open-external', 'https://my.minecraft.net/en-us/password/forgot/')">Forgot?</a><br>
+        <input id="password" type="password" placeholder="..." />
+    </label>
+    <p id="errorDisplay"></p>
+    <button onclick="login()">Login</button>
+</div>
+</body>
+</html>

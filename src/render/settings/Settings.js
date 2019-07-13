@@ -56,7 +56,7 @@ class SettingsWrapper extends React.Component {
                     <hr/>
                     <div className="settings-links">
                         <i className="fab fa-github" onClick={() => {window.ipc.send('open-external', 'https://github.com/bhopahk/launcher')}}></i>
-                        <i className="fab fa-discord" onClick={() => {window.ipc.send('open-external', 'https://www.google.com/search?q=this+will+be+a+discord+link+eventually')}}></i>
+                        <i className="fab fa-discord" onClick={() => {window.ipc.send('open-external', 'https://discord.gg/G33GhNs')}}></i>
                     </div>
                 </div>
                 {this.props.children.map(child => {

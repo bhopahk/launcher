@@ -35,6 +35,7 @@ require('../tasklogger');
 const path = require('path');
 const fs = require('fs-extra');
 const files = require('../../util/files');
+const fetch = require('node-fetch');
 
 process.on('message', async props => {
     const modsDir = path.join(props.profileDir, 'mods');
@@ -47,7 +48,6 @@ process.on('message', async props => {
         const fileJson = await (await fetch(`https://addons-ecs.forgesvc.net/api/v2/addon/${mod.projectID}/file/${mod.fileID}`)).json();
         await files.download(fileJson.downloadUrl, path.join(modsDir, fileJson.fileName));
         console.debug(`Mod@${i + 1} has been downloaded.`);
-        resolve();
     };
 
     let i = 0;

@@ -20,18 +20,97 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-const { app, ipcMain } = require('electron');
+const { app, ipcMain, BrowserWindow } = require('electron');
+const Database = require('../app/database');
+const mojang = require('../mojang/mojang');
+const config = require('../config/config');
 const fs = require('fs-extra');
 const path = require('path');
 
-const accountsFile = path.join(app.getPath('userData'), 'launcher_accounts.json');
+const baseDir = app.getPath('userData');
 
+// Accounts data store.
+const accounts = new Database(path.join(baseDir, 'accounts.db'));
 
+// Sync accounts
+let mainWindow;
+ipcMain.on('sync', event => {
+    mainWindow = event.sender;
+    console.log('Synchronizing Minecraft accounts...');
+    const clientToken = config.getValue('clientKey');
+    accounts.find({ }).then(accounts => accounts.forEach(async account => {
+        if (await mojang.validateToken(account.token, clientToken))
+            return console.debug(`Account@${account.username} has a valid token.`);
+        console.debug(`Account@${account.username} has an invalid token, it will be refreshed.`);
+        const resp = await mojang.refreshToken(account.token, clientToken, false);
+        account.token = resp.accessToken;
+        await accounts.update({ _id: account._id }, account);
+    }));
+});
 
+ipcMain.on('account:inst', () => this.addAccount());
+ipcMain.on('account:select', (event, uuid) => this.selectAccount(uuid));
+ipcMain.on('account:render', () => this.renderAccounts());
+ipcMain.on('account:remove', (event, uuid) => this.removeAccount(uuid));
 
+exports.addAccount = () => {
+    const window = new BrowserWindow({
+        title: 'Login to Mojang',
+        autoHideMenuBar: true,
+        width: 250,
+        height: 300,
+        resizable: false,
+        webPreferences: {
+            nodeIntegration: true,
+        }
+    });
+    window.loadURL(`file://${__dirname}/login.html`).then(() => ipcMain.on('login:complete', async (event, data) => {
+        const acc = await this.getAccount(data.uuid);
+        if (acc != null) {
+            acc.token = data.token;
+            acc.username = data.username;
+            await accounts.update({ _id: data._id }, acc);
+        } else await accounts.insert(data);
+        await this.getSelectedAccount();
+        await this.renderAccounts();
+        window.close();
+    }));
+};
 
+exports.selectAccount = async uuid => {
+    const current = await accounts.findOne({ selected: true });
+    if (current != null) {
+        current.selected = false;
+        await accounts.update({ selected: true }, current);
+    }
 
+    const target = await accounts.findOne({ _id: uuid });
+    target.selected = true;
+    await accounts.update({ _id: uuid }, target);
+    await this.getSelectedAccount();
+    this.renderAccounts();
+};
 
-exports.login = (username, password, token) => {
+exports.getSelectedAccount = async () => {
+    const current = await accounts.findOne({ selected: true });
+    if (current != null)
+        return current;
+    const first = await accounts.findOne({ });
+    if (first != null) {
+        first.selected = true;
+        await accounts.update({ _id: first._id }, first);
+        return first;
+    }
+};
 
+exports.getAccounts = () => accounts.find({ });
+
+exports.getAccount = (uuid) => accounts.findOne({ uuid });
+
+exports.renderAccounts = async () => mainWindow.send('account:render', await exports.getAccounts());
+
+exports.removeAccount = async uuid => {
+    accounts.remove({ _id: uuid });
+    await this.getSelectedAccount();
+    this.renderAccounts();
 };

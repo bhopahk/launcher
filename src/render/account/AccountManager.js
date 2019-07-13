@@ -33,43 +33,46 @@ class AccountManager extends React.Component {
 
         this.state = {
             active: 0,
-            accounts: [
-                {
-                    name: 'bhop_',
-                    uuid: 'd79d790a-8e90-4d78-958a-780c7fadeaab',
-                    lastUsed: 1558575841,
-                },
-                {
-                    name: '3640',
-                    uuid: 'aceb326f-da15-45bc-bf2f-11940c21780c',
-                    lastUsed: 1558575841,
-                }
-            ],
+            accounts: [],
         };
     }
 
+    componentWillMount() {
+        window.ipc.on('account:render', this.renderAccounts);
+        window.ipc.send('account:render');
+    }
+    componentWillUnmount() {
+        window.ipc.removeListener('account:render', this.renderAccounts);
+    }
+
+    renderAccounts = (event, data) => this.setState({
+        accounts: data
+    });
+
     render() {
-        const activeAccount = this.state.accounts[this.state.active];
+        let activeAccount = this.state.accounts[this.state.active];
+        if (activeAccount === undefined)
+            activeAccount = {};
         return (
             <div className="account-manager">
-                <div className="am-content">
-                    <div className="am-header">
-                        <img alt="User Head" src={`${HEAD_BASE_URL}${activeAccount.uuid}`} />
-                        <div className="am-header-info">
-                            <h1>{activeAccount.name}</h1>
-                            <h2>{activeAccount.uuid}</h2>
-                        </div>
-                        <div className="am-header-actions">
-
-                        </div>
-                    </div>
+                {/*<div className="am-content">*/}
+                    {/*<div className="am-header">*/}
+                        {/*<img alt="User Head" src={`${HEAD_BASE_URL}${activeAccount.uuid}`} />*/}
+                        {/*<div className="am-header-info">*/}
+                        {/*    <h1>{activeAccount.username}</h1>*/}
+                        {/*    <h2>{activeAccount.uuid}</h2>*/}
+                        {/*</div>*/}
+                        {/*<div className="am-header-actions">*/}
+                        {/**/}
+                        {/*</div>*/}
+                    {/*</div>*/}
                     <div className="am-accounts">
                         {this.state.accounts.map(acc => {
-                            return (<Account key={acc.uuid} {...acc} />);
+                            return (<Account key={acc._id} {...acc} />);
                         })}
                     </div>
-                </div>
-                <ServerStatus />
+                <button onClick={() => window.ipc.send('account:inst')}>Add Account</button>
+                {/*</div>*/}
             </div>
         );
     }
@@ -77,12 +80,15 @@ class AccountManager extends React.Component {
 
 const Account = (props) => {
     return (
-        <div className="am-account">
-            <img alt="User Head" src={`${HEAD_BASE_URL}${props.uuid}`} />
+        <div className={`am-account ${props.selected ? 'active' : ''}`} onClick={() => window.ipc.send('account:select', props._id)}>
+            <img alt="User Head" src={`${HEAD_BASE_URL}${props._id}`} />
             <div>
-                <h4>{props.name}</h4>
-                <h5>{props.uuid}</h5>
-                <button className="am-account-remove">Remove<div></div></button>
+                <h4>{props.username}</h4>
+                <h5>{props._id}</h5>
+                <button onClick={e => {
+                    e.stopPropagation();
+                    window.ipc.send('account:remove', props._id);
+                }} className="am-account-remove">Remove</button>
             </div>
         </div>
     );

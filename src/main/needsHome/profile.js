@@ -34,7 +34,6 @@ const files = require('../util/files');
 const StreamZip = require('node-stream-zip');
 const fetch = require('node-fetch');
 const taskmaster = require('../task/taskmaster');
-const sendSync = require('../util/ipcMainSync').sendSync; //todo maybe make a main process api for tasks.
 
 // Useful paths
 const baseDir = app.getPath('userData');
@@ -97,8 +96,6 @@ ipcMain.on('profile:mod:delete', async (event, payload) => {
  * @returns {Promise<void>} Completion.
  */
 exports.createProfile = async data => {
-    const name = await findName(data.name);
-    const tid = taskmaster.createTask(name);
     const total = data.modpack === undefined ? 4 : 5;
 
     let icon;
@@ -115,6 +112,9 @@ exports.createProfile = async data => {
 
         data.name = packData.name
     } else icon = 'https://via.placeholder.com/240';
+
+    const name = await findName(data.name);
+    const tid = taskmaster.createTask(name);
 
     await taskmaster.updateTask(tid, 'creating directory', 1/total);
     const directory = path.join(instanceDir, name);
@@ -151,7 +151,7 @@ exports.createProfile = async data => {
         packData.version = fileJson.displayName;
         packData.versionId = fileJson.id;
 
-        const versionInfo = await installer.installCurseModpack(tid, name, fileJson.downloadUrl);
+        const versionInfo = await installer.installCurseModpack(name, fileJson.downloadUrl, tid);
         versionId = versionInfo.localVersionId;
         data.version = versionInfo.version;
     }
