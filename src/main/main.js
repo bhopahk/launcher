@@ -193,6 +193,8 @@ app.on('open-url', async (event, data) => {
     // await shell.openExternal(data);
 });
 
+exports.sendSnack = data => mainWindow.send('snack:send', data);
+
 ipcMain.on('titlebar', (event, arg) => {
     let window = BrowserWindow.fromWebContents(event.sender);
     switch (arg.action) {

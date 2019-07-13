@@ -83,6 +83,8 @@ class App extends React.Component {
             console.log(arg);
         });
 
+        window.ipc.on('snack:send', (event, body) => Snackbar.sendSnack(body));
+
         window.ipc.on('profile:custom', (event, message) => {
             switch (message.result) {
                 case 'SUCCESS':

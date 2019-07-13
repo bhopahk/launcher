@@ -120,7 +120,7 @@ exports.getSelectedJavaInstance = async () => {
         return current;
     const first = await jvmDb.findOne({ });
     if (!first)
-        return { error: 'no java', errorMessage: 'You do not have any java instances installed currently!' };
+        return { error: 'no java', errorMessage: 'Please add a java instance in settings!' };
     await this.selectJavaInstance(first._id);
     first.selected = true;
     return first;
@@ -169,7 +169,7 @@ const getOsDefaultJavaDirectory = () => {
             return [ path.normalize('/usr/lib/jvm/') ];
     }
 };
-const getOsDefaultJavaExecutable = () => process.platform === 'win32' ? 'java.exe' : 'Unsupported Operation'; //todo finish
+exports.getOsDefaultJavaExecutable = () => process.platform === 'win32' ? 'java.exe' : 'Unsupported Operation'; //todo finish
 const exec = cmd => new Promise((resolve, reject) => {
     require('child_process').exec(cmd, {maxBuffer: 1024 * 1024}, (err, stdout, stderr) => {
         if (err) reject(err);

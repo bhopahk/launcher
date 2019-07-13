@@ -24,6 +24,7 @@ const { app } = require('electron');
 const profile = require('../needsHome/profile');
 const artifact = require('../util/artifact');
 const config = require('../config/config');
+const sendSnack = require('../main').sendSnack;
 const accounts = require('../mojang/accounts');
 const java = require('../config/java');
 const updater = require('../app/updater');
@@ -31,6 +32,7 @@ const path = require('path');
 const fs = require('fs-extra');
 const StreamZip = require('node-stream-zip');
 const xmlJs = require('xml-js');
+const spawn = require('child_process').spawn;
 
 const baseDir = app.getPath('userData');
 const osName = {
@@ -58,7 +60,10 @@ class BypassLauncher {
 
         const account = await accounts.getSelectedAccount();
         if (account == null) {
-            console.error('Please add a Minecraft account!');
+            sendSnack({
+                body: 'No valid Minecraft account could be found!'
+            });
+            console.log('Attempted to launch Minecraft without a valid account!');
             return;
         }
 
@@ -69,7 +74,7 @@ class BypassLauncher {
         let inheritedVersionJson;
         if (versionJson.inheritsFrom)
             inheritedVersionJson = await fs.readJson(path.join(baseDir, 'Install', 'versions', versionJson.inheritsFrom, `${versionJson.inheritsFrom}.json`));
-        console.log(`Extracting natives to ${this.nativeDirectory}`);
+        console.debug(`Extracting natives to ${this.nativeDirectory}`);
 
         let allLibraries = versionJson.libraries;
         if (inheritedVersionJson)
@@ -197,8 +202,8 @@ class BypassLauncher {
 
         // Main Class
         // args.push(`-Dminecraft.launchwrapper=${versionJson.mainClass}`);
-        args.push(versionJson.mainClass);
         // args.push('me.bhop.proton.launchwrapper.LaunchWrapper');
+        args.push(versionJson.mainClass);
 
         // Game Arguments
         let gameArguments = [];
@@ -221,18 +226,20 @@ class BypassLauncher {
         this.profile.javaArgs.split(' ').forEach(arg => args.push(arg));
 
         console.log('LAUNCHING');
-        console.log(JSON.stringify(this.profile));
-        // console.log(JSON.stringify(args));
-        // await fs.writeFile('C:\\Users\\Matt Worzala\\Desktop\\cmd15.txt', args.join(' '));
 
-        const spawn = require('child_process').spawn;
-
-        const javaExecutable = path.join((await java.getSelectedJavaInstance()).path, 'bin', 'java.exe'); //todo this needs to allow for non windows.
+        const javaInstance = await java.getSelectedJavaInstance();
+        if (javaInstance.error) {
+            sendSnack({ body: javaInstance.errorMessage });
+            console.log('Failed to start Minecraft for `' + javaInstance.error + '`');
+            await fs.remove(this.nativeDirectory);
+            return;
+        }
+        const javaExecutable = path.join(javaInstance.path, 'bin', java.getOsDefaultJavaExecutable());
 
         this.process = spawn(javaExecutable, args, {
             stdio: [ 'ignore', 'pipe', 'pipe' ],
             cwd: this.profile.directory,
-        }); //todo i need to check with mojang servers to confirm that they are logging in with a valid account.
+        });
 
         this.process.stdout.setEncoding('UTF-8');
         this.process.stderr.setEncoding('UTF-8');
@@ -264,9 +271,6 @@ const prepareArgument = (envars, argument) => {
     if (typeof argument === 'string') {
         let processed = argument;
         Object.keys(envars).forEach(envar => processed = processed.replace(`\${${envar}}`, envars[envar]));
-        // if (processed.includes('Windows 10'))
-            // processed = '-Dos.name="Windows 10"'; //todo temporary fix
-        // return processed.includes(' ') && !processed.includes('guava') ? `"${processed}"` : processed; //todo this is a bad check
         return processed;
     } else {
         let valid = true;
