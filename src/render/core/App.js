@@ -141,7 +141,7 @@ class App extends React.Component {
                     <SidebarHeader />
                     <SidebarGroup index={0} title="library">
                         <Page id="profiles" icon="list" display="Profiles">
-                            <Profiles onProfileOptions={profile => this.setState({ profile: profile })} />
+                            <Profiles getActiveProfileOptions={() => this.state.profile.name} onProfileOptions={profile => this.setState({ profile: profile })} />
                         </Page>
                         <Page id="accounts" icon="user" display="Accounts">
                             <AccountManager />

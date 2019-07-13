@@ -22,7 +22,10 @@ class Profiles extends React.Component {
     handleRender = (event, payload) => {
         this.setState({
             profiles: payload,
-        });
+        }, () => this.state.profiles.forEach(profile => {
+            if (profile.name === this.props.getActiveProfileOptions())
+                this.props.onProfileOptions(profile)
+        }));
     };
 
     handleLaunch(profile) {

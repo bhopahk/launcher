@@ -34,6 +34,7 @@ const files = require('../util/files');
 const StreamZip = require('node-stream-zip');
 const fetch = require('node-fetch');
 const taskmaster = require('../task/taskmaster');
+const sendSnack = require('../main').sendSnack;
 
 // Useful paths
 const baseDir = app.getPath('userData');
@@ -48,11 +49,20 @@ const profileDb = new Database(path.join(baseDir, 'profiles.db'));
 profileDb.index({ fieldName: 'name', unique: true });
 
 // IPC listeners
-// CRUD operations
+// Base profile
 ipcMain.on('profile:create', (event, payload) => this.createProfile(payload));
 ipcMain.on('profile:list', () => this.renderProfiles());
 ipcMain.on('profile:update', () => {}); //todo
+ipcMain.on('profile:update:icon', async (event, data) => {
+    if (!await fs.pathExists(data.icon))
+        return sendSnack({ body: 'Failed to change profile icon!' });
+    const icon = await files.loadImage(data.icon);
+    await this.updateProfile(data.name, { icon: icon.src });
+    sendSnack({ body: 'Successfully changed profile icon!' });
+    await this.renderProfiles()
+});
 ipcMain.on('profile:delete', (event, payload) => this.deleteProfile(payload));
+
 
 // Screenshots
 ipcMain.on('profile:screenshot:list', async (event, payload) => mainWindow.send('profile:screenshot:render', await this.getScreenshots(payload)));

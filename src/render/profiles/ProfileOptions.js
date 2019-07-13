@@ -40,9 +40,7 @@ class ProfileOptions extends React.Component {
         }
     }
 
-    handleChangeIcon = target => {
-        alert('changing profile background to ' + target);
-    };
+    handleChangeIcon = (name, target) => window.ipc.send('profile:update:icon', { name, icon: target });
 
     render() {
         return (
@@ -52,7 +50,7 @@ class ProfileOptions extends React.Component {
                         <div className="po-o-hidden" onClick={() => this.imageSelect.current.click()}>
                             <p>Change Icon</p>
                         </div>
-                        <input type="file" ref={this.imageSelect} accept="image/png" onChange={e => this.handleChangeIcon(e.target.files[0].path)} hidden />
+                        <input type="file" ref={this.imageSelect} accept="image/png" onChange={e => this.handleChangeIcon(this.props.profile.name, e.target.files[0].path)} hidden />
                         <img src={this.props.profile.icon} alt="Profile Icon" />
                     </div>
                 </ModalPage>
