@@ -26,7 +26,7 @@ import { Switch } from '../input/Input';
 const SettingsField = (props) => {
     return (
         <div className="settings-field">
-            <h2>{props.title}{props.ni ? (<span className="badge">Not Implemented</span>) : null}</h2>
+            <h2>{props.title}{props.beta ? (<span className="badge">BETA</span>) : null}{props.ni ? (<span className="badge">Not Implemented</span>) : null}</h2>
             <h3 className={props.switch ? 'short' : ''}>{props.description}&nbsp;{props.note ? (<span>{props.note}</span>) : null}</h3>
             {React.Children.map(props.children, child => {
                 return React.cloneElement(child, {

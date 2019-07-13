@@ -90,9 +90,14 @@ const Title = (props) => {
     return (<h1>{props.children}</h1>)
 };
 
+const Subtitle = (props) => {
+    return (<h5 className="subtitle">{props.children}</h5>)
+};
+
 export {
     SettingsWrapper,
     Settings,
     Separator,
     Title,
+    Subtitle
 }

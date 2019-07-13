@@ -23,7 +23,7 @@ import CurseModpackListing from '../modpack/provider/Curse';
 import { ModpackBrowser } from '../modpack/Modpack';
 import CreateProfile from "../create/CreateProfile";
 
-import { SettingsWrapper, Settings, Separator, Title } from "../settings/Settings";
+import {SettingsWrapper, Settings, Separator, Title, Subtitle} from "../settings/Settings";
 import { SettingsField, SettingsSwitch } from '../settings/SettingsInput';
 
 import { Checkbox, Check, FolderSelect, Dropdown, Option, TextField, Slider, Button } from '../input/Input';
@@ -185,6 +185,9 @@ class App extends React.Component {
                         <SettingsWrapper default="app">
                             <Settings id="app" display="App Settings">
                                 <Title>App Settings</Title>
+                                <SettingsField title="Instance Directory" description="The location for profiles to be installed. Your account must have access to the folder.">
+                                    <FolderSelect id="instanceDir" onMoreAction={value => window.ipc.send('open-folder', value)} />
+                                </SettingsField>
                                 <Title>Updates</Title>
                                 <SettingsField ni title="Prerelease Builds" switch description="Enables pre release builds. They are potentially buggy, however they contain the most up-to-date fixes and features.">
                                     <SettingsSwitch id="prerelease" />
@@ -203,14 +206,11 @@ class App extends React.Component {
                                 <SettingsField title="Parallel Downloads" switch description="Allows the launcher to download many files at once, this speeds up the download process significantly, however it is not recommended for slow internet connections.">
                                     <SettingsSwitch id="parallelDownloads" />
                                 </SettingsField>
-                                <SettingsField ni title="End on Close" switch description="Stops the launcher from keeping a background process in the background when the window is not shown. This will disable all background features.">
-                                    <SettingsSwitch id="endOnClose" />
+                                <SettingsField title="Background Vibrancy" switch description="Enable at your own risk. It is not guarenteed to work, and it will specifically not work on linux. Requires a restart to apply.">
+                                    <SettingsSwitch id="vibrancy" />
                                 </SettingsField>
                                 <SettingsField title="Developer Mode" switch description="Enables some extra options and menus for testing. This should not be enabled unless confident or instructed by a developer.">
                                     <SettingsSwitch id="developerMode" />
-                                </SettingsField>
-                                <SettingsField title="Background Vibrancy" switch description="Enable at your own risk. It is not guarenteed to work, and it will specifically not work on linux. Requires a restart to apply.">
-                                    <SettingsSwitch id="vibrancy" />
                                 </SettingsField>
                             </Settings>
                             <Settings id="java" display="Java">
@@ -219,40 +219,36 @@ class App extends React.Component {
                             </Settings>
                             <Settings id="defaults" display="Profile Defaults">
                                 <Title>Profile Defaults</Title>
-                                <SettingsField title="Resolution" description="The resolution for profiles to start with. This can be changed in any individual profiles settings.">
+                                <Subtitle>These settings will be applied to all profiles by default, however they can be changed on a per profile basis. Changes will not apply to profiles which are already created.</Subtitle>
+                                <SettingsField title="Resolution" description="The default resolution for profiles to launch with.">
                                     <Dropdown id="resolution" small>
                                         <Option value="1920x1080" display="1920x1080" description="Recommended" />
                                         <Option value="1280x720" display="1280x720" />
                                     </Dropdown>
                                 </SettingsField>
-                                <SettingsField title="Memory" description="SEMI IMPLEMENTED - CAN ALLOCATE MORE THAN SYSTEM HAS - The amount of memory for profiles to start with. This can be changed for individual profiles.">
+                                <SettingsField title="Memory" description="SEMI IMPLEMENTED - CAN ALLOCATE MORE THAN SYSTEM HAS - The maximum amount of memory for the profile to consume.">
                                     <Slider id="maxMemory" step={128} min={256} max={16384} />
                                 </SettingsField>
                                 <SettingsField title="Java Arguments" description="Any additional Java arguments which will be passed into every profile by default. These can be changed for individual profiles separately.">
                                     <TextField id="javaArgs" placeholder="Enter arguments..." />
                                 </SettingsField>
-                                <SettingsField ni title="Server Blacklist" description="Whether Mojang's server blacklist will be loaded when the game is launched. With this disabled, you can connect to blacklisted ips.">
+                                <SettingsField title="Server Blacklist" description="Enable or disable Mojang's server blacklist. With this setting disabled, you will be able to connect to blacklisted servers.">
                                     <SettingsSwitch id="patchy" />
                                 </SettingsField>
                             </Settings>
-                            <Settings id="minecraft" display="Minecraft">
-                                <Title>Minecraft</Title>
-                                <SettingsField ni title="Launcher Preference" description="Choose which game launcher variety (or none) will be used when launching a profile.">
-                                    <Checkbox id="launcherPref">
-                                        <Check value="native" display="Native Launcher" description="The modern 'native' Mojang launcher." />
-                                        <Check value="legacy" display="Legacy Launcher" description="The legacy Java based Mojang launcher." />
-                                        <Check value="direct" display="Direct Launch" description="Who needs a Mojang launcher anyway?" />
-                                    </Checkbox>
+                            <Settings id="rpc" display="Rich Presence">
+                                <Title>Rich Presence</Title>
+                                <SettingsField ni title="Enabled" description="Display a Discord rich presence for the launcher.">
+                                    <SettingsSwitch id="enabled" />
                                 </SettingsField>
-                                <SettingsField title="Instance Directory" description="The location for profiles to be installed. Your account must have access to the folder.">
-                                    <FolderSelect id="instanceDir" onMoreAction={value => window.ipc.send('open-folder', value)} />
+                                <SettingsField ni title="Show Profile" description="Display which profile you are currently playing in the Discord rich presence.">
+                                    <SettingsSwitch id="showProfile" />
                                 </SettingsField>
-                                <Title>Advanced</Title>
-                                <SettingsField ni title="Install Assets" description="Installs version assets such as required libraries and sound files.">
-                                    <SettingsSwitch id="installAssets" />
+                                <SettingsField beta ni title="Show Server" description="Display the IP address of the server which you are currently playing on, if you are connected to a server.">
+                                    <SettingsSwitch id="showServer" />
                                 </SettingsField>
-                                <SettingsField ni title="Save Files" description="Files of deleted profiles will be kept until a new profile is created with the same name.">
-                                    <SettingsSwitch id="deleteFiles" />
+                                <SettingsField beta ni title="Disable RP Mods" description="Automatically disable mods which create a conflicting rich presence when you install a profile.">
+                                    <SettingsSwitch id="disableMods" />
                                 </SettingsField>
                             </Settings>
                             <Separator/>

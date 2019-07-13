@@ -32,7 +32,7 @@ const tasks = require('../task/taskmaster');
 const baseDir = require('electron').app.getPath('userData');
 const tempDir = path.join(baseDir, 'temp');
 const installDir = path.join(baseDir, 'Install');
-const instanceDir = config.getValue('minecraft/instanceDir');
+const instanceDir = config.getValue('app/instanceDir');
 
 fs.mkdirs(tempDir);
 

@@ -1,12 +1,12 @@
 {
   "clientKey": "",
   "app": {
+    "instanceDir": "",
     "checkInterval": 30,
     "prerelease": false,
     "parallelDownloads": false,
-    "endOnClose": false,
-    "developerMode": false,
-    "vibrancy": false
+    "vibrancy": false,
+    "developerMode": false
   },
   "defaults": {
     "resolution": "1280x720",
@@ -14,11 +14,11 @@
     "javaArgs": "",
     "patchy": false
   },
-  "minecraft": {
-    "launcherPref": "native",
-    "instanceDir": "",
-    "installAssets": true,
-    "deleteFiles": true
+  "rpc": {
+    "enabled": true,
+    "showProfile": true,
+    "showServer": true,
+    "disableMods": true
   },
   "notifications": {
     "sendNotifications": true,

@@ -72,7 +72,7 @@ ipcMain.on('java:render', async () => mainWindow.send('java:render', await this.
 exports.addJavaInstance = async location => {
     if (await jvmDb.findOne({ path: location }) != null)
         return { error: 'existent', errorMessage: 'The target Java instance is already available.' };
-    const executable = path.join(location, 'bin', getOsDefaultJavaExecutable());
+    const executable = path.join(location, 'bin', this.getOsDefaultJavaExecutable());
     if (!await fs.pathExists(executable))
         return { error: 'nonexistent', extra: executable, errorMessage: 'The target does not contain a valid Java executable.' };
 

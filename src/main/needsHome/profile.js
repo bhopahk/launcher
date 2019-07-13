@@ -37,7 +37,7 @@ const taskmaster = require('../task/taskmaster');
 
 // Useful paths
 const baseDir = app.getPath('userData');
-const instanceDir = config.getValue('minecraft/instanceDir');
+const instanceDir = config.getValue('app/instanceDir');
 
 // For sending to the window outside of an ipc method
 let mainWindow = null;

@@ -136,10 +136,13 @@ class BypassLauncher {
         // Fabric
         // Forge
 
+        const noPatchy = !config.getValue('defaults/patchy');
         let libraries = versionJson.libraries;
         if (inheritedVersionJson)
             libraries = libraries.concat(inheritedVersionJson.libraries);
         for (const library of libraries) {
+            if (library.name.includes('patchy') && noPatchy)
+                continue;
             if (!library.downloads || !library.downloads.artifact || !library.downloads.artifact.path) {
                 if (library.clientreq !== false)
                     envars.classpath += path.join(baseDir, 'Install', 'libraries', artifact.findLibraryPath(library.name)) + ';';
