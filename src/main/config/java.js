@@ -169,7 +169,7 @@ const getOsDefaultJavaDirectory = () => {
             return [ path.normalize('/usr/lib/jvm/') ];
     }
 };
-exports.getOsDefaultJavaExecutable = () => process.platform === 'win32' ? 'java.exe' : 'Unsupported Operation'; //todo finish
+exports.getOsDefaultJavaExecutable = () => process.platform === 'win32' ? 'java.exe' : 'java';
 const exec = cmd => new Promise((resolve, reject) => {
     require('child_process').exec(cmd, {maxBuffer: 1024 * 1024}, (err, stdout, stderr) => {
         if (err) reject(err);

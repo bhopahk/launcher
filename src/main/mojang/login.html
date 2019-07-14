@@ -9,9 +9,8 @@
         const mojang = require('../mojang/mojang');
 
         const login = async () => {
-            let clientKey = (await require('fs-extra').readJson(require('path').join(require('electron').remote.app.getPath('userData'), 'launcher_config.json'))).clientKey;
-            if (!clientKey)
-                clientKey = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+            let clientKey = ipc.sendSync('config:get', 'clientKey');
+
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             const resp = await mojang.login(username, password, clientKey, true);

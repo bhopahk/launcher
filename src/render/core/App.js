@@ -48,7 +48,14 @@ class App extends React.Component {
 
         window.ipc.on('argv', (event, arg) => {
             alert(arg);
-        })
+        });
+    }
+
+    componentWillMount() {
+        document.addEventListener('keydown', event => {
+            if (event.code === 'Backquote')
+                ModalConductor.openModal('devTools');
+        });
     }
 
     registerAppWideIpcListeners() {
@@ -159,13 +166,7 @@ class App extends React.Component {
                         </Page>
                         <Page id="technic" icon="wrench" display="Technic Modpacks" disabled={!window.ipc.sendSync('util:isDev')}>
                             <p>Custom Profiles</p>
-                            <button onClick={() => window.ipc.send('argv', 'twonk')}>argv</button>
-                            <button onClick={() => window.ipc.send('accounts:newUser', {})}>Login Window</button>
-                            <button onClick={() => window.ipc.send('reporter:test')}>Test Error Report</button>
-                            <button onClick={() => window.ipc.send('testicles')}>Random Testing</button>
-                            <br />
-                            <button onClick={() => window.ipc.send('launch-no-launcher')}>Launch no Launcher</button>
-                            <br/>
+
                         </Page>
                         <Page id="custom" icon="tools" display="Custom Profile">
                             <CreateProfile />
@@ -312,6 +313,20 @@ class App extends React.Component {
                                 window.ipc.send('open-folder', this.state.errorPath);
                                 ModalConductor.closeModals();
                             }}>View</Button>
+                        </div>
+                    </Modal>
+                    <Modal id="devTools" className="dev-tools-wrapper">
+                        <div>
+                            <p>Hi! If you stumbled here by mistake, please click anywhere outside the grey window to close this.</p>
+                            <button onClick={() => window.ipc.send('argv', 'twonk')}>argv</button>
+                            <button onClick={() => window.ipc.send('accounts:newUser', {})}>Login Window</button>
+                            <button onClick={() => window.ipc.send('reporter:test')}>Test Error Report</button>
+                            <button onClick={() => window.ipc.send('tester')}>Random Testing</button>
+                            <br />
+                            <button onClick={() => window.ipc.send('launch-no-launcher')}>Launch no Launcher</button>
+                            <br/>
+                            <input id="uriStringInput" type="text" placeholder="URI String" />
+                            <button onClick={() => window.ipc.send('uri:test', document.getElementById('uriStringInput').value)}>Send String</button>
                         </div>
                     </Modal>
                 </ModalConductor>

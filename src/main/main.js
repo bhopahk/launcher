@@ -69,8 +69,8 @@ const createWindow = () => {
         isDev
             ? 'http://localhost:3000'
             : `file://${path.join(__dirname, '../../build/index.html')}`,
-    ).then(() => {
-        if (config.getValue('app/vibrancy'))
+    ).then(async () => {
+        if (await config.getValue('app/vibrancy'))
             vibrancy.SetVibrancy(mainWindow, 2);
     });
 
@@ -131,31 +131,14 @@ const createContextMenu = () => {
         }
     ])
 };
-const registerUriListeners = () => {
-    app.setAsDefaultProtocolClient('proton');
-
-    const locked = app.requestSingleInstanceLock();
-    if (!locked)
-        app.quit();
-    app.on('second-instance', (event, argv, cwd) => {
-        console.log('WOW A NEW INSTANCE HAS BEEN LAUNCHED');
-        console.log(event);
-        console.log('--------------------------------');
-        console.log(argv);
-        console.log('--------------------------------');
-        console.log(cwd);
-        console.log('--------------------------------');
-
-        mainWindow.show();
-    })
-};
 
 app.on('ready',  async () => {
     await config.loadConfig();
     // Setup console debug
-    const debug = config.getValue('app/developerMode');
+    const debug = await config.getValue('app/developerMode');
     console.debug = message => { if (debug) log.debug(message); };
 
+    require('./app/protocol');
     require('./app/reporter');
     require('./app/updater');
     require('./task/taskmaster');
@@ -165,7 +148,6 @@ app.on('ready',  async () => {
     require('./game/versionCache');
     require('./game/curseCache');
     require('./app/rpc');
-
 
     //todo why is this settimeout here?
     setTimeout(() => {
@@ -179,11 +161,12 @@ app.on('ready',  async () => {
         // createTrayMenu();
         // if (process.platform === 'win32')
         //     createContextMenu();
-        registerUriListeners();
 
         // Send warning about not pasting stuff.
         // mainWindow.webContents.on('devtools-opened', () => mainWindow.webContents.send('devtools-opened'));
     }, 100);
+
+    app.on('second-instance', () => mainWindow.show());
 });
 
 app.on('window-all-closed', () => {
@@ -250,8 +233,8 @@ ipcMain.on('argv', async event => {
 
 ipcMain.on('util:isDev', event => event.returnValue = isDev);
 
-ipcMain.once('sync', event => {
-    event.returnValue = config.getValue('app/vibrancy')
+ipcMain.once('sync', async event => {
+    event.returnValue = await config.getValue('app/vibrancy')
 });
 
 process.on('unhandledRejection', (reason, p) => {

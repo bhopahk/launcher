@@ -38,7 +38,9 @@ const sendSnack = require('../main').sendSnack;
 
 // Useful paths
 const baseDir = app.getPath('userData');
-const instanceDir = config.getValue('app/instanceDir');
+const tempDir = path.join(baseDir, 'temp');
+let instanceDir;
+config.getValue('app/instanceDir').then(dir => instanceDir = dir);
 
 // For sending to the window outside of an ipc method
 let mainWindow = null;
@@ -99,10 +101,11 @@ ipcMain.on('profile:mod:delete', async (event, payload) => {
  *
  * When provided a `modpack`(curse project id) and `file`(curse file id), a curse modpack will be generated.
  * When provided a `version` containing (at minimum) `version`, `flavor`, a custom profile will be generated.
+ * When provided a `mmc` containing a url to a MultiMC pack zip, a multimc pack will be generated.
  *
  * @since 0.2.2
  *
- * @param {Object} data     JSON data containing either modpack id and file id or version data.
+ * @param {Object} data JSON data containing either modpack id and file id or version data.
  * @returns {Promise<void>} Completion.
  */
 exports.createProfile = async data => {
@@ -121,6 +124,12 @@ exports.createProfile = async data => {
         packData.originalIcon = icon;
 
         data.name = packData.name
+    } else if (data.mmc !== undefined) {
+        if (!data.mmc.endsWith('.zip'))
+            return;
+        icon = 'https://via.placeholder.com/240';
+        const zipName = data.mmc.substring(data.mmc.lastIndexOf('/') + 1);
+        data.name = zipName.substring(zipName.lastIndexOf('.'));
     } else icon = 'https://via.placeholder.com/240';
 
     const name = await findName(data.name);
@@ -134,7 +143,7 @@ exports.createProfile = async data => {
     mainWindow.send('profile:create:response'); //todo probably change this channel id
 
     let versionId;
-    if (data.modpack === undefined) {
+    if (data.modpack === undefined && data.mmc === undefined) {
         switch (data.version.flavor) {
             case 'vanilla':
                 await taskmaster.updateTask(tid, 'installing minecraft', 2/total);
@@ -155,6 +164,17 @@ exports.createProfile = async data => {
                 });
                 break;
         }
+    } else if (data.mmc !== undefined) {
+        const packZip = path.join(tempDir, data.mmc.substring(data.mmc.lastIndexOf('/') + 1));
+        await taskmaster.updateTask(tid, 'downloading archive', 2/total);
+        await files.download(data.mmc, packZip);
+        await taskmaster.updateTask(tid, 'extracting archive', 3/total);
+        const packTempDirOuter = await files.unzip(packZip);
+        await taskmaster.updateTask(tid, 'copying overrides', 4/total);
+        const packTempDir = path.join(packTempDirOuter, fs.readdir(packTempDirOuter)[0]);
+        console.log(packTempDir);
+        return ;
+
     } else {
         await taskmaster.updateTask(tid, 'preparing modpack info', 3/total);
         const fileJson = await (await fetch(`https://addons-ecs.forgesvc.net/api/v2/addon/${data.modpack}/file/${data.file}`)).json();
@@ -179,14 +199,14 @@ exports.createProfile = async data => {
         targetVersion: versionId,
         rawVersion: data.version,
         resolution: {
-            width: config.getValue('defaults/resolution').split('x')[0],
-            height: config.getValue('defaults/resolution').split('x')[1],
+            width: await config.getValue('defaults/resolution').split('x')[0],
+            height: await config.getValue('defaults/resolution').split('x')[1],
         },
         memory: {
             min: '512',
-            max: config.getValue('defaults/maxMemory'),
+            max: await config.getValue('defaults/maxMemory'),
         },
-        javaArgs: config.getValue('defaults/javaArgs'),
+        javaArgs: await config.getValue('defaults/javaArgs'),
         mods: {},
     });
 
@@ -284,7 +304,7 @@ exports.deleteProfile = async name => {
     const target = await profileDb.findOne({ name });
     await deleteLauncherProfile(name);
     await profileDb.remove({ name });
-    if (config.getValue('minecraft/deleteFiles') && target !== undefined)
+    if (target !== undefined)
         await fs.remove(target.directory);
     await this.renderProfiles();
 };

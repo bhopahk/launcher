@@ -151,7 +151,7 @@ exports.renderTasks = () => {
  * @param {Object} props extra variables to be passed in the start message. All must be JSON serializable.
  * @return {Promise<Object>} Completion, with either an error, a response, or a cancellation. All resolutions will contain the task id in the returned object.
  */
-exports.runJob = async (tid, job, props = {}) => new Promise((resolve, reject) => {
+exports.runJob = async (tid, job, props = {}) => new Promise(async (resolve, reject) => {
     if (tasks[tid] === undefined)
         return reject({ error: 'nonexistent', errorMessage: 'A job was executed on a task which does not exist!', tid });
     if (tasks[tid].job !== undefined)
@@ -161,9 +161,9 @@ exports.runJob = async (tid, job, props = {}) => new Promise((resolve, reject) =
     const child = fork(path.join(__dirname, 'jobs', `${job}.job.js`), [ ], { cwd: temp, env: {
             TASK_ID: tid,
             BASE_DIR: baseDir,
-            DEBUG: config.getValue('app/developerMode'),
+            DEBUG: await config.getValue('app/developerMode'),
             IS_DEV: require('electron-is-dev'),
-            DO_PARALLEL: config.getValue('app/parallelDownloads') }});
+            DO_PARALLEL: await config.getValue('app/parallelDownloads') }});
     tasks[tid].job = child;
     tasks[tid].listen = [];
     child.on('message', message => {

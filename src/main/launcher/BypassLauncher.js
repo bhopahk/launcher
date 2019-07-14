@@ -136,7 +136,7 @@ class BypassLauncher {
         // Fabric
         // Forge
 
-        const noPatchy = !config.getValue('defaults/patchy');
+        const noPatchy = !await config.getValue('defaults/patchy');
         let libraries = versionJson.libraries;
         if (inheritedVersionJson)
             libraries = libraries.concat(inheritedVersionJson.libraries);

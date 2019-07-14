@@ -34,10 +34,10 @@ const accounts = new Database(path.join(baseDir, 'accounts.db'));
 
 // Sync accounts
 let mainWindow;
-ipcMain.on('sync', event => {
+ipcMain.on('sync', async event => {
     mainWindow = event.sender;
     console.log('Synchronizing Minecraft accounts...');
-    const clientToken = config.getValue('clientKey');
+    const clientToken = await config.getValue('clientKey');
     accounts.find({ }).then(accs => accs.forEach(async account => {
         if (await mojang.validateToken(account.token, clientToken))
             return console.debug(`Account@${account.username} has a valid token.`);
@@ -65,10 +65,6 @@ exports.addAccount = () => {
         }
     });
     window.loadURL(`file://${__dirname}/login.html`).then(() => ipcMain.on('login:complete', async (event, data) => {
-        if (data.clientKey !== config.getValue('clientKey')) {
-            config.setValue('clientKey', data.clientKey);
-            await config.saveConfig();
-        }
         const acc = await this.getAccount(data.uuid);
         if (acc != null) {
             acc.token = data.token;

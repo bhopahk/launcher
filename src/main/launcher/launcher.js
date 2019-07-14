@@ -20,9 +20,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-const NativeLauncher = require('./NativeLauncher');
-const LegacyLauncher = require('./LegacyLauncher');
-
 const fs = require('fs-extra');
 const path = require('path');
 const profile = require('../needsHome/profile');
@@ -39,25 +36,9 @@ exports.launchProfile = async (profile) => {
     // await this.selectProfile(profile);
     await updateLastLaunched(profile.name);
 
-    if (profile.flavor === 'vanilla' || profile.flavor === 'fabric' || profile.flavor === 'forge') {
-        const BypassLauncher = require('../launcher/BypassLauncher');
-        const game = new BypassLauncher(profile.name);
-        await game.launch();
-    } else {
-        let game;
-        if (isNative)
-            game = new NativeLauncher();
-        else game = new LegacyLauncher();
-
-        rpc.setToPlaying({
-            name: profile.name,
-            type: profile.type,
-            gameVersion: profile.version
-        });
-        game.on('stop', code => {
-            rpc.setToIdle();
-        });
-    }
+    const BypassLauncher = require('../launcher/BypassLauncher');
+    const game = new BypassLauncher(profile.name);
+    await game.launch();
 };
 
 exports.selectProfile = async (profile) => {

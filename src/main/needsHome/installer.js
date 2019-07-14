@@ -32,7 +32,8 @@ const tasks = require('../task/taskmaster');
 const baseDir = require('electron').app.getPath('userData');
 const tempDir = path.join(baseDir, 'temp');
 const installDir = path.join(baseDir, 'Install');
-const instanceDir = config.getValue('app/instanceDir');
+let instanceDir;
+config.getValue('app/instanceDir').then(dir => instanceDir = dir);
 
 fs.mkdirs(tempDir);
 

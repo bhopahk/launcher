@@ -33,9 +33,9 @@ class SettingsWrapper extends React.Component {
         };
     }
 
-    componentWillUnmount() {
-        window.ipc.send('config:save');
-    }
+    // componentWillUnmount() {
+    //     window.ipc.send('config:save');
+    // }
 
     render() {
         return (
