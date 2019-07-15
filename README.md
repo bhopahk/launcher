@@ -27,7 +27,7 @@
 <br>
 
 ## Info 📍
-Proton Launcher is a Minecraft installer and launcher with capabilities to install and manage Vanilla, Forge, Fabric profiles, install modpacks from CurseForge, and much more.
+Proton Launcher is a Minecraft installer and launcher which was originally created to replace the Twitch app. It can install and manage Vanilla, Forge, Fabric profiles, install modpacks from CurseForge, and much more.
 
 ---
 
