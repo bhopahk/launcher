@@ -65,7 +65,7 @@ exports.getValue = async (target) => {
     const entry = await config.findOne({ _id: target });
     if (!entry)
         return null;
-    return entry.value;
+    return entry;
 };
 
 exports.setValue = async (target, value) => {

@@ -30,7 +30,7 @@ const SettingsField = (props) => {
             <h3 className={props.switch ? 'short' : ''}>{props.description}&nbsp;{props.note ? (<span>{props.note}</span>) : null}</h3>
             {React.Children.map(props.children, child => {
                 return React.cloneElement(child, {
-                    getValue: () => getConfigValue(`${props.parentId}/${child.props.id}`),
+                    getValue: () => getConfigValue(`${props.parentId}/${child.props.id}`).value,
                     setValue: value => setConfigValue(`${props.parentId}/${child.props.id}`, value),
                 });
             })}

@@ -69,7 +69,7 @@ const createWindow = () => {
             ? 'http://localhost:3000'
             : `file://${path.join(__dirname, '../../build/index.html')}`,
     ).then(async () => {
-        if (await config.getValue('app/vibrancy') && (process.platform === 'win32' || process.platform === 'darwin'))
+        if ((await config.getValue('app/vibrancy')).value && (process.platform === 'win32' || process.platform === 'darwin'))
             require('electron-vibrancy').SetVibrancy(mainWindow, 2);
     });
 
@@ -237,7 +237,10 @@ ipcMain.on('launcher:restart', () => {
 });
 
 ipcMain.once('sync', async event => {
-    event.returnValue = await config.getValue('app/vibrancy')
+    event.returnValue = {
+        vibrancy: await config.getValue('app/vibrancy'),
+        css: await require('./app/theme/themes').getTheme()
+    }
 });
 
 process.on('unhandledRejection', (reason, p) => {

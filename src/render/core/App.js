@@ -1,5 +1,6 @@
 import React from 'react';
 import './app.css';
+// import './default.css';
 import '../util/contextmenu.css';
 import '../util/tooltip.css';
 import '../util/badge.css';
@@ -52,14 +53,24 @@ class App extends React.Component {
     }
 
     componentWillMount() {
+
+
         document.addEventListener('keydown', event => {
             if (event.code === 'Backquote')
                 ModalConductor.openModal('devTools');
         });
     }
 
+    componentDidMount() {
+        const link = document.createElement('style');
+        link.innerHTML = this.style;
+        document.getElementsByTagName('head')[0].appendChild(link);
+    }
+
     registerAppWideIpcListeners() {
-        this.isVibrant = window.ipc.sendSync('sync').vibrancy;
+        const settings = window.ipc.sendSync('sync');
+        this.isVibrant = settings.vibrancy.value;
+        this.style = settings.css;
 
         // Warning about pasting anything in devtools
         window.ipc.on('devtools-openend', () => {
@@ -141,10 +152,10 @@ class App extends React.Component {
                 backgroundColor: this.isVibrant ? 'rgba(25, 25, 25, 0.6)' : 'rgba(25, 25, 25, 0.85)',
             }}>
                 <Actions />
-                <div className={"alpha"}>
-                    <i className="fas fa-exclamation-triangle"></i>
+                <div className={"alpha medium-text"}>
+                    <i className="fas fa-exclamation-triangle light-text"></i>
                     <h1>Early Alpha - <span>expect bugs</span></h1>
-                    <i className="fas fa-exclamation-triangle"></i>
+                    <i className="fas fa-exclamation-triangle light-text"></i>
                 </div>
                 <Sidebar default="profiles">
                     <SidebarHeader />

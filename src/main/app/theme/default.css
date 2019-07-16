@@ -1,0 +1,60 @@
+/* A template for theming */
+
+/* Background Colors */
+.primary-bg {
+    background-color: #185cc9;
+}
+.secondary-bg {
+    background-color: #284a98;
+}
+.success-bg {
+    background-color: rgb(40, 167, 69);
+}
+.success-bg-alt {
+    background-color: rgba(65, 242, 105, 0.2);
+}
+.warning-bg {
+    background-color: rgb(255, 193, 7);
+}
+.warning-bg-alt {
+    background-color: rgba(255, 193, 7, 0.2);
+}
+.error-bg {
+    background-color: rgb(220, 53, 69);
+}
+.error-bg-alt {
+    background-color: rgba(220, 53, 69, 0.2);
+}
+
+
+/* Text Colors */
+.primary-text {
+    color: #185cc9;
+}
+.secondary-text {
+    color: #284a98;
+}
+.light-text {
+    color: #d8d6d6;
+}
+.medium-text {
+    color: #b5b3b3;
+}
+.dark-text {
+    color: #757575;
+}
+.success-text {
+    color: rgb(40, 167, 69);
+}
+.warning-text {
+    color: rgb(255, 193, 7);
+}
+.error-text {
+    color: rgb(220, 53, 69);
+}
+
+
+/* Text Modifiers */
+.text-shadow {
+    text-shadow: 2px 2px #0c0c0c;
+}
