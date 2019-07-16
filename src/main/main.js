@@ -22,7 +22,6 @@ SOFTWARE.
 
 const { app, BrowserWindow, shell, ipcMain, Tray, Menu } = require('electron');
 const log = require('electron-log');
-const vibrancy = require('electron-vibrancy');
 
 const path = require('path');
 const isDev = require('electron-is-dev');
@@ -70,8 +69,8 @@ const createWindow = () => {
             ? 'http://localhost:3000'
             : `file://${path.join(__dirname, '../../build/index.html')}`,
     ).then(async () => {
-        if (await config.getValue('app/vibrancy'))
-            vibrancy.SetVibrancy(mainWindow, 2);
+        if (await config.getValue('app/vibrancy') && (process.platform === 'win32' || process.platform === 'darwin'))
+            require('electron-vibrancy').SetVibrancy(mainWindow, 2);
     });
 
     if (isDev) {

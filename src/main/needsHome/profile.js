@@ -129,7 +129,7 @@ exports.createProfile = async data => {
             return;
         icon = 'https://via.placeholder.com/240';
         const zipName = data.mmc.substring(data.mmc.lastIndexOf('/') + 1);
-        data.name = zipName.substring(zipName.lastIndexOf('.'));
+        data.name = zipName.substring(0, zipName.lastIndexOf('.'));
     } else icon = 'https://via.placeholder.com/240';
 
     const name = await findName(data.name);
@@ -171,7 +171,29 @@ exports.createProfile = async data => {
         await taskmaster.updateTask(tid, 'extracting archive', 3/total);
         const packTempDirOuter = await files.unzip(packZip);
         await taskmaster.updateTask(tid, 'copying overrides', 4/total);
-        const packTempDir = path.join(packTempDirOuter, fs.readdir(packTempDirOuter)[0]);
+        const packTempDir = path.join(packTempDirOuter, (await fs.readdir(packTempDirOuter))[0]);
+
+        data.version = {};
+        const packJson = await fs.readJson(path.join(packTempDir, 'mmc-pack.json'));
+        packJson.components.forEach(component => {
+            switch (component.cachedName.toLowerCase()) {
+                case 'minecraft':
+                    data.version.version = component.version;
+                    break;
+                case 'fabricloader':
+                    const ver = component.cachedVersion.split('_');
+                    data.version.flavor = 'fabric';
+                    // data.version.mappings =
+                    break;
+                default:
+                    console.debug(`Ignoring unknown MMCComponent@"${component.cachedName}".`);
+                    break;
+            }
+        });
+
+        // versionId = version folder
+        // version = { flavor, mappings, loader }
+
         console.log(packTempDir);
         return ;
 
@@ -199,8 +221,8 @@ exports.createProfile = async data => {
         targetVersion: versionId,
         rawVersion: data.version,
         resolution: {
-            width: await config.getValue('defaults/resolution').split('x')[0],
-            height: await config.getValue('defaults/resolution').split('x')[1],
+            width: (await config.getValue('defaults/resolution')).split('x')[0],
+            height: (await config.getValue('defaults/resolution')).split('x')[1],
         },
         memory: {
             min: '512',
@@ -687,7 +709,7 @@ exports.sendTaskUpdate = (id, task, progress) => {
 //todo This is super legacy and needs to be completely redone when accounts are ready / direct launch is ready.
 ipcMain.on('profile:launch', async (event, payload) => {
     const profile = await profileDb.findOne({ name: payload });
-    require('../launcher/launcher').launchProfile(profile).then(() => {
+    require('../game/launcher').launchProfile(profile).then(() => {
         console.log('Launched');
     });
 });
