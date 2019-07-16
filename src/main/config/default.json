@@ -1,44 +1,74 @@
 {
-  "clientKey": "",
-  "app": {
-    "instanceDir": "",
-    "checkInterval": 30,
-    "prerelease": false,
-    "parallelDownloads": false,
-    "vibrancy": false,
-    "developerMode": false
+  "clientKey": {
+    "value": "",
+    "readonly": true
   },
-  "defaults": {
-    "resolution": "1280x720",
-    "maxMemory": 2048,
-    "javaArgs": "",
-    "patchy": false
+  "app/instanceDir": {
+    "value": ""
   },
-  "rpc": {
-    "enabled": true,
-    "showProfile": true,
-    "showServer": true,
-    "disableMods": true
+  "app/checkInterval": {
+    "value": 30
   },
-  "notifications": {
-    "sendNotifications": true,
-    "showTaskbar": true,
-    "sounds": [
+  "app/prerelease": {
+    "value": false
+  },
+  "app/parallelDownloads": {
+    "value": false
+  },
+  "app/vibrancy": {
+    "value": false,
+    "restart": true
+  },
+  "app/developerMode": {
+    "value": false
+  },
+  "defaults/resolution": {
+    "value": "1280x720"
+  },
+  "defaults/maxMemory": {
+    "value": 2048
+  },
+  "defaults/javaArgs": {
+    "value": ""
+  },
+  "defaults/patchy": {
+    "value": false
+  },
+  "rpc/enabled": {
+    "value": true
+  },
+  "rpc/showProfile": {
+    "value": true,
+    "depend": {
+      "rpc/enabled": true,
+      "value": false
+    }
+  },
+  "rpc/showServer": {
+    "value": true,
+    "depend": {
+      "rpc/enabled": true,
+      "value": false
+    }
+  },
+  "rpc/disableMods": {
+    "value": true,
+    "depend": {
+      "rpc/enabled": true,
+      "value": false
+    }
+  },
+  "notifications/enabled": {
+    "value": true
+  },
+  "notifications/showTaskbar": {
+    "value": true
+  },
+  "notifications/sounds": {
+    "value": [
       "native",
       "legacy",
       "direct"
     ]
-  },
-  "personalization": {
-
-  },
-  "language": {
-
-  },
-  "privacy": {
-    "collectData": true
-  },
-  "dangerZone": {
-
   }
 }

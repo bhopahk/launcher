@@ -53,7 +53,6 @@ const osName = {
 }[process.platform];
 
 exports.launchProfile = async (profile) => {
-
     await profiles.updateProfile(profile.name, { played: new Date().getTime() });
     await launchMinecraft(profile);
 };

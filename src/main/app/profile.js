@@ -698,14 +698,6 @@ const uniqueId = length => {
     return result;
 };
 
-//todo would not be opposed to removing VVV -- should make some sort of task manager object for the main process. This should take over the one in the render process.
-exports.sendTaskUpdate = (id, task, progress) => {
-    mainWindow.send('tasks:update', {
-        tId: id,
-        task, progress
-    });
-};
-
 //todo This is super legacy and needs to be completely redone when accounts are ready / direct launch is ready.
 ipcMain.on('profile:launch', async (event, payload) => {
     const profile = await profileDb.findOne({ name: payload });
@@ -713,18 +705,3 @@ ipcMain.on('profile:launch', async (event, payload) => {
         console.log('Launched');
     });
 });
-
-
-
-// TESTING!!!
-
-ipcMain.on('launch-no-launcher', async () => {
-    const BypassLauncher = require('../launcher/BypassLauncher');
-    // const game = new BypassLauncher('forge is shit');
-    // const game = new BypassLauncher('actually forge');
-    // const game = new BypassLauncher('Fabric Again');
-    const game = new BypassLauncher('fabric');
-    await game.launch();
-});
-
-

@@ -132,7 +132,6 @@ const createContextMenu = () => {
 };
 
 app.on('ready',  async () => {
-    await config.loadConfig();
     // Setup console debug
     const debug = await config.getValue('app/developerMode');
     console.debug = message => { if (debug) log.debug(message); };
@@ -231,6 +230,11 @@ ipcMain.on('argv', async event => {
 });
 
 ipcMain.on('util:isDev', event => event.returnValue = isDev);
+
+ipcMain.on('launcher:restart', () => {
+    app.relaunch({ args: process.argv.slice(1) });
+    app.exit(0)
+});
 
 ipcMain.once('sync', async event => {
     event.returnValue = await config.getValue('app/vibrancy')

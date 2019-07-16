@@ -86,6 +86,8 @@ class App extends React.Component {
             this.setState({ errorLoading: false })
         });
 
+        window.ipc.on('launcher:restart', () => ModalConductor.openModal('restartModal'));
+
         window.ipc.on('message', (event, arg) => {
             console.log(arg);
         });
@@ -315,13 +317,21 @@ class App extends React.Component {
                             }}>View</Button>
                         </div>
                     </Modal>
+                    <Modal id="restartModal" className="error-report-wrapper" noclose>
+                        <h1><span>Restart Required!</span></h1>
+                        <h2>Would you like to restart now?</h2>
+                        <div className="buttons">
+                            <Button onClick={() => ModalConductor.openModal('settingsModal')}>No</Button>
+                            <Button onClick={() => window.ipc.send('launcher:restart')}>Yes</Button>
+                        </div>
+                    </Modal>
                     <Modal id="devTools" className="dev-tools-wrapper">
                         <div>
                             <p>Hi! If you stumbled here by mistake, please click anywhere outside the grey window to close this.</p>
                             <button onClick={() => window.ipc.send('argv', 'twonk')}>argv</button>
                             <button onClick={() => window.ipc.send('accounts:newUser', {})}>Login Window</button>
                             <button onClick={() => window.ipc.send('reporter:test')}>Test Error Report</button>
-                            <button onClick={() => window.ipc.send('tester')}>Random Testing</button>
+                            <button onClick={() => window.ipc.send('launcher:restart')}>Restart Proton</button>
                             <br />
                             <button onClick={() => window.ipc.send('launch-no-launcher')}>Launch no Launcher</button>
                             <br/>

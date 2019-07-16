@@ -81,7 +81,6 @@ exports.dLzma = async (file, cleanup = true) => {
         await fs.remove(file);
 };
 
-//todo needs test
 exports.loadImage = async (file) => {
     const name = file.substring(file.lastIndexOf(file.indexOf('/') !== -1 ? '/' : '\\'));
     if (!/[^\s]+(\.(jpg|png|gif|bmp))/.test(name))

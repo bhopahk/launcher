@@ -34,7 +34,6 @@ rpc.on('ready', () => {
         title: isDev ? `Development v${launcherVersion}` : 'Idle'
     };
 
-    rpc.on()
 
     // setActivity();
     // setInterval(setActivity, 15e3);

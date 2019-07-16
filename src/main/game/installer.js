@@ -38,12 +38,6 @@ config.getValue('app/instanceDir').then(dir => instanceDir = dir);
 fs.mkdirs(tempDir);
 
 /**
- * //todo remove
- * @deprecated 1.2.3
- */
-const sendTaskUpdate = (id, task, progress) => require('../app/profile').sendTaskUpdate(id, task, progress);
-
-/**
  * Installs a vanilla version.
  *
  * This will end immediately if the version is already installed.
