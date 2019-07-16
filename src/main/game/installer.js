@@ -24,7 +24,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const files = require('../util/files');
 const fetch = require('node-fetch');
-const cache = require('../game/versionCache');
+const cache = require('./cache/versions');
 const config = require('../config/config');
 const java = require('../config/java');
 const tasks = require('../task/taskmaster');
@@ -41,7 +41,7 @@ fs.mkdirs(tempDir);
  * //todo remove
  * @deprecated 1.2.3
  */
-const sendTaskUpdate = (id, task, progress) => require('./profile').sendTaskUpdate(id, task, progress);
+const sendTaskUpdate = (id, task, progress) => require('../app/profile').sendTaskUpdate(id, task, progress);
 
 /**
  * Installs a vanilla version.
@@ -203,7 +203,7 @@ exports.installForge = async (version, validate) => {
  * @return {Promise<string>} the final name of the version.
  */
 exports.installFabric = async (mappings, loader, validate) => {
-    const fabric = require('../util/fabric');
+    const fabric = require('./fabric');
     const version = fabric.fabricify(mappings);
     const versionName = `${fabric.LOADER_NAME}-${loader}-${version.version}`;
     const versionDir = path.join(installDir, 'versions', versionName);

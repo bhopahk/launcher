@@ -21,7 +21,7 @@ SOFTWARE.
 */
 
 const { app, ipcMain, BrowserWindow } = require('electron');
-const Database = require('../app/database');
+const Database = require('../util/database');
 const mojang = require('../mojang/mojang');
 const config = require('../config/config');
 const fs = require('fs-extra');

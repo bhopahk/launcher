@@ -25,8 +25,8 @@ SOFTWARE.
  */
 
 const { app, shell, ipcMain, Notification } = require('electron');
-const Database = require('../app/database');
-const installer = require('./installer');
+const Database = require('../util/database');
+const installer = require('../game/installer');
 const config = require('../config/config');
 const path = require('path');
 const fs = require('fs-extra');

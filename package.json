@@ -24,7 +24,6 @@
     "follow-redirects": "^1.7.0",
     "fs-extra": "^7.0.1",
     "getos": "^3.1.1",
-    "lockfile": "^1.0.4",
     "mocha": "^6.1.4",
     "nedb": "^1.8.0",
     "node-fetch": "^2.6.0",
@@ -57,10 +56,14 @@
       "src/**",
       "*.js"
     ],
-    "protocols": [{
-      "name": "Proton Launcher",
-      "schemes": ["proton"]
-    }],
+    "protocols": [
+      {
+        "name": "Proton Launcher",
+        "schemes": [
+          "proton"
+        ]
+      }
+    ],
     "extends": null,
     "directories": {
       "buildResources": "assets"

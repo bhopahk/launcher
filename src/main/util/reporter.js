@@ -21,7 +21,7 @@ SOFTWARE.
 */
 
 const { app, ipcMain } = require('electron');
-const updater = require('./updater');
+const updater = require('../app/updater');
 const fetch = require('node-fetch');
 const fs = require('fs-extra');
 const path = require('path');

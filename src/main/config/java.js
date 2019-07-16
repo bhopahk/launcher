@@ -25,7 +25,7 @@ SOFTWARE.
  */
 
 const { app, ipcMain } = require('electron');
-const Database = require('../app/database');
+const Database = require('../util/database');
 const path = require('path');
 const fs = require('fs-extra');
 

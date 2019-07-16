@@ -27,7 +27,7 @@ SOFTWARE.
  */
 
 const { app } = require('electron');
-const profiles = require('../needsHome/profile');
+const profiles = require('../app/profile');
 const artifact = require('../util/artifact');
 const config = require('../config/config');
 const sendSnack = require('../main').sendSnack;

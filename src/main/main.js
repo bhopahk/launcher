@@ -138,14 +138,14 @@ app.on('ready',  async () => {
     console.debug = message => { if (debug) log.debug(message); };
 
     require('./app/protocol');
-    require('./app/reporter');
+    require('./util/reporter');
     require('./app/updater');
     require('./task/taskmaster');
-    require('./needsHome/profile');
+    require('./app/profile');
     require('./config/java');
     require('./mojang/accounts');
-    require('./game/versionCache');
-    require('./game/curseCache');
+    require('./game/cache/versions');
+    require('./game/cache/curse');
     require('./app/rpc');
 
     //todo why is this settimeout here?

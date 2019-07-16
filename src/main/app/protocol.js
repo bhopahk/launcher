@@ -30,7 +30,7 @@ SOFTWARE.
  */
 
 const { app, ipcMain } = require('electron');
-const profile = require('../needsHome/profile');
+const profile = require('./profile');
 
 // Handle `proton://` protocol.
 app.setAsDefaultProtocolClient('proton');

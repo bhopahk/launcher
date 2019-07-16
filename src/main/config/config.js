@@ -26,7 +26,7 @@ const { app, ipcMain } = require('electron');
 const os = require('os');
 const fs = require('fs-extra');
 const path = require('path');
-const Database = require('../app/database');
+const Database = require('../util/database');
 
 const baseDir = app.getPath('userData');
 const config = new Database(path.join(baseDir, 'config.db'));
