@@ -171,13 +171,13 @@ export default class CreateProfile extends React.Component {
                     <div className="lds-dual-ring"></div>
                 </div>
                 <div className="create-profile">
-                    <h1>Create Custom Profile</h1>
+                    <h1 className="light-text text-shadow">Create Custom Profile</h1>
                     <Dropdown minuscule getValue={() => this.state.selected.name } setValue={next => this.setState({ selected: window.ipc.sendSync('cache:versions', next) })}>
                         {this.state.versions.map(ver =>
                             <Option key={ver} value={ver} display={ver} />)}
                     </Dropdown>
                     <div className="create-profile-types">
-                        <div className={`create-profile-type ${this.state.active === 'vanilla' ? 'active' : ''}`} onClick={() => this.setActive('vanilla')}>
+                        <div className={`create-profile-type transparent-bg-alt ${this.state.active === 'vanilla' ? 'active' : ''}`} onClick={() => this.setActive('vanilla')}>
                             <i className="fas fa-info-circle more-info" onClick={() => window.ipc.send('open-external', 'https://minecraft.net/')}></i>
                             <div>
                                 <h2>VANILLA</h2>

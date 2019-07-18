@@ -152,7 +152,7 @@ class App extends React.Component {
                 backgroundColor: this.isVibrant ? 'rgba(25, 25, 25, 0.6)' : 'rgba(25, 25, 25, 0.85)',
             }}>
                 <Actions />
-                <div className={"alpha medium-text"}>
+                <div className={"alpha medium-text transparent-bg-alt"}>
                     <i className="fas fa-exclamation-triangle light-text"></i>
                     <h1>Early Alpha - <span>expect bugs</span></h1>
                     <i className="fas fa-exclamation-triangle light-text"></i>

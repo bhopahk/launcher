@@ -30,6 +30,8 @@ footer, header, hgroup, menu, nav, section {
 body {
   width: 100vw;
   height: 100vh;
+  overflow-x: hidden;
+  overflow-y: hidden;
 
   line-height: 1;
 }
@@ -49,14 +51,17 @@ table {
 }
 
 ::-webkit-scrollbar {
-  width: 2px;
-}
+   width: 5px;
+   border-radius: 5px;
+ }
 ::-webkit-scrollbar-track {
-  background: #363636;
-}
+   background: rgba(25, 25, 25, 0.9);
+   border-radius: 5px;
+ }
 ::-webkit-scrollbar-thumb {
-  background: #242840;
-}
+   background: #757575;
+   border-radius: 5px;
+ }
 ::-webkit-scrollbar-thumb:hover {
-  background: #185cc9;
-}
+   background: #b5b3b3;
+ }

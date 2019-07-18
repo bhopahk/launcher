@@ -13,20 +13,17 @@
 
   z-index: 10;
   -webkit-app-region: drag;
+  font-size: 20px;
 
-  div {
-    font-size: 20px;
+  i {
+    -webkit-app-region: no-drag;
+    cursor: pointer;
 
-    i {
-      -webkit-app-region: no-drag;
-      cursor: pointer;
+    padding: 3px 2px;
+    color: @superOffWhite;
 
-      padding: 3px 2px;
-      color: @superOffWhite;
-
-      &:hover {
-        color: @offWhite;
-      }
+    &:hover {
+      color: @offWhite;
     }
   }
 }

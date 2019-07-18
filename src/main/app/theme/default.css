@@ -1,6 +1,30 @@
 /* A template for theming */
 
 /* Background Colors */
+.transparent-bg-9 {
+    background-color: rgba(25, 25, 25, 0.9);
+}
+.transparent-bg-85 {
+    background-color: rgba(25, 25, 25, 0.85);
+}
+.transparent-bg-75 {
+    background-color: rgba(25, 25, 25, .75);
+}
+.transparent-bg-6 {
+    background-color: rgba(25, 25, 25, .6);
+}
+.transparent-bg-25 {
+    background-color: rgba(25, 25, 25, .25);
+}
+.transparent-bg-alt {
+    background-color: rgba(37, 37, 37, 0.8);
+}
+.transparent-bg-alt-dark {
+    background-color: rgba(20, 20, 20, 0.85);
+}
+.transparent-bg-alt-light {
+    background-color: rgba(32, 32, 32, 0.85);
+}
 .primary-bg {
     background-color: #185cc9;
 }
@@ -42,6 +66,12 @@
 }
 .dark-text {
     color: #757575;
+}
+.inactive-text {
+    color: #3a3a3a;
+}
+.disabled-text {
+    color: #232323;
 }
 .success-text {
     color: rgb(40, 167, 69);

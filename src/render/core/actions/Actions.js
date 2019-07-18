@@ -1,19 +1,13 @@
 import React from 'react';
 import './actions.css';
+import { MaterialIcon } from '../../layout/Generic';
 
-const Actions = (props) => {
+const Actions = () => {
     return (
         <div className="actions">
-            {/*<div>*/}
-            {/*    <i className="fas fa-minus"></i>*/}
-            {/*    <i id="thick" className="far fa-square"></i>*/}
-            {/*    <i className="fas fa-times"></i>*/}
-            {/*</div>*/}
-            <div>
-                <i className="material-icons" onClick={() => window.ipc.send('titlebar', { action: 'MINIMIZE' })}>remove</i>
-                <i className="material-icons" onClick={() => window.ipc.send('titlebar', { action: 'MAXIMIZE' })}>crop_square</i>
-                <i className="material-icons" onClick={() => window.ipc.send('titlebar', { action: 'QUIT' })}>close</i>
-            </div>
+            <MaterialIcon icon="remove" onClick={() => window.ipc.send('titlebar', { action: 'MINIMIZE' })} />
+            <MaterialIcon icon="crop_square" onClick={() => window.ipc.send('titlebar', { action: 'MAXIMIZE' })} />
+            <MaterialIcon icon="close" onClick={() => window.ipc.send('titlebar', { action: 'QUIT' })} />
         </div>
     );
 };
