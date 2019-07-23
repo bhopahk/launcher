@@ -20,30 +20,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-import React from 'react';
-import './generic.css';
+.window-options {
+  user-select: none;
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  justify-content: flex-end;
 
-const Header = props => (
-    <h1 className={`header-generic ${props.className ? props.className : ''}`}>{props.children}</h1>
-);
+  width: 100vw;
+  height: 30px;
 
-const Icon = props => (
-    <i className={`${props.icon} ${props.className}`} onClick={() => {
-        if (props.onClick) props.onClick()
-    }}></i>
-);
+  z-index: 50;
+  -webkit-app-region: drag;
+  font-size: 20px;
 
-const MaterialIcon = props => (
-    <i className={`material-icons ${props.className}`} onClick={() => {
-        if (props.onClick) props.onClick()
-    }}>{props.icon}</i>
-);
+  i {
+    -webkit-app-region: no-drag;
+    cursor: pointer;
 
-const ImageSquare = props => (<img className={props.className} style={{ width: `${props.size}px`, height: `${props.size}px` }} src={props.src} alt={props.alt} />);
-
-export {
-    Header,
-    Icon,
-    MaterialIcon,
-    ImageSquare
+    padding: 3px 2px;
+  }
 }

@@ -28,7 +28,6 @@ const isDev = require('electron-is-dev');
 
 const config = require('./config/config');
 
-let maximized = false;
 let mainWindow;
 let tray;
 
@@ -185,26 +184,15 @@ app.on('open-url', async (event, data) => {
 
 exports.sendSnack = data => mainWindow.send('snack:send', data);
 
-ipcMain.on('titlebar', (event, arg) => {
-    let window = BrowserWindow.fromWebContents(event.sender);
-    switch (arg.action) {
-        case 'QUIT':
-            // if (window === mainWindow)
-            //     window.hide();
-            // else window.close();
-            window.close();
-            break;
-        case 'MAXIMIZE':
-            if (maximized)
-                window.unmaximize();
-            else window.maximize();
-            maximized = !maximized;
-            break;
-        case 'MINIMIZE':
-            window.minimize();
-            break;
-    }
+let maximized = false;
+ipcMain.on('titlebar:quit', () => mainWindow.close());
+ipcMain.on('titlebar:maximize', () => {
+    if (maximized)
+        mainWindow.unmaximize();
+    else mainWindow.maximize();
+    maximized = !maximized;
 });
+ipcMain.on('titlebar:minimize', () => mainWindow.minimize());
 
 ipcMain.on('open-external', async (event, arg) => {
     await shell.openExternal(arg);

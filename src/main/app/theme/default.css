@@ -10,7 +10,7 @@
 .transparent-bg-75 {
     background-color: rgba(25, 25, 25, .75);
 }
-.transparent-bg-6 {
+.transparent-bg-60 {
     background-color: rgba(25, 25, 25, .6);
 }
 .transparent-bg-25 {
@@ -55,31 +55,61 @@
 .primary-text {
     color: #185cc9;
 }
+.primary-text-hover:hover {
+    color: #185cc9;
+}
 .secondary-text {
+    color: #284a98;
+}
+.secondary-text-hover:hover {
     color: #284a98;
 }
 .light-text {
     color: #d8d6d6;
 }
+.light-text-hover:hover {
+    color: #d8d6d6;
+}
 .medium-text {
+    color: #b5b3b3;
+}
+.medium-text-hover:hover {
     color: #b5b3b3;
 }
 .dark-text {
     color: #757575;
 }
+.dark-text-hover:hover {
+    color: #757575;
+}
 .inactive-text {
+    color: #3a3a3a;
+}
+.inactive-text-hover:hover {
     color: #3a3a3a;
 }
 .disabled-text {
     color: #232323;
 }
+.disabled-text-hover:hover {
+    color: #232323;
+}
 .success-text {
+    color: rgb(40, 167, 69);
+}
+.success-text-hover:hover {
     color: rgb(40, 167, 69);
 }
 .warning-text {
     color: rgb(255, 193, 7);
 }
+.warning-text-hover:hover {
+    color: rgb(255, 193, 7);
+}
 .error-text {
+    color: rgb(220, 53, 69);
+}
+.error-text-hover:hover {
     color: rgb(220, 53, 69);
 }
 

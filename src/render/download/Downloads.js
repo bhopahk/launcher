@@ -21,6 +21,8 @@ SOFTWARE.
 */
 
 import React from 'react';
+import { CloseButton } from '../layout/window/WindowOptions';
+import {  } from '../layout/Generic';
 import './downloads.css';
 
 class Downloads extends React.Component {
@@ -52,20 +54,23 @@ class Downloads extends React.Component {
     renderTasks = (event, tasks) => this.setState({ tasks });
     cancelTask = tid => window.ipc.send('task:cancel', tid);
 
-    calculateTotalProgress() {
+    calculateTotalProgress = () => {
         let sum = 0;
         this.state.tasks.forEach(task => sum += task.progress);
         if (this.state.tasks.length === 0)
             return 0;
         return sum / this.state.tasks.length;
-    }
+    };
+
+    hide = () => document.getElementById('downloads-button').classList.toggle('active');
 
     render() {
         return (
             <button id="downloads-button">
                 <i ref={this.iconOverlay} className="fas fa-cloud-download-alt"
-                   onClick={() => { document.getElementById('downloads-button').classList.toggle('active') }}></i>
+                   onClick={() => this.hide()}></i>
                 <div className="downloads">
+                    {/*<CloseButton onClose={() => this.hide()} />*/}
                     <h1>Tasks</h1>
                     <div className="tasks">
                         {this.state.tasks.map(task => {
@@ -81,9 +86,6 @@ class Downloads extends React.Component {
 const Task = (props) => {
     return (
         <div className="task">
-            {/*<div className="task-cancel">*/}
-            {/*    <i className="fas fa-times"></i>*/}
-            {/*</div>*/}
             <h1>{props.name}</h1>
             <div className="task-progress">
                 <div className="task-progress-complete" style={{

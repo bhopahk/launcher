@@ -21,29 +21,24 @@ SOFTWARE.
 */
 
 import React from 'react';
-import './generic.css';
+import { MaterialIcon } from '../Generic';
+import './windowoptions.css';
 
-const Header = props => (
-    <h1 className={`header-generic ${props.className ? props.className : ''}`}>{props.children}</h1>
+const FullWindowOptions = () => (
+    <div className="window-options">
+        <MaterialIcon className="medium-text light-text-hover" icon="remove" onClick={() => window.ipc.send('titlebar:minimize')} />
+        <MaterialIcon className="medium-text light-text-hover" icon="crop_square" onClick={() => window.ipc.send('titlebar:maximize')} />
+        <MaterialIcon className="medium-text light-text-hover" icon="close" onClick={() => window.ipc.send('titlebar:quit')} />
+    </div>
 );
 
-const Icon = props => (
-    <i className={`${props.icon} ${props.className}`} onClick={() => {
-        if (props.onClick) props.onClick()
-    }}></i>
+const CloseButton = props => (
+    <div className="window-options">
+        <MaterialIcon className="medium-text light-text-hover" icon="close" onClick={() => props.onClose()} />
+    </div>
 );
-
-const MaterialIcon = props => (
-    <i className={`material-icons ${props.className}`} onClick={() => {
-        if (props.onClick) props.onClick()
-    }}>{props.icon}</i>
-);
-
-const ImageSquare = props => (<img className={props.className} style={{ width: `${props.size}px`, height: `${props.size}px` }} src={props.src} alt={props.alt} />);
 
 export {
-    Header,
-    Icon,
-    MaterialIcon,
-    ImageSquare
+    FullWindowOptions,
+    CloseButton
 }

@@ -8,7 +8,7 @@ import '../util/errorreport.css';
 import '../layout/cards.css'
 import Snackbar from '../snackbar/Snackbar';
 import { ModalConductor, Modal } from '../modal/Modal';
-import Actions from './actions/Actions';
+import { FullWindowOptions } from '../layout/window/WindowOptions';
 import {
     Sidebar,
     SidebarHeader,
@@ -62,9 +62,13 @@ class App extends React.Component {
     }
 
     componentDidMount() {
-        const link = document.createElement('style');
-        link.innerHTML = this.style;
-        document.getElementsByTagName('head')[0].appendChild(link);
+        this.styling = document.createElement('style');
+        this.styling.innerHTML = this.style;
+        document.getElementsByTagName('head')[0].appendChild(this.styling);
+    }
+
+    removeStyling() {
+        document.getElementsByTagName('head')[0].removeChild(this.styling)
     }
 
     registerAppWideIpcListeners() {
@@ -147,11 +151,8 @@ class App extends React.Component {
 
     render() {
         return (
-            <div style={{
-                width: 'calc(100vw-300px)',
-                backgroundColor: this.isVibrant ? 'rgba(25, 25, 25, 0.6)' : 'rgba(25, 25, 25, 0.85)',
-            }}>
-                <Actions />
+            <div className={this.isVibrant ? 'transparent-bg-60' : 'transparent-bg-85'} style={{ width: 'calc(100vw-300px)' }}>
+                <FullWindowOptions />
                 <div className={"alpha medium-text transparent-bg-alt"}>
                     <i className="fas fa-exclamation-triangle light-text"></i>
                     <h1>Early Alpha - <span>expect bugs</span></h1>
@@ -345,6 +346,7 @@ class App extends React.Component {
                             <button onClick={() => window.ipc.send('launcher:restart')}>Restart Proton</button>
                             <br />
                             <button onClick={() => window.ipc.send('launch-no-launcher')}>Launch no Launcher</button>
+                            <button onClick={() => this.removeStyling()}>Remove Styling</button>
                             <br/>
                             <input id="uriStringInput" type="text" placeholder="URI String" />
                             <button onClick={() => window.ipc.send('uri:test', document.getElementById('uriStringInput').value)}>Send String</button>
