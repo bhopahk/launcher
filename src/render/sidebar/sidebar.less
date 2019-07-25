@@ -7,6 +7,10 @@
   width: 100%;
 
   margin: 0;
+
+  .title-generic {
+    line-height: 35px;
+  }
 }
 
 .sidebar {
@@ -20,8 +24,7 @@
 
   margin: 0;
   padding: 30px 30px 0;
-
-  background-color: @backgroundOpaque;
+  background-color: var(--background-darker);
 
   .group {
 
@@ -31,8 +34,8 @@
 
       font-size: 14px;
       font-family: Oswald, sans-serif;
-      color: @offWhite;
-      text-shadow: 2px 2px @offBlack;
+      color: var(--light);
+      text-shadow: 2px 2px var(--shadow);
     }
 
     button {
@@ -53,7 +56,7 @@
       font-weight: bold;
       border: none;
       background: transparent;
-      color: @inactive;
+      color: var(--inactive);
 
       i {
         display: inline-flex;
@@ -67,28 +70,28 @@
       }
 
       &.active {
-        color: @offWhite;
+        color: var(--light);
 
         i {
-          color: @superOffWhite;
-          background: @highlightGradient;
+          color: var(--medium);
+          background: @highlightGradient; //todo this needs to be put into the config maybe
         }
       }
 
       &:hover i {
-        color: @superOffWhite;
+        color: var(--medium);
         background: @highlightGradient;
       }
 
       &.disabled {
         cursor: auto;
-        color: @disabled;
+        color: var(--disabled);
       }
       &.disabled:hover {
         text-decoration: line-through;
 
         i {
-          color: @disabled;
+          color: var(--disabled);
           background: transparent;
         }
       }
@@ -119,23 +122,23 @@
     border: none;
     background: transparent;
     font-family: Oswald, sans-serif;
-    color: @superOffWhite;
-    text-shadow: 2px 2px @offBlack;
+    color: var(--medium);
+    text-shadow: 2px 2px var(--shadow);
 
     i {
       font-size: 20px;
     }
 
     &:hover {
-      color: @offWhite;
+      color: var(--light);
     }
   }
 
   .active {
-    color: @primary;
+    color: var(--primary);
 
     &:hover {
-      color: @secondary;
+      color: var(--secondary);
     }
   }
 

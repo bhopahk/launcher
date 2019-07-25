@@ -3,7 +3,7 @@ import "./sidebar.css";
 import "./content.css";
 import logo from '../static/LauncherNoText.png'
 
-import { Header, ImageSquare } from '../layout/Generic'
+import { Title, ImageSquare } from '../layout/Generic'
 import { Downloads } from '../download/Downloads';
 import { ModalConductor } from "../modal/Modal";
 
@@ -113,7 +113,7 @@ const SidebarHeader = (props) => {
     return (
         <div className="sidebar-header">
             <ImageSquare src={logo} alt="Proton Launcher" size={35} />
-            <Header className="light-text text-shadow">Proton Launcher</Header>
+            <Title>Proton Launcher</Title>
         </div>
     );
 };

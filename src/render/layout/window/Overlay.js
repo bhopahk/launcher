@@ -20,31 +20,35 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-.window-options {
-  user-select: none;
-  position: absolute;
-  left: 0;
-  top: 0;
-  display: flex;
-  justify-content: flex-end;
+import React from 'react';
+import './overlay.css';
 
-  width: 100vw;
-  height: 30px;
+/**
+ * Overlay for dimming background with/without a loading icon.
+ *
+ * @since 0.2.25
+ *
+ * @property loading (String) Whether to include a loading symbol or not.
+ * @property active (Boolean: false) Show the overlay.
+ * @property padding (Integer: 30) Amount of space to include around the parent element.
+ * @property onClick (Function) Called when the overlay is clicked.
+ */
+const Overlay = props => {
+    let padding = props.padding;
+    if (!padding)
+        padding = 30;
+    return (
+        <div className={`window-overlay ${props.active ? 'active' : ''}`} style={{
+            left: `-${padding}px`,
+            top: `-${padding}px`,
+            width: `calc(100% + ${2 * padding}px)`,
+            height: `calc(100% + ${2 * padding}px)`
+        }} onClick={() => {
+            if (props.onClick) props.onClick();
+        }}>
+            {props.loading ? (<div className="lds-dual-ring"></div>) : null}
+        </div>
+    );
+};
 
-  z-index: 50;
-  -webkit-app-region: drag;
-  font-size: 20px;
-
-  .icon {
-    -webkit-app-region: no-drag;
-    cursor: pointer;
-
-    padding: 3px 2px;
-    font-size: 24px;
-    color: var(--medium);
-
-    &:hover {
-      color: var(--light);
-    }
-  }
-}
+export default Overlay;

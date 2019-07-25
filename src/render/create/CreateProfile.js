@@ -22,6 +22,8 @@ SOFTWARE.
 
 import React from 'react';
 import Snackbar from '../snackbar/Snackbar';
+import { Header, Title, Paragraph, Icon } from '../layout/Generic';
+import Overlay from '../layout/window/Overlay';
 import './create.css';
 
 import { Dropdown, Option, TextField, Button } from '../input/Input';
@@ -167,21 +169,19 @@ export default class CreateProfile extends React.Component {
     render() {
         return (
             <div className="create-profile-wrapper">
-                <div className={`create-profile-cover ${this.state.loading ? '' : 'hidden'}`}>
-                    <div className="lds-dual-ring"></div>
-                </div>
+                <Overlay loading padding={0} active={this.state.loading} />
                 <div className="create-profile">
-                    <h1 className="light-text text-shadow">Create Custom Profile</h1>
+                    <Header>Create Custom Profile</Header>
                     <Dropdown minuscule getValue={() => this.state.selected.name } setValue={next => this.setState({ selected: window.ipc.sendSync('cache:versions', next) })}>
                         {this.state.versions.map(ver =>
                             <Option key={ver} value={ver} display={ver} />)}
                     </Dropdown>
-                    <div className="create-profile-types">
-                        <div className={`create-profile-type transparent-bg-alt ${this.state.active === 'vanilla' ? 'active' : ''}`} onClick={() => this.setActive('vanilla')}>
-                            <i className="fas fa-info-circle more-info" onClick={() => window.ipc.send('open-external', 'https://minecraft.net/')}></i>
+                    <div className="create-profile-flavors">
+                        <div className={`create-profile-flavor ${this.state.active === 'vanilla' ? 'active' : ''}`} onClick={() => this.setActive('vanilla')}>
+                            <Icon icon="fas fa-info-circle" onClick={() => window.ipc.send('open-external', 'https://minecraft.net/')}></Icon>
                             <div>
-                                <h2>VANILLA</h2>
-                                <p>The unmodified game distributed by Mojang. Snapshot versions are not guaranteed to function correctly, expect bugs.</p>
+                                <Title>vanilla</Title>
+                                <Paragraph>The unmodified game distributed by Mojang. Snapshot versions are not guaranteed to function correctly, expect bugs.</Paragraph>
                             </div>
                             <div className="create-profile-selectors">
                                 <Dropdown getValue={() => this.state.input_snapshot } setValue={next => this.setState({ input_snapshot: next })}>
@@ -192,11 +192,11 @@ export default class CreateProfile extends React.Component {
                                 <Button onClick={() => {}}>Select</Button>
                             </div>
                         </div>
-                        <div className={`create-profile-type transparent-bg-alt ${this.state.active === 'forge' ? 'active' : ''} ${this.isDisabled('forge') ? 'disabled' : ''}`} onClick={() => this.setActive('forge')}>
-                            <i className="fas fa-info-circle more-info" onClick={() => window.ipc.send('open-external', 'https://www.minecraftforge.net/')}></i>
+                        <div className={`create-profile-flavor ${this.state.active === 'forge' ? 'active' : ''} ${this.isDisabled('forge') ? 'disabled' : ''}`} onClick={() => this.setActive('forge')}>
+                            <Icon icon="fas fa-info-circle" onClick={() => window.ipc.send('open-external', 'https://www.minecraftforge.net/')}></Icon>
                             <div>
-                                <h2>FORGE</h2>
-                                <p>Minecraft Forge is a free, open-source modding API and loader designed to simplify compatibility between community-created mods.</p>
+                                <Title>forge</Title>
+                                <Paragraph>Minecraft Forge is a free, open-source modding API and loader designed to simplify compatibility between community-created mods.</Paragraph>
                             </div>
                             <div className="create-profile-selectors">
                                 <Dropdown getValue={() => this.state.input_forge} setValue={next => this.setState({ input_forge: next })}>
@@ -206,11 +206,11 @@ export default class CreateProfile extends React.Component {
                                 <Button onClick={() => {}} disabled={this.isDisabled('forge')}>Select</Button>
                             </div>
                         </div>
-                        <div className={`create-profile-type transparent-bg-alt ${this.state.active === 'fabric' ? 'active' : ''} ${this.isDisabled('fabric') ? 'disabled' : ''}`} onClick={() => this.setActive('fabric')}>
-                            <i className="fas fa-info-circle more-info" onClick={() => window.ipc.send('open-external', 'https://fabricmc.net/')}></i>
+                        <div className={`create-profile-flavor ${this.state.active === 'fabric' ? 'active' : ''} ${this.isDisabled('fabric') ? 'disabled' : ''}`} onClick={() => this.setActive('fabric')}>
+                            <Icon icon="fas fa-info-circle" onClick={() => window.ipc.send('open-external', 'https://fabricmc.net/')}></Icon>
                             <div>
-                                <h2>FABRIC <span className={`badge ${this.isDisabled('fabric') ? 'disabled' : ''}`} style={{ position: 'absolute', top: '16px' }}>Pre Release</span></h2>
-                                <p>The Fabric project is a lightweight, experimental modding toolchain for Minecraft, primarily targeting 1.14+ versions of the game.</p>
+                                <Title>fabric <span className={`badge ${this.isDisabled('fabric') ? 'disabled' : ''}`} style={{ position: 'absolute', top: '16px' }}>Pre Release</span></Title>
+                                <Paragraph>The Fabric project is a lightweight, experimental modding toolchain for Minecraft, primarily targeting 1.14+ versions of the game.</Paragraph>
                             </div>
                             <div className="create-profile-selectors">
                                 <Dropdown getValue={() => this.state.input_fabric_mappings} setValue={next => this.setState({ input_fabric_mappings: next })}>
@@ -232,9 +232,7 @@ export default class CreateProfile extends React.Component {
                         <TextField id="customProfileName" icon="fas fa-pencil-alt" placeholder="Enter name..." timeout={250} getValue={() => this.state.input_name} setValue={next => this.setState({ input_name: next })} />
                     </div>
                     <br/>
-                    <Button onClick={() => this.sendCreationRequest()}>
-                        Create Profile
-                    </Button>
+                    <Button onClick={() => this.sendCreationRequest()}>Create Profile</Button>
                 </div>
             </div>
         );

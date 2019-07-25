@@ -33,7 +33,7 @@ const baseDir = require('electron').app.getPath('userData');
 const tempDir = path.join(baseDir, 'temp');
 const installDir = path.join(baseDir, 'Install');
 let instanceDir;
-config.getValue('app/instanceDir').then(dir => instanceDir = dir);
+config.getValue('app/instanceDir').then(dir => instanceDir = dir.value);
 
 fs.mkdirs(tempDir);
 

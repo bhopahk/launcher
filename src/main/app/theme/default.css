@@ -118,3 +118,7 @@
 .text-shadow {
     text-shadow: 2px 2px #0c0c0c;
 }
+
+:root {
+    --test:#123455
+}

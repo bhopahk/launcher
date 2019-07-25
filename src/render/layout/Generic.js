@@ -27,14 +27,22 @@ const Header = props => (
     <h1 className={`header-generic ${props.className ? props.className : ''}`}>{props.children}</h1>
 );
 
+const Title = props => (
+    <h1 className={`title-generic ${props.className ? props.className : ''}`}>{props.children}</h1>
+);
+
+const Paragraph = props => (
+    <p className={`paragraph-generic ${props.className ? props.className : ''}`}>{props.children}</p>
+);
+
 const Icon = props => (
-    <i className={`${props.icon} ${props.className}`} onClick={() => {
+    <i className={`icon ${props.icon} ${props.className}`} onClick={() => {
         if (props.onClick) props.onClick()
     }}></i>
 );
 
 const MaterialIcon = props => (
-    <i className={`material-icons ${props.className}`} onClick={() => {
+    <i className={`material-icons icon ${props.className}`} onClick={() => {
         if (props.onClick) props.onClick()
     }}>{props.icon}</i>
 );
@@ -43,6 +51,8 @@ const ImageSquare = props => (<img className={props.className} style={{ width: `
 
 export {
     Header,
+    Title,
+    Paragraph,
     Icon,
     MaterialIcon,
     ImageSquare

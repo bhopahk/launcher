@@ -26,9 +26,9 @@ import './windowoptions.css';
 
 const FullWindowOptions = () => (
     <div className="window-options">
-        <MaterialIcon className="medium-text light-text-hover" icon="remove" onClick={() => window.ipc.send('titlebar:minimize')} />
-        <MaterialIcon className="medium-text light-text-hover" icon="crop_square" onClick={() => window.ipc.send('titlebar:maximize')} />
-        <MaterialIcon className="medium-text light-text-hover" icon="close" onClick={() => window.ipc.send('titlebar:quit')} />
+        <MaterialIcon icon="remove" onClick={() => window.ipc.send('titlebar:minimize')} />
+        <MaterialIcon icon="crop_square" onClick={() => window.ipc.send('titlebar:maximize')} />
+        <MaterialIcon icon="close" onClick={() => window.ipc.send('titlebar:quit')} />
     </div>
 );
 

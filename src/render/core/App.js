@@ -154,12 +154,12 @@ class App extends React.Component {
 
     render() {
         return (
-            <div className={this.isVibrant ? 'transparent-bg-60' : 'transparent-bg-85'} style={{ width: 'calc(100vw-300px)' }}>
+            <div className={this.isVibrant ? 'background-vibrant' : 'background-normal'} style={{ width: 'calc(100vw-300px)' }}>
                 <FullWindowOptions />
-                <div className={"alpha medium-text transparent-bg-alt"}>
-                    <i className="fas fa-exclamation-triangle light-text"></i>
+                <div className={"alpha"}>
+                    <i className="fas fa-exclamation-triangle"></i>
                     <h1>Early Alpha - <span>expect bugs</span></h1>
-                    <i className="fas fa-exclamation-triangle light-text"></i>
+                    <i className="fas fa-exclamation-triangle"></i>
                 </div>
                 <Sidebar default="profiles">
                     <SidebarHeader />
@@ -183,7 +183,6 @@ class App extends React.Component {
                         </Page>
                         <Page id="technic" icon="wrench" display="Technic Modpacks" disabled={!window.ipc.sendSync('util:isDev')}>
                             <p>Custom Profiles</p>
-
                         </Page>
                         <Page id="custom" icon="tools" display="Custom Profile">
                             <CreateProfile />

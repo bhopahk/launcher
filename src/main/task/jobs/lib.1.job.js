@@ -86,10 +86,12 @@ process.on('message', async libraries => {
 
         if (!library.natives)
             return resolve();
-        const native = library.natives[osName];
+        const native = library.natives[osName].replace(/\${arch}/g, process.arch === 'x64' ? '64' : '32');
         if (native === undefined)
             return resolve(console.debug(`Library@${i + 1} has no natives for the current platform.`));
 
+        if (!library.downloads.classifiers[native] || !library.downloads.classifiers[native].path)
+            return resolve(console.log(`Library@${i + 1} has an invalid native file! (${library.name})`));
         const nativeFile = path.join(libDir, library.downloads.classifiers[native].path);
         if (await fs.pathExists(nativeFile)) {
             if ((await files.fileChecksum(nativeFile, 'sha1')) === library.downloads.classifiers[native].sha1)

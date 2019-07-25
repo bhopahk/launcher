@@ -136,7 +136,7 @@ app.on('ready',  async () => {
     console.log('------------------------------------------');
 
     // Setup console debug
-    const debug = await config.getValue('app/developerMode');
+    const debug = (await config.getValue('app/developerMode')).value;
     console.debug = message => { if (debug) log.debug(message); };
 
     require('./app/protocol');
@@ -153,11 +153,6 @@ app.on('ready',  async () => {
 
     //todo why is this settimeout here?
     setTimeout(() => {
-        // require('./needsHome/installer').installBaseGame(process.platform, process.platform === 'win32').then(result => {
-        //     if (result)
-        //         console.log('Installed Minecraft launcher.');
-        // });
-
         createWindow();
 
         // createTrayMenu();

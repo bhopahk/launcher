@@ -20,31 +20,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-.window-options {
-  user-select: none;
+.window-overlay {
   position: absolute;
-  left: 0;
-  top: 0;
-  display: flex;
-  justify-content: flex-end;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 4;
 
-  width: 100vw;
-  height: 30px;
+  background-color: rgba(0, 0, 0, 0.5);
 
-  z-index: 50;
-  -webkit-app-region: drag;
-  font-size: 20px;
-
-  .icon {
-    -webkit-app-region: no-drag;
-    cursor: pointer;
-
-    padding: 3px 2px;
-    font-size: 24px;
-    color: var(--medium);
-
-    &:hover {
-      color: var(--light);
-    }
+  &.active {
+    display: flex;
   }
 }

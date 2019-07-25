@@ -37,7 +37,7 @@ let mainWindow;
 ipcMain.on('sync', async event => {
     mainWindow = event.sender;
     console.log('Synchronizing Minecraft accounts...');
-    const clientToken = await config.getValue('clientKey');
+    const clientToken = (await config.getValue('clientKey')).value;
     accounts.find({ }).then(accs => accs.forEach(async account => {
         if (await mojang.validateToken(account.token, clientToken))
             return console.debug(`Account@${account.username} has a valid token.`);

@@ -161,9 +161,9 @@ exports.runJob = async (tid, job, props = {}) => new Promise(async (resolve, rej
     const child = fork(path.join(__dirname, 'jobs', `${job}.job.js`), [ ], { cwd: temp, env: {
             TASK_ID: tid,
             BASE_DIR: baseDir,
-            DEBUG: await config.getValue('app/developerMode'),
+            DEBUG: (await config.getValue('app/developerMode')).value,
             IS_DEV: require('electron-is-dev'),
-            DO_PARALLEL: await config.getValue('app/parallelDownloads') }});
+            DO_PARALLEL: (await config.getValue('app/parallelDownloads')).value }});
     tasks[tid].job = child;
     tasks[tid].listen = [];
     child.on('message', message => {

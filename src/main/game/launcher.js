@@ -90,7 +90,7 @@ const launchMinecraft = async (profile) => {
         if (!library.natives || !library.natives[osName])
             continue;
 
-        const nativePath = path.join(baseDir, 'Install', 'libraries', library.downloads.classifiers[library.natives[osName]].path);
+        const nativePath = path.join(baseDir, 'Install', 'libraries', library.downloads.classifiers[library.natives[osName].replace(/\${arch}/g, process.arch === 'x64' ? '64' : '32')].path);
         const exclusions = library.extract ? library.extract.exclude : [];
         const name = await new Promise(resolve => {
             const zip = new StreamZip({ file: nativePath, storeEntries: true });
@@ -141,7 +141,7 @@ const launchMinecraft = async (profile) => {
     // Fabric
     // Forge
 
-    const noPatchy = !await config.getValue('defaults/patchy');
+    const noPatchy = !(await config.getValue('defaults/patchy')).value;
     let libraries = versionJson.libraries;
     if (inheritedVersionJson)
         libraries = libraries.concat(inheritedVersionJson.libraries);

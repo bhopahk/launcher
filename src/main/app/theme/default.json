@@ -1,0 +1,35 @@
+{
+  "color": {
+    "__comment": "All values must be either a 6 or 8 digit hex (8 for translucency) with a leading #. Options ending with `vibrant` will be used when background vibrancy is enabled.",
+    "primary": "#185cc9",
+    "secondary": "#284a98",
+    "success": "#28a745",
+    "success-alt": "#28a74533",
+    "warning": "#ffc107",
+    "warning-alt": "#ffc10733",
+    "error": "#dc3545",
+    "error-alt": "#dc354533",
+    "light": "#d8d6d6",
+    "medium": "#b5b3b3",
+    "dark": "#757575",
+    "inactive": "#3a3a3a",
+    "disabled": "#232323",
+    "shadow": "#0c0c0c",
+    "background-main": "#191919D9",
+    "background-main-vibrant": "#19191999",
+    "background-main-alt": "#19191940",
+    "background-darker": "#191919E6",
+    "background-darker-alt": "#141414D9",
+    "background-lighter": "#252525CC",
+    "background-lighter-alt": "#202020D9"
+  },
+  "color-key": {
+    "background-main": "backgroundVibrant - 80%",
+    "background-main-vibrant": "backgroundVibrant - 60%",
+    "background-main-alt": "backgroundVibrant - 25%",
+    "background-darker": "backgroundVibrant - 90%",
+    "background-darker-alt": "settingsBackgroundLeft",
+    "background-lighter": "downloadsBackground",
+    "background-lighter-alt": "settingsBackgroundRight"
+  }
+}

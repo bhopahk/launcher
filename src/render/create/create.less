@@ -1,4 +1,3 @@
-@import "../core/colors";
 @import "../core/loaders";
 
 .create-profile-wrapper {
@@ -12,26 +11,6 @@
 
   width: calc(100% - 60px);
   height: calc(100% - 60px);
-
-  .create-profile-cover {
-    position: absolute;
-    left: -30px;
-    top: -30px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    width: calc(100% + 60px);
-    height: calc(100% + 60px);
-
-    background-color: rgba(0, 0, 0, 0.5);
-
-    z-index: 4;
-  }
-
-  .hidden {
-    display: none;
-  }
 }
 
 .create-profile {
@@ -40,16 +19,8 @@
 
   text-align: center;
 
-  h1 {
+  .header-generic {
     padding-bottom: 10px;
-
-    font-size: 30px;
-    font-family: Raleway, sans-serif;
-  }
-
-  h3 {
-    font-size: 15px;
-    font-family: Oswald, sans-serif;
   }
 
   .create-profile-name {
@@ -57,14 +28,12 @@
     margin-left: 35%;
   }
 
-  .create-profile-types {
+  .create-profile-flavors {
     display: flex;
-
     width: 100%;
-
     margin: 20px 0;
 
-    .create-profile-type {
+    .create-profile-flavor {
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
@@ -75,116 +44,90 @@
 
       height: 285px;
       max-width: 300px;
-
       margin: 10px;
       padding: 5px 10px 15px;
 
       text-align: center;
-
       border: none;
       border-radius: 5px;
-
-      .dropdown {
-        box-sizing: border-box;
-
-        margin-bottom: 10px;
-
-        border: 1px solid @backgroundOpaque;
-        border-radius: 3px;
-        background-color: @backgroundVibrant3;
-
-        .dropdown-active {
-          background-color: transparent;
-        }
-        //position: absolute;
-        //bottom: 0;
-      }
+      background-color: var(--background-lighter);
 
       transition: all 0.3s;
 
-      * {
-        transition: all 0.3s;
-      }
-
-      .more-info {
+      .icon {
         position: absolute;
         left: 10px;
         top: 10px;
 
-        font-size: 15px;
-        color: @superOffWhite;
-        text-shadow: 2px 2px @offBlack;
+        color: var(--medium);
 
         &:hover {
-          color: @offWhite;
+          color: var(--light);
         }
       }
 
-      h2 {
+      .title-generic {
         padding-top: 10px;
         padding-bottom: 15px;
 
-        font-size: 20px;
-        font-family: Raleway, sans-serif;
-        color: @offWhite;
+        text-transform: uppercase;
+        color: var(--medium);
 
-        text-shadow: 2px 2px @offBlack;
+        span {
+          text-transform: none;
+        }
       }
 
-      p {
+      .paragraph-generic {
         overflow: hidden;
         max-height: 93px;
         padding-bottom: 10px;
-
-        font-size: 17px;
-        font-family: "Source Sans Pro", sans-serif;
-        color: @offGrey;
       }
 
-      select {
-        margin: 10px 0;
+      .dropdown {
+        box-sizing: border-box;
+        margin-bottom: 10px;
 
-        font-size: 15px;
+        border: 1px solid var(--background-darker);
+        border-radius: 3px;
+        background-color: var(--background-main-alt);
+
+        .dropdown-active {
+          background-color: transparent;
+        }
       }
 
       &.active {
-        box-shadow: 0 0 12px 0 rgba(0,0,0,0.75);
+        box-shadow: 3px 3px 5px 0 rgba(0,0,0,0.75);
       }
 
       &.disabled {
         cursor: not-allowed;
-        background: @backgroundVibrant3;
+        background: var(--background-main-alt);
 
         * {
           cursor: not-allowed;
         }
 
-        i {
-          color: @inactive;
-          text-shadow: none;
+        .icon {
+          color: var(--inactive);
 
           &:hover {
-            color: @inactive;
+            color: var(--inactive);
           }
+        }
+
+        .title-generic {
+          color: var(--inactive);
+          text-shadow: none;
+        }
+
+        .paragraph-generic {
+          color: var(--inactive);
         }
 
         .dropdown {
           opacity: 0.5;
-        }
-
-        h2 {
-          color: @inactive;
-          text-shadow: none;
-        }
-
-        p {
-          color: @inactive;
-        }
-
-        select {
-          color: @inactive;
-
-          border-bottom: 1px solid transparent;
         }
       }
     }

@@ -40,7 +40,7 @@ const sendSnack = require('../main').sendSnack;
 const baseDir = app.getPath('userData');
 const tempDir = path.join(baseDir, 'temp');
 let instanceDir;
-config.getValue('app/instanceDir').then(dir => instanceDir = dir);
+config.getValue('app/instanceDir').then(dir => instanceDir = dir.value);
 
 // For sending to the window outside of an ipc method
 let mainWindow = null;
@@ -221,14 +221,14 @@ exports.createProfile = async data => {
         targetVersion: versionId,
         rawVersion: data.version,
         resolution: {
-            width: (await config.getValue('defaults/resolution')).split('x')[0],
-            height: (await config.getValue('defaults/resolution')).split('x')[1],
+            width: (await config.getValue('defaults/resolution')).value.split('x')[0],
+            height: (await config.getValue('defaults/resolution')).value.split('x')[1],
         },
         memory: {
             min: '512',
-            max: await config.getValue('defaults/maxMemory'),
+            max: (await config.getValue('defaults/maxMemory')).value,
         },
-        javaArgs: await config.getValue('defaults/javaArgs'),
+        javaArgs: (await config.getValue('defaults/javaArgs')).value,
         mods: {},
     });
 
