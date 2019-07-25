@@ -192,7 +192,7 @@ export default class CreateProfile extends React.Component {
                                 <Button onClick={() => {}}>Select</Button>
                             </div>
                         </div>
-                        <div className={`create-profile-type ${this.state.active === 'forge' ? 'active' : ''} ${this.isDisabled('forge') ? 'disabled' : ''}`} onClick={() => this.setActive('forge')}>
+                        <div className={`create-profile-type transparent-bg-alt ${this.state.active === 'forge' ? 'active' : ''} ${this.isDisabled('forge') ? 'disabled' : ''}`} onClick={() => this.setActive('forge')}>
                             <i className="fas fa-info-circle more-info" onClick={() => window.ipc.send('open-external', 'https://www.minecraftforge.net/')}></i>
                             <div>
                                 <h2>FORGE</h2>
@@ -206,7 +206,7 @@ export default class CreateProfile extends React.Component {
                                 <Button onClick={() => {}} disabled={this.isDisabled('forge')}>Select</Button>
                             </div>
                         </div>
-                        <div className={`create-profile-type ${this.state.active === 'fabric' ? 'active' : ''} ${this.isDisabled('fabric') ? 'disabled' : ''}`} onClick={() => this.setActive('fabric')}>
+                        <div className={`create-profile-type transparent-bg-alt ${this.state.active === 'fabric' ? 'active' : ''} ${this.isDisabled('fabric') ? 'disabled' : ''}`} onClick={() => this.setActive('fabric')}>
                             <i className="fas fa-info-circle more-info" onClick={() => window.ipc.send('open-external', 'https://fabricmc.net/')}></i>
                             <div>
                                 <h2>FABRIC <span className={`badge ${this.isDisabled('fabric') ? 'disabled' : ''}`} style={{ position: 'absolute', top: '16px' }}>Pre Release</span></h2>

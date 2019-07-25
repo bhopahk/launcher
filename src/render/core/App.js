@@ -53,8 +53,6 @@ class App extends React.Component {
     }
 
     componentWillMount() {
-
-
         document.addEventListener('keydown', event => {
             if (event.code === 'Backquote')
                 ModalConductor.openModal('devTools');
@@ -63,18 +61,20 @@ class App extends React.Component {
 
     componentDidMount() {
         this.styling = document.createElement('style');
-        this.styling.innerHTML = this.style;
+        this.styling.innerHTML = '';
         document.getElementsByTagName('head')[0].appendChild(this.styling);
     }
 
+    setStyling(styles) {
+        this.styling.innerHTML = styles;
+    }
+
     removeStyling() {
-        document.getElementsByTagName('head')[0].removeChild(this.styling)
+        this.styling.innerHTML = '';
     }
 
     registerAppWideIpcListeners() {
-        const settings = window.ipc.sendSync('sync');
-        this.isVibrant = settings.vibrancy.value;
-        this.style = settings.css;
+        window.ipc.on('theme:change', (event, styles) => this.setStyling(styles));
 
         // Warning about pasting anything in devtools
         window.ipc.on('devtools-openend', () => {
@@ -137,6 +137,9 @@ class App extends React.Component {
         // Quick Launch
         window.ipc.on('profile:render', (event, profiles) =>
             this.setState({ quick: profiles.slice(0, 5).map(profile => { return { name: profile.name, flavor: profile.flavor } }) }));
+
+        const settings = window.ipc.sendSync('sync');
+        this.isVibrant = settings.vibrancy.value;
     }
 
     static getConfigValue(path) {
@@ -285,7 +288,9 @@ class App extends React.Component {
                             </Settings>
                             <Settings id="personalization" display="Personalization">
                                 <Title>Personalization</Title>
-                                <SettingsField title="Coming Soon..." description="This will be added in a later version of the launcher, hold tight!" />
+                                <SettingsField title="Theme" description="The theme file to load for styles. This should be a css file in the `themes` directory in the proton data directory. If the file is `custom_theme.css`, this field should be `custom_theme`.">
+                                    <TextField id="theme" placeholder="default" />
+                                </SettingsField>
                             </Settings>
                             <Settings id="language" display="Language">
                                 <Title>Language</Title>
@@ -346,10 +351,12 @@ class App extends React.Component {
                             <button onClick={() => window.ipc.send('launcher:restart')}>Restart Proton</button>
                             <br />
                             <button onClick={() => window.ipc.send('launch-no-launcher')}>Launch no Launcher</button>
-                            <button onClick={() => this.removeStyling()}>Remove Styling</button>
                             <br/>
                             <input id="uriStringInput" type="text" placeholder="URI String" />
                             <button onClick={() => window.ipc.send('uri:test', document.getElementById('uriStringInput').value)}>Send String</button>
+                            <br/>
+                            <button onClick={() => this.removeStyling()}>Remove Styling</button>
+                            <button onClick={() => window.ipc.send('theme:reload')}>Reload Styling</button>
                         </div>
                     </Modal>
                 </ModalConductor>

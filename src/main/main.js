@@ -131,6 +131,10 @@ const createContextMenu = () => {
 };
 
 app.on('ready',  async () => {
+    console.log('------------------------------------------');
+    console.log('         Starting Proton Launcher         ');
+    console.log('------------------------------------------');
+
     // Setup console debug
     const debug = await config.getValue('app/developerMode');
     console.debug = message => { if (debug) log.debug(message); };
@@ -145,6 +149,7 @@ app.on('ready',  async () => {
     require('./game/cache/versions');
     require('./game/cache/curse');
     require('./app/rpc');
+    require('./app/theme/themes');
 
     //todo why is this settimeout here?
     setTimeout(() => {
@@ -226,8 +231,7 @@ ipcMain.on('launcher:restart', () => {
 
 ipcMain.once('sync', async event => {
     event.returnValue = {
-        vibrancy: await config.getValue('app/vibrancy'),
-        css: await require('./app/theme/themes').getTheme()
+        vibrancy: await config.getValue('app/vibrancy')
     }
 });
 

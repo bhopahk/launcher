@@ -20,19 +20,34 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-const { app } = require('electron');
+const { app, ipcMain } = require('electron');
 const fs = require('fs-extra');
 const path = require('path');
+const config = require('../../config/config');
 
 const baseDir = app.getPath('userData');
 const themeDir = path.join(baseDir, 'themes');
+let mainWindow;
+
+ipcMain.on('sync', async event => {
+    if (!mainWindow)
+        mainWindow = event.sender;
+    await fs.mkdirs(themeDir);
+    const deft = path.join(themeDir, 'default.css');
+    if (!await fs.pathExists(deft))
+        await fs.copy(path.join(__dirname, 'default.css'), deft);
+    mainWindow.send('theme:change', await this.getTheme())
+});
+ipcMain.on('theme:reload', async () => {
+    console.debug('Reloading Theme');
+    mainWindow.send('theme:change', await this.getTheme())
+});
 
 exports.getTheme = async () => {
-    await fs.mkdirs(themeDir);
-
-    const deft = path.join(themeDir, 'default.css');
-    if (!await fs.pathExists(deft)) {
-        await fs.copy(path.join(__dirname, 'default.css'), deft);
-    }
-    return await fs.readFile(deft);
+    const name = (await config.getValue('personalization/theme')).value;
+    console.log(`Loading Theme@${name}...`);
+    const theme = path.join(themeDir, name + '.css');
+    if (await fs.pathExists(theme))
+        return fs.readFile(theme);
+    return fs.readFile(path.join(themeDir, 'default.css'));
 };

@@ -62,8 +62,13 @@ exports.installVanilla = async (version, validate) => {
 
     // Create version directory and find the version json
     console.debug(`${validate ? 'Installing' : 'Validating'} Minecraft@${version}`);
-    if (await fs.pathExists(dir) && !validate)
+    const jsonLoc = path.join(dir, `${version}.json`);
+    const clientJar = path.join(dir, `${version}.jar`);
+    if (await fs.pathExists(dir) && !validate) {
+        if (!await fs.pathExists(jsonLoc) || !await fs.pathExists(clientJar))
+            return await this.installVanilla(version, true);
         return version;
+    }
 
     fs.mkdirs(dir);
     tid = tasks.createTask(`Vanilla ${version}`);
@@ -73,12 +78,10 @@ exports.installVanilla = async (version, validate) => {
     console.debug(`Writing version files for Minecraft@${version}`);
     // Write version json
     await tasks.updateTask(tid, 'writing profile settings', 1/3);
-    const jsonLoc = path.join(dir, `${version}.json`);
     if (!await fs.pathExists(jsonLoc))
         await files.download(cache.findGameVersion(version).url, jsonLoc);
     // Download client jar
     await tasks.updateTask(tid, 'writing profile settings', 2/3);
-    const clientJar = path.join(dir, `${version}.jar`);
     if (!await fs.pathExists(clientJar) || (await files.fileChecksum(clientJar, 'sha1')) !== vanilla.downloads.client.sha1)
         await files.download(vanilla.downloads.client.url, clientJar);
 
@@ -137,8 +140,12 @@ exports.installForge = async (version, validate) => {
     }
 
     console.debug(`${validate ? 'Installing' : 'Validating'} Forge@${name}.`);
-    if (await fs.pathExists(dir) && !validate)
+    const versionJsonPath = path.join(dir, `${name}.json`);
+    if (await fs.pathExists(dir) && !validate) {
+        if (!await fs.pathExists(versionJsonPath))
+            return await this.installForge(version, true);
         return name;
+    }
 
     await fs.mkdirs(dir);
     tid = tasks.createTask(`Forge ${name}`);
@@ -158,7 +165,6 @@ exports.installForge = async (version, validate) => {
 
         // Write version json
         await tasks.updateTask(tid, 'writing profile settings', 2/total);
-        const versionJsonPath = path.join(dir, `${name}.json`);
         await fs.writeJson(versionJsonPath, versionJson);
 
         await tasks.updateTask(tid, 'writing profile settings', 3/total);
@@ -173,7 +179,6 @@ exports.installForge = async (version, validate) => {
         versionJson.jar = forge.minecraftVersion;
 
         await tasks.updateTask(tid, 'writing profile settings', 2/total);
-        const versionJsonPath = path.join(dir, `${name}.json`);
         if (!await fs.pathExists(versionJsonPath))
             await fs.writeJson(versionJsonPath, versionJson);
 
@@ -211,8 +216,13 @@ exports.installFabric = async (mappings, loader, validate) => {
     }
 
     console.debug(`${validate ? 'Installing' : 'Validating'} Fabric@${versionName}.`);
-    if (await fs.pathExists(versionDir) && !validate)
+    if (await fs.pathExists(versionDir) && !validate) {
+        const versionJsonPath = path.join(versionDir, `${versionName}.json`);
+        const versionJarPath = path.join(versionDir, `${versionName}.jar`);
+        if (!await fs.pathExists(versionJsonPath) || !await fs.pathExists(versionJarPath))
+            return await this.installFabric(mappings, loader, true);
         return versionName;
+    }
 
     await fs.mkdirs(versionDir);
     tid = tasks.createTask(`Fabric ${versionName}`);
@@ -227,9 +237,6 @@ exports.installFabric = async (mappings, loader, validate) => {
 
     versionJson.libraries.push({ name: `${fabric.PACKAGE_NAME.replace('/', '.')}:${fabric.MAPPINGS_NAME}:${version.version}`, url: fabric.MAVEN_SERVER_URL });
     versionJson.libraries.push({ name: `${fabric.PACKAGE_NAME.replace('/', '.')}:${fabric.LOADER_NAME}:${loader}`, url: fabric.MAVEN_SERVER_URL });
-
-    const versionJsonPath = path.join(versionDir, `${versionName}.json`);
-    const versionJarPath = path.join(versionDir, `${versionName}.jar`);
 
     await tasks.updateTask(tid, 'writing profile settings', 2/4);
     await fs.ensureFile(versionJarPath); // Empty jar file, this is only required to trick the mojang launcher, however it is included for continuity.

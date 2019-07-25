@@ -70,5 +70,8 @@
       "legacy",
       "direct"
     ]
+  },
+  "personalization/theme": {
+    "value": "default"
   }
 }

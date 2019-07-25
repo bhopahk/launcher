@@ -547,6 +547,8 @@ exports.deleteMod = async (profile, mod) => {
  * @returns {Promise<String>} A valid name.
  */
 const findName = async (base, index = 0) => {
+    if (!base)
+        throw "Cannot find name of undefined path";
     if (await fs.pathExists(path.join(instanceDir, base)))
         return findName(`${base.endsWith(` (${index})`) ? base.substring(0, base.length - 3 - `${index}`.length) : base} (${++index})`, index);
     return base;
