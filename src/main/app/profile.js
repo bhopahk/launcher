@@ -76,9 +76,8 @@ ipcMain.on('profile:screenshot:delete', async (event, payload) => {
 
 // Mods
 ipcMain.on('profile:mod:add', async (event, payload) => {
-    console.log('adding');
+    console.log(`Adding mod from data: ${payload.data}`);
     const resp = await this.addMod(payload.profile, payload.data);
-    console.log(resp);
     mainWindow.send('profile:mod:add', resp);
     // Re render the mods.
     this.renderMods(payload.profile);
@@ -176,28 +175,35 @@ exports.createProfile = async data => {
 
         data.version = {};
         const packJson = await fs.readJson(path.join(packTempDir, 'mmc-pack.json'));
-        packJson.components.forEach(component => {
+        for (const component of packJson.components) {
             switch (component.cachedName.toLowerCase()) {
                 case 'minecraft':
                     data.version.version = component.version;
                     break;
                 case 'fabricloader':
-                    const ver = component.cachedVersion.split('_');
+                    const ver = component.cachedVersion.split('_yarn-');
+                    console.log(ver);
                     data.version.flavor = 'fabric';
-                    // data.version.mappings =
+                    data.version.mappings = ver[0];
+                    data.version.loader = ver[1];
+                    versionId = await installer.installFabric(data.version.mappings, data.version.loader);
                     break;
                 default:
                     console.debug(`Ignoring unknown MMCComponent@"${component.cachedName}".`);
                     break;
             }
-        });
+        }
 
-        // versionId = version folder
-        // version = { flavor, mappings, loader }
+        // Get icon
+        const iconPath = path.join(packTempDir, 'pack.png');
+        if (await fs.pathExists(iconPath))
+            icon = await files.loadImage(iconPath);
 
-        console.log(packTempDir);
-        return ;
+        // Copy game files
+        await fs.copy(path.join(packTempDir, '.minecraft'), directory);
 
+        // Cleanup
+        await fs.remove(packTempDirOuter);
     } else {
         await taskmaster.updateTask(tid, 'preparing modpack info', 3/total);
         const fileJson = await (await fetch(`https://addons-ecs.forgesvc.net/api/v2/addon/${data.modpack}/file/${data.file}`)).json();
@@ -213,7 +219,7 @@ exports.createProfile = async data => {
     const now = new Date().getTime();
     await profileDb.insert({
         name, directory,
-        icon: await files.downloadImage(icon),
+        icon: typeof icon === 'string' ? await files.downloadImage(icon) : icon.src,
         type: data.modpack === undefined ? 'custom' : 'curse',
         packData,
         created: now, played: 0,
@@ -234,6 +240,17 @@ exports.createProfile = async data => {
     });
 
     await taskmaster.updateTask(tid, 'finishing up', 4/total);
+
+    // Index any mods for the profile todo this is waaaaaaaaaaaaaaaay too slow
+    // const modsDir = path.join(directory, 'mods');
+    // if (await fs.pathExists(modsDir)) {
+    //     const mods = await fs.readdir(modsDir);
+    //     for (const mod of mods.filter(mod => mod.endsWith('.jar')).map(mod => path.join(modsDir, mod))) {
+    //         console.log('adding ' + mod);
+    //         await this.addMod(name, { path: mod, nocopy: true })
+    //     }
+    // }
+
     await this.renderProfiles();
 
     console.log(`Finished installing '${name}'!`);
@@ -405,7 +422,7 @@ exports.addMod = async (profile, data) => {
         const fileJson = await (await fetch(`https://addons-ecs.forgesvc.net/api/v2/addon/${data.mod}/file/${data.file}`)).json();
         data.path = path.join(target.directory, 'mods', fileJson.fileName);
         await files.download(fileJson.downloadUrl, data.path);
-    } else await fs.copy(data.path, path.join(target.directory, 'mods', path.basename(data.path)));
+    } else if (!data.nocopy) await fs.copy(data.path, path.join(target.directory, 'mods', path.basename(data.path)));
 
     const modInfo = await loadModInfo(data.path, target.directory);
     if (modInfo.error || target.flavor !== modInfo.flavor) {

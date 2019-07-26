@@ -20,8 +20,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-const { app, ipcMain } = require('electron');
-const updater = require('../app/updater');
+const { app, ipcMain, shell } = require('electron');
 const fetch = require('node-fetch');
 const fs = require('fs-extra');
 const path = require('path');
@@ -31,7 +30,6 @@ const baseDir = app.getPath('userData');
 const reportDir = path.join(baseDir, 'Error Reports');
 const mem = Math.floor(require('os').totalmem()/1e6);
 let os = { arch: process.arch };
-let mainWindow;
 
 exports.MESSAGES = [
     'Uh oh, I did a bad thing!',
@@ -67,68 +65,63 @@ if (process.platform === 'win32') {
 
 fs.mkdirs(reportDir);
 
-ipcMain.on('reporter:submit', (_, data) => this.error(data));
+let mainWindow;
+ipcMain.on('sync', event => mainWindow = event.sender);
+ipcMain.on('reporter:test', async () => {
+    const t = undefined;
+    t.test();
+});
 
-ipcMain.on('reporter:register', event => mainWindow = event.sender);
-
-ipcMain.on('reporter:haste', async (event, path) => {
+ipcMain.on('reporter:haste', async (_, path) => {
     // Ensure that the path is actually inside the report directory to avoid somebody having a private file uploaded to hastebin...
     if (!pathIsInside(path, reportDir))
-        return event.sender.send('reporter:haste', { error: 'privacy protection', errorMessage: 'The path to the report is invalid. Please fetch it manually.' });
+        return mainWindow.send('reporter:haste', { error: 'privacy protection', errorMessage: 'The path to the report is invalid. Please fetch it manually.' });
     let contents;
     try {
         contents = await fs.readFile(path, 'utf8');
     } catch (er) {
         console.log(er);
-        console.log('The above has occurred while creating a crash report.');
-        return event.sender.send('reporter:haste', { error: er.name, errorMessage: er.message });
+        console.log('An error has occurred while creating an error report.');
+        return mainWindow.send('reporter:haste', { error: er.name, errorMessage: er.message });
     }
     const url = await this.haste(contents);
     if (url === undefined) {
-        console.log('Failed to upload report! (503)');
-        event.sender.send('reporter:haste', { error: 'response code 503', errorMessage: 'It would appear hastebin is currently unavailable.' })
+        console.log('Failed to upload error report! (503)');
+        mainWindow.send('reporter:haste', { error: 'response code 503', errorMessage: 'It would appear hastebin is currently unavailable.' })
     } else {
         console.log(`Uploaded error report @ ${url} (${path}).`);
-        event.sender.send('reporter:haste', { url });
+        mainWindow.send('reporter:haste');
+        await shell.openExternal(url)
     }
 });
 
-ipcMain.on('reporter:test', async () => {
-    const t = undefined;
-
-    try {
-        t.test();
-    } catch (e) {
-        this.error(e);
-    }
-
+process.on('unhandledRejection', error => this.error(error.stack));
+process.on('uncaughtException', err => {
+    console.log('UNHANDLED EXCEPTION');
+    console.log(err);
 });
 
-exports.error = async (err, extras) => {
-    let error = err.stack;
-    if (error === undefined) {
-        error = '';
-        error += `${err.code} (${err.errno})\n`;
-        error += `${err.path}`;
-    }
-
-    // console.log(err.stack);
+exports.error = async (error) => {
+    const quote = this.MESSAGES[Math.floor(Math.random()*this.MESSAGES.length)];
     const usedMem = mem - Math.floor(require('os').freemem()/1e6);
-    const reportText = `Proton Launcher v${updater.CURRENT}\n` +
+    const reportText = `Proton Launcher v${__launcher_version}\n` +
         `${new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')}\n` +
         `\n` +
         `${os.name} ${os.version} ${os.arch}\n` +
         `${usedMem}/${mem}mb\n` +
         `\n` +
-        `// ${this.MESSAGES[Math.floor(Math.random()*this.MESSAGES.length)]}\n` +
+        `// ${quote}\n` +
         `\n` +
         `${error}\n`;
 
     const fileName = `${new Date().toISOString().replace(/T/, '-').replace(/\..+/, '').replace(':', '-').replace(':', '-')}.txt`;
     const filePath = path.join(reportDir, fileName);
-    // await fs.ensureFile(filePath);
     await fs.outputFile(filePath, reportText);
-    mainWindow.send('reporter:report', filePath);
+    mainWindow.send('reporter:report', {
+        quote,
+        lines: error.split('\n'),
+        path: filePath
+    });
 };
 
 exports.haste = async (text, alt = false) => {

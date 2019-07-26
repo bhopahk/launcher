@@ -3,10 +3,10 @@ import './app.css';
 import '../util/contextmenu.css';
 import '../util/tooltip.css';
 import '../util/badge.css';
-import '../util/errorreport.css';
 import '../layout/cards.css'
 import Snackbar from '../snackbar/Snackbar';
 import { ModalConductor, Modal } from '../modal/Modal';
+import { ErrorReport } from '../modal/modals/Error';
 import { FullWindowOptions } from '../layout/window/WindowOptions';
 import {
     Sidebar,
@@ -27,7 +27,7 @@ import {SettingsWrapper, Settings, Separator, Title, Subtitle} from "../settings
 import { SettingsField, SettingsSwitch } from '../settings/SettingsInput';
 
 import { Checkbox, Check, FolderSelect, Dropdown, Option, TextField, Slider, Button } from '../input/Input';
-import {JavaSettings} from "../settings/JavaSettings";
+import {JavaSettings} from '../settings/JavaSettings';
 
 class App extends React.Component {
     static snackbar = React.createRef();
@@ -37,43 +37,11 @@ class App extends React.Component {
         super(props);
 
         this.state = {
+            // Profile options target
             profile: {},
-            errorPath: undefined,
-            errorLoading: false,
             // Quick launch profiles
             quick: [],
         };
-
-        this.registerAppWideIpcListeners();
-
-        window.ipc.on('argv', (event, arg) => {
-            alert(arg);
-        });
-    }
-
-    componentWillMount() {
-        document.addEventListener('keydown', event => {
-            if (event.code === 'Backquote')
-                ModalConductor.openModal('devTools');
-        });
-    }
-
-    componentDidMount() {
-        this.styling = document.createElement('style');
-        this.styling.innerHTML = '';
-        document.getElementsByTagName('head')[0].appendChild(this.styling);
-    }
-
-    setStyling(styles) {
-        this.styling.innerHTML = styles;
-    }
-
-    removeStyling() {
-        this.styling.innerHTML = '';
-    }
-
-    registerAppWideIpcListeners() {
-        window.ipc.on('theme:change', (event, styles) => this.setStyling(styles));
 
         // Warning about pasting anything in devtools
         window.ipc.on('launcher:devtools', () => {
@@ -81,55 +49,9 @@ class App extends React.Component {
             console.log('%cCopy/pasting anything here could give somebody access to your Minecraft account.', 'color: #185cc9; font-size: 15px; font-weight: bold;');
         });
 
-        // Register error reporter
-        window.ipc.send('reporter:register');
-        window.ipc.on('reporter:report', (event, path) => {
-            this.setState({ errorPath: path }, () => ModalConductor.openModal('errorReportModal'))
-        });
-        window.ipc.on('reporter:haste', (event, data) => {
-            if (data.error) {
-                console.log('An error has occurred while uploading a report to hastebin.');
-                console.log(data.error);
-                console.log(data.errorMessage);
-                alert(`An error has occurred while uploading a report to hastebin.\n${data.errorMessage}`);
-            } else
-                window.ipc.send('open:url', data.url);
-            ModalConductor.closeModals();
-            this.setState({ errorLoading: false })
-        });
-
+        // Misc IPC listeners.
         window.ipc.on('launcher:restart', () => ModalConductor.openModal('restartModal'));
-
-        window.ipc.on('message', (event, arg) => {
-            console.log(arg);
-        });
-
         window.ipc.on('snack:send', (event, body) => Snackbar.sendSnack(body));
-
-        window.ipc.on('profile:custom', (event, message) => {
-            switch (message.result) {
-                case 'SUCCESS':
-                    Snackbar.sendSnack({
-                        body: `Creating ${message.name}!`,
-                        action: 'cancel',
-                        onAction: () => alert('This function has not been implemented, please stay tuned!'),
-                    });
-
-                    break;
-                case 'ERROR':
-                    if (message.type === 'arbitrary')
-                        Snackbar.sendSnack({ body: message.value });
-                    if (message.type === 'existing')
-                        Snackbar.sendSnack({
-                            body: message.value,
-                            action: 'overwrite',
-                            onAction: () => window.ipc.send('profile:custom', message.callback),
-                        });
-                    break;
-                default:
-                    break;
-            }
-        });
 
         // Quick Launch
         window.ipc.on('profile:render', (event, profiles) =>
@@ -137,6 +59,13 @@ class App extends React.Component {
 
         const settings = window.ipc.sendSync('sync');
         this.isVibrant = settings.vibrancy.value;
+    }
+
+    componentWillMount() {
+        document.addEventListener('keydown', event => {
+            if (event.code === 'Backquote')
+                ModalConductor.openModal('devTools');
+        });
     }
 
     static getConfigValue(path) {
@@ -316,19 +245,8 @@ class App extends React.Component {
                     <Modal id="profileOptionsModal" className="profile-options-wrapper">
                         <ProfileOptions profile={this.state.profile} />
                     </Modal>
-                    <Modal id="errorReportModal" className="error-report-wrapper" noclose>
-                        <h1><i className="fas fa-exclamation-triangle"></i><span>An error has occurred!</span><i className="fas fa-exclamation-triangle"></i></h1>
-                        <h2>A report has been generated.</h2>
-                        <div className="buttons">
-                            <Button onClick={() => {
-                                window.ipc.send('reporter:haste', this.state.errorPath);
-                                this.setState({ errorLoading: true });
-                            }}>Upload<div className={this.state.errorLoading ? "lds-dual-ring-small" : ""} style={{ marginLeft: this.state.errorLoading ? '5px' : '0' }}></div></Button>
-                            <Button onClick={() => {
-                                window.ipc.send('open:folder', this.state.errorPath);
-                                ModalConductor.closeModals();
-                            }}>View</Button>
-                        </div>
+                    <Modal id="errorReportModal" className="error-report-wrapper">
+                        <ErrorReport />
                     </Modal>
                     <Modal id="restartModal" className="error-report-wrapper" noclose>
                         <h1><span>Restart Required!</span></h1>
@@ -351,8 +269,8 @@ class App extends React.Component {
                             <input id="uriStringInput" type="text" placeholder="URI String" />
                             <button onClick={() => window.ipc.send('uri:test', document.getElementById('uriStringInput').value)}>Send String</button>
                             <br/>
-                            <button onClick={() => this.removeStyling()}>Remove Styling</button>
-                            <button onClick={() => window.ipc.send('theme:reload')}>Reload Styling</button>
+                            <button onClick={() => ModalConductor.openModal('errorReportModal')}>er</button>
+                            <br/>
                         </div>
                     </Modal>
                 </ModalConductor>

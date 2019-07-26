@@ -9,7 +9,7 @@
         const mojang = require('../mojang/mojang');
 
         const login = async () => {
-            let clientKey = ipc.sendSync('config:get', 'clientKey');
+            let clientKey = ipc.sendSync('config:get', 'clientKey').value;
 
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;

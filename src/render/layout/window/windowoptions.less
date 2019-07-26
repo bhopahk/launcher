@@ -23,17 +23,27 @@ SOFTWARE.
 .window-options {
   user-select: none;
   position: absolute;
-  left: 0;
+  right: 0;
   top: 0;
   display: flex;
   justify-content: flex-end;
 
-  width: 100vw;
+  width: 30px;
   height: 30px;
 
   z-index: 50;
-  -webkit-app-region: drag;
   font-size: 20px;
+
+  &.window-options-full {
+    width: 100%;
+    -webkit-app-region: drag;
+  }
+
+  .close-icon {
+    position: absolute;
+    top: 0;
+    right: 1px;
+  }
 
   .icon {
     -webkit-app-region: no-drag;

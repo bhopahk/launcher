@@ -209,15 +209,5 @@ ipcMain.on('launcher:restart', () => this.relaunch());
 ipcMain.on('sync', async event => {
     event.returnValue = {
         vibrancy: await config.getValue('app/vibrancy')
-    }
-});
-
-process.on('unhandledRejection', (reason, p) => {
-    console.log('UNHANDLED REJECTION');
-    console.log(reason);
-    console.log(p);
-});
-process.on('uncaughtException', err => {
-    console.log('UNHANDLED EXCEPTION');
-    console.log(err);
+    };
 });

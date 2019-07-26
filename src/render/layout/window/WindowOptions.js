@@ -25,7 +25,7 @@ import { MaterialIcon } from '../Generic';
 import './windowoptions.css';
 
 const FullWindowOptions = () => (
-    <div className="window-options">
+    <div className="window-options window-options-full">
         <MaterialIcon icon="remove" onClick={() => window.ipc.send('titlebar:minimize')} />
         <MaterialIcon icon="crop_square" onClick={() => window.ipc.send('titlebar:maximize')} />
         <MaterialIcon icon="close" onClick={() => window.ipc.send('titlebar:quit')} />
@@ -34,7 +34,7 @@ const FullWindowOptions = () => (
 
 const CloseButton = props => (
     <div className="window-options">
-        <MaterialIcon className="medium-text light-text-hover" icon="close" onClick={() => props.onClose()} />
+        <MaterialIcon icon="close" className="close-icon" onClick={() => props.onClose()} />
     </div>
 );
 

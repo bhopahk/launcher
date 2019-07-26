@@ -51,17 +51,18 @@ table {
 }
 
 ::-webkit-scrollbar {
-   width: 5px;
-   border-radius: 5px;
+    height: 5px;
+    width: 5px;
+    border-radius: 5px;
  }
 ::-webkit-scrollbar-track {
-   background: rgba(25, 25, 25, 0.9);
-   border-radius: 5px;
+    background: rgba(25, 25, 25, 0.9);
+    border-radius: 5px;
  }
 ::-webkit-scrollbar-thumb {
-   background: #757575;
-   border-radius: 5px;
+    background: #757575;
+    border-radius: 5px;
  }
 ::-webkit-scrollbar-thumb:hover {
-   background: #b5b3b3;
+    background: #b5b3b3;
  }
