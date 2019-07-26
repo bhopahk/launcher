@@ -21,7 +21,7 @@ SOFTWARE.
 */
 
 /**
- * A launcher and manager for individual game instances.
+ * A launcher and manager for game instances.
  *
  * @since 0.1.5
  */
