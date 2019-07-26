@@ -10,7 +10,7 @@
 
   border: none;
   border-radius: 5px;
-  background-color: @downloadsBackground;
+  background-color: var(--background-lighter);
 
   z-index: -1;
   opacity: 0;
@@ -21,22 +21,6 @@
     max-height: 200px;
     overflow-y: auto;
     outline: none;
-
-    &::-webkit-scrollbar {
-      width: 5px;
-      border-radius: 5px;
-    }
-    &::-webkit-scrollbar-track {
-      background: @backgroundOpaque;
-      border-radius: 5px;
-    }
-    &::-webkit-scrollbar-thumb {
-      background: @offGrey;
-      border-radius: 5px;
-    }
-    &::-webkit-scrollbar-thumb:hover {
-      background: @superOffWhite;
-    }
   }
 
   &.react-contextmenu--visible {
@@ -57,10 +41,10 @@
   border-radius: 5px;
   font-size: 15px;
   font-family: Source Sans Pro, sans-serif;
-  color: @superOffWhite;
+  color: var(--medium);
 
   &:hover {
-    background-color: @backgroundVibrant2;
+    background-color: var(--background-main);
   }
 
   i {
@@ -71,7 +55,7 @@
 
   &.react-contextmenu-item--disabled {
     cursor: default;
-    color: @offGrey;
+    color: var(--dark);
 
     &:hover {
       background-color: transparent;
@@ -80,8 +64,6 @@
 
   &.react-contextmenu-submenu {
     padding: 0;
-
-    //overflow: hidden;
 
     & > .react-contextmenu-item {
 
@@ -104,10 +86,10 @@
 
   padding: 0;
 
-  background-color: @downloadsBackground;
+  background-color: var(--background-lighter);
 
   &:hover {
     border-radius: 0;
-    background-color: @downloadsBackground;
+    background-color: var(--background-lighter);
   }
 }

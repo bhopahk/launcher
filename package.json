@@ -1,6 +1,6 @@
 {
   "name": "proton",
-  "version": "0.2.29",
+  "version": "0.3.0",
   "description": "A custom minecraft launcher",
   "private": false,
   "author": "Matt Worzala <bhop.me>",
@@ -9,6 +9,7 @@
   "homepage": "./",
   "scripts": {
     "start": "concurrently \"cross-env BROWSER=none react-scripts start\" \"wait-on http://localhost:3000 && electron .\"",
+    "postinstall": "electron-builder install-app-deps",
     "dev": "react-scripts start",
     "build": "react-scripts build",
     "package": "electron-builder --dir",
@@ -24,7 +25,6 @@
     "follow-redirects": "^1.7.0",
     "fs-extra": "^7.0.1",
     "getos": "^3.1.1",
-    "mocha": "^6.1.4",
     "nedb": "^1.8.0",
     "node-fetch": "^2.6.0",
     "node-stream-zip": "^1.8.0",
@@ -40,9 +40,9 @@
     "electron": "^5.0.0",
     "electron-builder": "^20.39.0",
     "electron-devtools-installer": "^2.2.4",
-    "electron-rebuild": "^1.8.5",
     "react-scripts": "3.0.0",
-    "typescript": "^3.4.5"
+    "typescript": "^3.4.5",
+    "mocha": "^6.1.4"
   },
   "build": {
     "appId": "me.bhop.proton",

@@ -1,7 +1,6 @@
 import React from 'react';
 import './app.css';
 import '../util/contextmenu.css';
-import '../util/tooltip.css';
 import '../util/badge.css';
 import '../layout/cards.css'
 import Snackbar from '../snackbar/Snackbar';
@@ -87,7 +86,7 @@ class App extends React.Component {
                     <h1>Early Alpha - <span>expect bugs</span></h1>
                     <i className="fas fa-exclamation-triangle"></i>
                 </div>
-                <Sidebar default="profiles">
+                <Sidebar default="profiles" vibrant={this.isVibrant}>
                     <SidebarHeader />
                     <SidebarGroup index={0} title="library">
                         <Page id="profiles" icon="list" display="Profiles">

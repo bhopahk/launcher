@@ -21,22 +21,6 @@
 
   overflow-y: auto;
 
-  &::-webkit-scrollbar {
-    width: 5px;
-    border-radius: 5px;
-  }
-  &::-webkit-scrollbar-track {
-    background: @backgroundOpaque;
-    border-radius: 5px;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: @offGrey;
-    border-radius: 5px;
-  }
-  &::-webkit-scrollbar-thumb:hover {
-    background: @superOffWhite;
-  }
-
   .profile {
     position: relative;
     cursor: pointer;
@@ -45,7 +29,7 @@
     height: 200px;
 
     border: none;
-    border-radius: 10px;
+    border-radius: 5px;
     box-shadow: 0 0 15px -4px rgba(0,0,0,1);
 
     .profile-flavor {
@@ -54,8 +38,8 @@
       top: 10px;
 
       font-size: 15px;
-      color: @superOffWhite;
-      text-shadow: 2px 2px @offBlack;
+      color: var(--medium);
+      text-shadow: 2px 2px var(--shadow);
       z-index: 5;
     }
 
@@ -64,7 +48,7 @@
       height: 200px;
 
       border: none;
-      border-radius: 10px;
+      border-radius: 5px;
     }
 
     .profile-content {
@@ -79,7 +63,7 @@
       height: 200px;
 
       border: none;
-      border-radius: 10px;
+      border-radius: 5px;
       background-repeat: no-repeat;
       background-attachment: unset;
       background-size: contain;
@@ -92,8 +76,8 @@
         width: 202px;
         height: 50px;
 
-        border-bottom-right-radius: 10px;
-        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 5px;
+        border-bottom-left-radius: 5px;
         background: inherit;
         background-size: 200px;
         background-position-y: -150px;
@@ -130,22 +114,22 @@
           font-family: Raleway, sans-serif;
           white-space: nowrap;
           text-overflow: ellipsis;
-          color: @offWhite;
-          text-shadow: 2px 2px @offBlack;
+          color: var(--light);
+          text-shadow: 2px 2px var(--shadow);
         }
 
         p {
           font-size: 15px;
           font-family: "Source Sans Pro", sans-serif;
 
-          color: @offWhite;
+          color: var(--light);
 
           span {
             padding-left: 5px;
             padding-right: 5px;
 
-            color: @superOffWhite;
-            text-shadow: 1px 1px @offBlack;
+            color: var(--medium);
+            text-shadow: 1px 1px var(--shadow);
           }
         }
       }
@@ -163,8 +147,8 @@
           display: none;
 
           font-size: 30px;
-          color: @offWhite;
-          text-shadow: 2px 2px @offBlack;
+          color: var(--light);
+          text-shadow: 2px 2px var(--shadow);
         }
 
         &:hover i {
@@ -198,19 +182,19 @@
 
     font-size: 70px;
     color: @offWhite;
-    text-shadow: 5px 5px @offBlack;
+    text-shadow: 5px 5px var(--shadow);
   }
 
   p {
     font-size: 20px;
     font-family: Raleway, sans-serif;
-    color: @superOffWhite;
+    color: var(--medium);
 
     span {
       cursor: pointer;
 
-      color: @offWhite;
-      text-shadow: 2px 2px @offBlack;
+      color: var(--light);
+      text-shadow: 2px 2px var(--shadow);
     }
   }
 }

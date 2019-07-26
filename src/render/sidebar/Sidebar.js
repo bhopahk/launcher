@@ -75,7 +75,7 @@ class Sidebar extends React.Component {
         const active = this.state.links[this.state.activeGroup][this.state.activeItem];
         return (
             <div className="wrapper">
-                <div className="sidebar">
+                <div className={`sidebar ${this.props.vibrant ? 'sidebar-vibrant' : 'sidebar-normal'}`}>
                     {this.state.header}
                     {this.props.children.map(child => {
                         item = -1;

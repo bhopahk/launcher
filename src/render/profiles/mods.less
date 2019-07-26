@@ -40,7 +40,7 @@
   margin-bottom: 10px;
 
   border-radius: 3px;
-  background-color: @backgroundOpaque;
+  background-color: var(--background-darker);
   box-shadow: 0 10px 9px -10px rgba(0,0,0,0.75);
 
   .btn {
@@ -52,10 +52,10 @@
     padding: 0;
     margin-top: 5px;
 
-    background-color: @downloadsBackground;
+    background-color: var(--background-lighter);
 
     &:hover {
-      background-color: @backgroundVibrant;
+      background-color: var(--background-main);
     }
   }
 
@@ -72,7 +72,7 @@
   }
 
   .textfield {
-    background-color: @downloadsBackground !important;
+    background-color: var(--background-lighter) !important;
   }
 }
 
@@ -93,11 +93,11 @@
     transition: 0.3s;
 
     &.even {
-      background-color: @backgroundVibrant3;
+      background-color: var(--background-main-alt);
     }
 
     &.odd {
-      background-color: @downloadsBackground;
+      background-color: var(--background-lighter);
     }
 
     &:hover {
@@ -137,7 +137,7 @@
         font-size: 15px;
         line-height: 30px;
         font-family: Raleway, sans-serif;
-        color: @superOffWhite;
+        color: var(--medium);
 
         white-space: nowrap;
         overflow: hidden;
@@ -145,11 +145,11 @@
 
         .pmm-title-dep-warn {
           margin-right: 5px;
-          color: @Warning;
+          color: var(--warning);
         }
 
         .pmm-title-author {
-          color: @offGrey;
+          color: var(--dark);
         }
       }
     }
@@ -164,13 +164,13 @@
 
       .pmm-delete-btn {
         padding: 2px 7px;
-        background-color: @ErrorVibrant;
-        border: 1px solid @backgroundVibrant2;
-        color: @offGrey;
+        background-color: var(--error-alt);
+        border: 1px solid var(--background-main);
+        color: var(--dark);
 
         &:hover {
-          color: @Error;
-          border: 1px solid @Error;
+          color: var(--error);
+          border: 1px solid var(--error);
         }
       }
     }

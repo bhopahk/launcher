@@ -19,7 +19,7 @@
 
     border: none;
     border-radius: 5px;
-    background-color: @downloadsBackground;
+    background-color: var(--background-lighter);
     box-shadow: 0 0 9px 1px rgba(0, 0, 0, 0.4);
 
     z-index: 3;
@@ -29,14 +29,14 @@
       margin-bottom: 10px;
 
       font-size: 25px;
-      color: @offWhite;
+      color: var(--light);
 
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
 
       &:hover {
-        color: @offWhite;
+        color: var(--light);
       }
     }
   }
@@ -61,7 +61,7 @@
 
       border: none;
       border-radius: 5px;
-      background-color: @backgroundVibrant;
+      background-color: var(--background-main);
 
       .task-cancel {
         position: absolute;
@@ -95,7 +95,7 @@
 
         border: none;
         border-radius: 5px;
-        background-color: @offBlack;
+        background-color: var(--shadow); //todo needs to not be shadow
 
         .task-progress-complete {
           position: absolute;
@@ -106,7 +106,7 @@
 
           border: none;
           border-radius: 5px;
-          background-color: @primary;
+          background-color: var(--primary);
 
           transition: 0.3s;
           z-index: 1;
@@ -120,7 +120,7 @@
 
           text-transform: uppercase;
           text-shadow: none;
-          color: @offWhite;
+          color: var(--light);
 
           white-space: nowrap;
           overflow: hidden;
@@ -129,7 +129,7 @@
           z-index: 2;
 
           &:hover {
-            color: @offWhite;
+            color: var(--light);
           }
         }
       }

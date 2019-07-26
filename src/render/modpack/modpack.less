@@ -36,22 +36,6 @@
 
   padding-bottom: 30px;
 
-  &::-webkit-scrollbar {
-    width: 5px;
-    border-radius: 5px;
-  }
-  &::-webkit-scrollbar-track {
-    background: @backgroundOpaque;
-    border-radius: 5px;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: @offGrey;
-    border-radius: 5px;
-  }
-  &::-webkit-scrollbar-thumb:hover {
-    background: @superOffWhite;
-  }
-
   // Rendered for each individual modpack
   .modpack {
     box-sizing: border-box;
@@ -66,8 +50,8 @@
 
     border: none;
     border-radius: 10px;
-    background-color: @backgroundVibrant2;
-    box-shadow: @shadowDark;
+    background-color: var(--background-main);
+    box-shadow: @shadowDark; //todo this needs to be from colors
 
     img {
       display: block;
@@ -97,8 +81,8 @@
           position: relative;
           font-size: 30px;
           font-family: "Source Sans Pro", sans-serif;
-          color: @offWhite;
-          text-shadow: 2px 2px @offBlack;
+          color: var(--light);
+          text-shadow: 2px 2px var(--shadow);
 
           width: 85%;
           padding-bottom: 5px;
@@ -115,17 +99,17 @@
           bottom: 130px;
 
           font-size: 12px;
-          text-shadow: 2px 2px @offBlack;
-          color: @offWhite;
+          color: var(--light);
+          text-shadow: 2px 2px var(--shadow);
         }
 
         h2 {
           font-size: 14px;
           font-family: Raleway, sans-serif;
-          color: @inactive;
+          color: var(--inactive);
 
           span {
-            color: @superOffWhite;
+            color: var(--medium);
           }
         }
 
@@ -137,7 +121,7 @@
 
           font-size: 15px;
           font-family: "Source Sans Pro", sans-serif;
-          color: @superOffWhite;
+          color: var(--medium);
         }
       }
 
@@ -156,14 +140,14 @@
             font-size: 11px;
             font-family: Raleway, sans-serif;
             font-weight: lighter;
-            color: @superOffWhite
+            color: var(--medium)
           }
 
           h2 {
             font-size: 17px;
             font-family: "Source Sans Pro", sans-serif;
             font-weight: normal;
-            color: @offWhite
+            color: var(--light)
           }
         }
       }
@@ -194,7 +178,7 @@
     box-sizing: border-box;
     width: 200px;
 
-    color: @offGrey;
+    color: var(--dark);
   }
 
   .dropdowns {
@@ -213,14 +197,14 @@
     margin-left: 15px;
 
     font-size: 15px;
-    color: @offGrey;
+    color: var(--dark);
 
     border: none;
     border-radius: 3px;
-    background-color: @backgroundVibrant;
+    background-color: var(--background-main);
 
     &:hover {
-      color: @offWhite;
+      color: var(--light);
     }
 
     i {
@@ -241,11 +225,11 @@
 
   h1 {
     font-size: 70px;
-    color: @offWhite;
-    text-shadow: 5px 5px @offBlack;
+    color: var(--light);
+    text-shadow: 5px 5px var(--shadow);
 
     &.small {
-      text-shadow: 2px 2px @offBlack;
+      text-shadow: 2px 2px var(--shadow);
     }
   }
 
@@ -255,12 +239,12 @@
     font-size: 20px;
     font-family: Raleway, sans-serif;
 
-    color: @superOffWhite;
+    color: var(--medium);
 
     span {
       cursor: pointer;
 
-      color: @offWhite;
+      color: var(--light);
     }
   }
 }

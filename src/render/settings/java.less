@@ -23,7 +23,7 @@
       margin: 0;
       padding: 0;
 
-      color: @Error;
+      color: var(--error);
       font-size: 30px;
     }
 
@@ -32,8 +32,8 @@
 
       font-size: 20px;
       font-family: Raleway, sans-serif;
-      color: @offWhite;
-      text-shadow: 2px 2px @offBlack;
+      color: var(--light);
+      text-shadow: 2px 2px var(--shadow);
     }
 
     p {
@@ -43,7 +43,7 @@
       line-height: 22px;
       text-align: center;
       font-family: Source Sans Pro, sans-serif;
-      color: @offGrey;
+      color: var(--dark);
 
       span {
         box-sizing: border-box;
@@ -52,13 +52,13 @@
 
         padding: 2px 5px;
 
-        border: 1px solid @backgroundOpaque;
+        border: 1px solid var(--background-darker);
         border-radius: 5px;
-        background-color: @backgroundVibrant3;
+        background-color: var(--background-main-alt);
 
         font-size: 15px;
         font-family: Raleway, sans-serif;
-        color: @superOffWhite;
+        color: var(--medium);
       }
     }
   }
@@ -71,7 +71,7 @@
 
   border: none;
   border-radius: 5px;
-  background-color: @backgroundVibrant3;
+  background-color: var(--background-main-alt);
 
   transition: all 0.3s;
 
@@ -96,12 +96,12 @@
     //margin: 10px 0 0;
     //padding: 0 0 5px;
 
-    background-color: @backgroundOpaque;
+    background-color: var(--background-darker);
 
 
     font-size: 15px;
     font-family: Source Sans Pro, sans-serif;
-    color: @superOffWhite;
+    color: var(--medium);
 
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -120,8 +120,8 @@
 
     padding: 3px;
 
-    background-color: @ErrorVibrant;
-    border-color: @Error;
+    background-color: var(--error-alt);
+    border-color: var(--error);
   }
 
   &.selected {

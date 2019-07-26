@@ -13,10 +13,10 @@
     cursor: pointer;
     user-select: none;
 
-    color: @offGrey;
+    color: var(--dark);
 
     &:hover {
-      color: @superOffWhite
+      color: var(--medium)
     }
   }
 }
@@ -35,7 +35,7 @@
   border: none;
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
-  background-color: @settingsBackgroundLeft;
+  background-color: var(--background-darker-alt);
 
   .modal-page-header {
     h1 {
@@ -43,8 +43,8 @@
 
       font-size: 25px;
       font-family: Raleway, sans-serif;
-      color: @offWhite;
-      text-shadow: 2px 2px @offBlack;
+      color: var(--light);
+      text-shadow: 2px 2px var(--shadow);
     }
   }
 
@@ -53,7 +53,7 @@
     height: 1px;
 
     border: none;
-    background-color: @backgroundVibrant;
+    background-color: var(--background-main);
   }
 
   button {
@@ -74,21 +74,21 @@
     border: none;
     border-radius: 3px;
     background-color: transparent;
-    color: @superOffWhite;
+    color: var(--medium);
 
     transition: background-color 0.1s;
 
     &:hover {
-      background-color: @backgroundVibrant;
+      background-color: var(--background-main);
     }
 
     &.active {
-      background-color: @downloadsBackground;
+      background-color: var(--background-lighter);
     }
 
     &.disabled {
       cursor: default;
-      color: @offGrey;
+      color: var(--dark);
 
       &:hover {
         background-color: transparent;
@@ -114,21 +114,5 @@
   border: none;
   border-top-right-radius: 5px;
   border-bottom-right-radius: 5px;
-  background-color: @settingsBackgroundRight;
-
-  &::-webkit-scrollbar {
-    width: 5px;
-    border-radius: 5px;
-  }
-  &::-webkit-scrollbar-track {
-    background: @backgroundOpaque;
-    border-radius: 5px;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: @offGrey;
-    border-radius: 5px;
-  }
-  &::-webkit-scrollbar-thumb:hover {
-    background: @superOffWhite;
-  }
+  background-color: var(--background-lighter-alt);
 }

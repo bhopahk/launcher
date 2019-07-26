@@ -15,21 +15,13 @@
     "inactive": "#3a3a3a",
     "disabled": "#232323",
     "shadow": "#0c0c0c",
-    "background-main": "#191919D9",
-    "background-main-vibrant": "#19191999",
+    "background-main": "#191919E6",
+    "background-main-vibrant": "#191919BF",
     "background-main-alt": "#19191940",
     "background-darker": "#191919E6",
+    "background-darker-vibrant": "#191919BF",
     "background-darker-alt": "#141414D9",
     "background-lighter": "#252525CC",
     "background-lighter-alt": "#202020D9"
-  },
-  "color-key": {
-    "background-main": "backgroundVibrant - 80%",
-    "background-main-vibrant": "backgroundVibrant - 60%",
-    "background-main-alt": "backgroundVibrant - 25%",
-    "background-darker": "backgroundVibrant - 90%",
-    "background-darker-alt": "settingsBackgroundLeft",
-    "background-lighter": "downloadsBackground",
-    "background-lighter-alt": "settingsBackgroundRight"
   }
 }

@@ -10,7 +10,7 @@
 
   border: none;
   border-radius: 3px;
-  background-color: @backgroundVibrant;
+  background-color: var(--background-main);
 
   h5 {
     padding-left: 5px;
@@ -18,13 +18,13 @@
 
     font-size: 13px;
     font-family: Raleway, sans-serif;
-    color: @superOffWhite;
+    color: var(--medium);
   }
 
   p {
     font-size: 12px;
     font-family: "Source Sans Pro", sans-serif;
-    color: @offGrey;
+    color: var(--dark);
   }
 
   .checkbox {
@@ -52,13 +52,13 @@
       text-align: center;
       vertical-align: middle;
 
-      border: 1px solid @offGrey;
+      border: 1px solid var(--dark);
       border-radius: 2px;
     }
 
     input:checked + label:before {
-      border: 1px solid @primary;
-      background-color: @primary;
+      border: 1px solid var(--primary);
+      background-color: var(--primary);
     }
 
     input:checked + label:after {
@@ -72,7 +72,7 @@
 
       padding: 2px;
 
-      border: solid @superOffWhite;
+      border: solid var(--medium);
       border-width: 0 2px 2px 0;
 
       text-align: center;
@@ -122,7 +122,7 @@
       height: 14px;
 
       border-radius: 8px;
-      background-color: @offGrey;
+      background-color: var(--dark);
     }
 
     &:after {
@@ -132,17 +132,17 @@
       height: 20px;
 
       border-radius: 50%;
-      background-color: @superOffWhite;
+      background-color: var(--medium);
       box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.14), 0 2px 2px 0 rgba(0, 0, 0, 0.098), 0 1px 5px 0 rgba(0, 0, 0, 0.084);
     }
   }
 
   input:checked + label:before {
-    background-color: @secondary;
+    background-color: var(--secondary);
   }
 
   input:checked + label:after {
-    background-color: @primary;
+    background-color: var(--primary);
     transform: translate(80%, -50%);
   }
 }
@@ -161,11 +161,11 @@
 
   border: none;
   border-radius: 3px;
-  background-color: @backgroundVibrant;
+  background-color: var(--background-main);
 
   font-size: 15px;
   font-family: Raleway, sans-serif;
-  color: @offGrey;
+  color: var(--dark);
 
   p {
     white-space: nowrap;
@@ -177,7 +177,7 @@
     display: none;
 
     &:hover {
-      color: @superOffWhite;
+      color: var(--medium);
     }
   }
 
@@ -193,28 +193,30 @@
 
   padding: 7px 10px;
 
-  border: 1px solid @backgroundOpaque;
+  border: none;
   border-radius: 5px;
-  background-color: @backgroundVibrant3;
+  background-color: var(--background-lighter);
 
   font-size: 15px;
   font-family: Raleway, sans-serif;
-  color: @superOffWhite;
+  color: var(--medium);
 
   transition: 0.1s;
 
   &:hover {
-    background-color: @backgroundOpaque;
-    color: @offWhite;
+    //background-color: @backgroundOpaque;
+    color: var(--light);
+    text-shadow: 1px 1px var(--shadow);
+    box-shadow: 0 4px 5px -4px rgba(0,0,0,0.75);
   }
 
   &.disabled {
     cursor: default;
-    color: @offGrey;
+    color: var(--dark);
 
     &:hover {
-      background-color: @backgroundVibrant3;
-      color: @offGrey;
+      background-color: var(--background-main-alt);
+      color: var(--dark);
     }
   }
 
@@ -223,7 +225,7 @@
 
     &:hover {
       background-color: @secondary;
-      color: @offBlack;
+      color: var(--shadow);
     }
   }
 }
@@ -268,7 +270,7 @@
 
     border: none;
     border-radius: 3px;
-    background-color: @backgroundVibrant;
+    background-color: var(--background-main);
 
     div {
       display: flex;
@@ -278,11 +280,11 @@
       margin-right: 10px;
 
       font-size: 15px;
-      color: @offGrey;
+      color: var(--dark);
     }
 
     &:hover i {
-      color: @superOffWhite;
+      color: var(--medium);
     }
   }
 
@@ -298,7 +300,7 @@
 
     border: none;
     border-radius: 3px;
-    background-color: @backgroundOpaque;
+    background-color: var(--background-darker);
 
     overflow-x: hidden;
     overflow-y: auto;
@@ -307,22 +309,6 @@
 
     &.hidden {
       display: none;
-    }
-
-    &::-webkit-scrollbar {
-      width: 5px;
-      border-radius: 5px;
-    }
-    &::-webkit-scrollbar-track {
-      background: @backgroundOpaque;
-      border-radius: 5px;
-    }
-    &::-webkit-scrollbar-thumb {
-      background: @offGrey;
-      border-radius: 5px;
-    }
-    &::-webkit-scrollbar-thumb:hover {
-      background: @superOffWhite;
     }
 
     .dropdown-option {
@@ -337,11 +323,11 @@
       border-radius: 3px;
 
       &:hover {
-        background-color: @settingsBackgroundLeft;
+        background-color: var(--background-darker-alt);
       }
 
       &.active {
-        background-color: @downloadsBackground;
+        background-color: var(--backgroun-lighter);
       }
     }
   }
@@ -352,13 +338,13 @@
 
     font-size: 13px;
     font-family: Raleway, sans-serif;
-    color: @superOffWhite;
+    color: var(--medium);
   }
 
   p {
     font-size: 12px;
     font-family: "Source Sans Pro", sans-serif;
-    color: @offGrey;
+    color: var(--dark);
 
     white-space: nowrap;
     overflow: hidden;
@@ -377,7 +363,7 @@
 
   border: none;
   border-radius: 3px;
-  background-color: @backgroundVibrant;
+  background-color: var(--background-main);
 
   i {
     position: absolute;
@@ -386,7 +372,7 @@
     display: none;
 
     font-size: 17px;
-    color: @offGrey
+    color: var(--dark)
   }
 
   input {
@@ -403,12 +389,12 @@
 
     font-size: 15px;
     font-family: Raleway, sans-serif;
-    color: @superOffWhite;
+    color: var(--medium);
 
     &::placeholder {
       font-size: 15px;
       font-family: Raleway, sans-serif;
-      color: @offGrey;
+      color: var(--medium);
     }
   }
 
@@ -435,7 +421,7 @@
 
   border: none;
   border-radius: 3px;
-  background-color: @backgroundVibrant;
+  background-color: var(--background-main);
 
   input[type=number] {
     box-sizing: border-box;
@@ -451,10 +437,10 @@
 
     font-size: 15px;
     font-family: Raleway, sans-serif;
-    color: @superOffWhite;
+    color: var(--medium);
 
     &:focus {
-      color: @offWhite;
+      color: var(--light);
     }
   }
 
