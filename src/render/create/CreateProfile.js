@@ -178,7 +178,7 @@ export default class CreateProfile extends React.Component {
                     </Dropdown>
                     <div className="create-profile-flavors">
                         <div className={`create-profile-flavor ${this.state.active === 'vanilla' ? 'active' : ''}`} onClick={() => this.setActive('vanilla')}>
-                            <Icon icon="fas fa-info-circle" onClick={() => window.ipc.send('open-external', 'https://minecraft.net/')}></Icon>
+                            <Icon icon="fas fa-info-circle" onClick={() => window.ipc.send('open:url', 'https://minecraft.net/')}></Icon>
                             <div>
                                 <Title>vanilla</Title>
                                 <Paragraph>The unmodified game distributed by Mojang. Snapshot versions are not guaranteed to function correctly, expect bugs.</Paragraph>
@@ -193,7 +193,7 @@ export default class CreateProfile extends React.Component {
                             </div>
                         </div>
                         <div className={`create-profile-flavor ${this.state.active === 'forge' ? 'active' : ''} ${this.isDisabled('forge') ? 'disabled' : ''}`} onClick={() => this.setActive('forge')}>
-                            <Icon icon="fas fa-info-circle" onClick={() => window.ipc.send('open-external', 'https://www.minecraftforge.net/')}></Icon>
+                            <Icon icon="fas fa-info-circle" onClick={() => window.ipc.send('open:url', 'https://www.minecraftforge.net/')}></Icon>
                             <div>
                                 <Title>forge</Title>
                                 <Paragraph>Minecraft Forge is a free, open-source modding API and loader designed to simplify compatibility between community-created mods.</Paragraph>
@@ -207,7 +207,7 @@ export default class CreateProfile extends React.Component {
                             </div>
                         </div>
                         <div className={`create-profile-flavor ${this.state.active === 'fabric' ? 'active' : ''} ${this.isDisabled('fabric') ? 'disabled' : ''}`} onClick={() => this.setActive('fabric')}>
-                            <Icon icon="fas fa-info-circle" onClick={() => window.ipc.send('open-external', 'https://fabricmc.net/')}></Icon>
+                            <Icon icon="fas fa-info-circle" onClick={() => window.ipc.send('open:url', 'https://fabricmc.net/')}></Icon>
                             <div>
                                 <Title>fabric <span className={`badge ${this.isDisabled('fabric') ? 'disabled' : ''}`} style={{ position: 'absolute', top: '16px' }}>Pre Release</span></Title>
                                 <Paragraph>The Fabric project is a lightweight, experimental modding toolchain for Minecraft, primarily targeting 1.14+ versions of the game.</Paragraph>

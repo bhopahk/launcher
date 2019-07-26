@@ -243,7 +243,7 @@ class Screenshots extends React.Component {
                                 </ContextMenuTrigger>
                                 <ContextMenu id={image.name}>
                                     <MenuItem onClick={() => this.handleFocus(image)}><i className="fas fa-image"></i>Focus</MenuItem>
-                                    <MenuItem onClick={() => window.ipc.send('open-item', image.path)}><i className="fas fa-file-image"></i>Show File</MenuItem>
+                                    <MenuItem onClick={() => window.ipc.send('open:file', image.path)}><i className="fas fa-file-image"></i>Show File</MenuItem>
                                     <MenuItem divider />
                                     <MenuItem onClick={() => this.handleDelete(image.name)}><i className="fas fa-trash-alt"></i>Trash</MenuItem>
                                 </ContextMenu>

@@ -20,7 +20,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-const { app, BrowserWindow, shell, ipcMain, Tray, Menu } = require('electron');
+const { app, BrowserWindow, shell, clipboard, ipcMain, Tray, Menu, MenuItem } = require('electron');
 const log = require('electron-log');
 
 const path = require('path');
@@ -30,6 +30,7 @@ const config = require('./config/config');
 
 let mainWindow;
 let tray;
+let trayMenu;
 
 // Fix to https://github.com/electron/electron/issues/13186
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = true;
@@ -38,11 +39,10 @@ process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = true;
 log.transports.console.format = '[{h}:{i}:{s} {level}] {text}';
 log.transports.file.format = '[{m}/{d}/{y} {h}:{i}:{s} {level}] {text}';
 log.transports.file.maxSize = 10 * 1024 * 1024;
-log.transports.file.file = app.getPath('userData') + `/launcher_log${isDev ? '_dev' : ''}.log`;
+const logPath = path.join(app.getPath('userData'), `/launcher_log${isDev ? '_dev' : ''}.log`);
+log.transports.file.file = logPath;
 // Use electron log for console.log calls.
-console.log = (message) => {
-    log.info(message);
-};
+console.log = log.info;
 
 if (process.platform === 'win32')
     app.setAppUserModelId(isDev ? process.execPath : 'me.bhop.proton');
@@ -58,7 +58,7 @@ const createWindow = () => {
         icon: app.getAppPath() + '/public/icon.png',
         webPreferences: {
             nodeIntegration: false,
-            contextIsolation: false, //todo ideally this would be enabled for extra security.
+            contextIsolation: false,
             preload: path.join(__dirname, 'preload.js')
         }
     });
@@ -95,39 +95,10 @@ const createWindow = () => {
         }, 50);
     });
 
-    exports.window = mainWindow;
-};
+    // Send warning about pasting into devtools.
+    mainWindow.webContents.on('devtools-opened', () => mainWindow.send('launcher:devtools'));
 
-const createTrayMenu = () => {
-    tray = new Tray(path.join(app.getAppPath() + '/public/icon.png'));
-    tray.setContextMenu(Menu.buildFromTemplate([
-        { label: 'Item1', type: 'normal' },
-        { label: 'Item1', type: 'normal' },
-        { type: 'separator' },
-        { label: 'Item3', type: 'normal' }
-    ]));
-    tray.setToolTip('Proton Launcher');
-    tray.addListener('click', () => mainWindow.focus());
-};
-const createContextMenu = () => {
-    app.setUserTasks([
-        {
-            program: process.execPath,
-            arguments: '--new-window',
-            iconPath: __dirname + '/icon.png',
-            iconIndex: 0,
-            title: 'New Window',
-            description: 'Create a new window'
-        },
-        {
-            program: process.execPath,
-            arguments: '--new-window',
-            iconPath: __dirname + '/icon.png',
-            iconIndex: 0,
-            title: 'Test 2',
-            description: 'I am a test option!'
-        }
-    ])
+    exports.window = mainWindow;
 };
 
 app.on('ready',  async () => {
@@ -141,9 +112,11 @@ app.on('ready',  async () => {
 
     require('./app/protocol');
     require('./util/reporter');
-    require('./app/updater');
+    const updater = require('./app/updater');
+    // noinspection JSUndefinedPropertyAssignment
+    global.__launcher_version = updater.CURRENT;
     require('./task/taskmaster');
-    require('./app/profile');
+    const profiles = require('./app/profile');
     require('./config/java');
     require('./mojang/accounts');
     require('./game/cache/versions');
@@ -151,39 +124,69 @@ app.on('ready',  async () => {
     require('./app/rpc');
     require('./app/theme/themes');
 
-    //todo why is this settimeout here?
-    setTimeout(() => {
-        createWindow();
+    createWindow();
 
-        // createTrayMenu();
-        // if (process.platform === 'win32')
-        //     createContextMenu();
+    tray = new Tray(path.join(app.getAppPath() + '/public/icon.png'));
+    tray.setToolTip('Proton Launcher');
+    tray.addListener('click', () => mainWindow.focus());
+    tray.setContextMenu(Menu.buildFromTemplate([
+        { label: `Proton Launcher v${__launcher_version}`, type: 'normal', click: () => clipboard.writeText(`Proton v${__launcher_version}`) },
+        { label: 'Check for Updates NI', type: 'normal' },
+        { label: 'Send Feedback', type: 'normal', click: () => shell.openExternal('https://github.com/bhopahk/launcher/issues/new/choose') },
+        { label: 'Show Log', type: 'normal', click: () => shell.showItemInFolder(logPath) },
+        { type: 'separator' },
+        { label: 'Quick Launch', enabled: false }
+    ]));
 
-        // Send warning about not pasting stuff.
-        // mainWindow.webContents.on('devtools-opened', () => mainWindow.webContents.send('devtools-opened'));
-    }, 100);
+    profiles.onRender(profiles => {
+        const newTray = Menu.buildFromTemplate([
+            { label: `Proton Launcher v${__launcher_version}`, type: 'normal', click: () => clipboard.writeText(`Proton v${__launcher_version}`) },
+            { label: 'Check for Updates NI', type: 'normal' },
+            { label: 'Send Feedback', type: 'normal', click: () => shell.openExternal('https://github.com/bhopahk/launcher/issues/new/choose') },
+            { label: 'Show Log', type: 'normal', click: () => shell.showItemInFolder(logPath) },
+            { type: 'separator' },
+            { label: 'Quick Launch', enabled: false }
+        ]);
+        profiles.slice(0, 5).forEach(profile => newTray.append(new MenuItem({ label: profile.name, type: 'normal', click: () => require('./game/launcher').launchProfile(profile) })));
+        tray.setContextMenu(newTray);
+    });
 
     app.on('second-instance', () => mainWindow.show());
 });
 
+// macOS specific closing stuff.
 app.on('window-all-closed', () => {
-    app.quit();
+    if (process.platform !== 'darwin')
+        app.quit();
+    else mainWindow = null;
 });
-
 app.on('activate', () => {
-    if (mainWindow === null) {
+    if (mainWindow === null)
         createWindow();
-    }
 });
 
-app.on('open-url', async (event, data) => {
-    console.log('open url');
-    // event.preventDefault();
-    // await shell.openExternal(data);
-});
+/**
+ * Restart the launcher.
+ * This will exit the process and relaunch it.
+ *
+ * @since 0.2.20
+ */
+exports.restart = () => {
+    app.relaunch({ args: process.argv.slice(1) });
+    app.exit(0)
+};
 
+/**
+ * Sends a snackbar message to the main process.
+ *
+ * @since 0.1.5
+ *
+ * @param {Object} data The snackbar entry to send. It cannot contain a listener at this time.
+ * @return {*} Completion
+ */
 exports.sendSnack = data => mainWindow.send('snack:send', data);
 
+// Title bar listeners
 let maximized = false;
 ipcMain.on('titlebar:quit', () => mainWindow.close());
 ipcMain.on('titlebar:maximize', () => {
@@ -194,37 +197,16 @@ ipcMain.on('titlebar:maximize', () => {
 });
 ipcMain.on('titlebar:minimize', () => mainWindow.minimize());
 
-ipcMain.on('open-external', async (event, arg) => {
-    await shell.openExternal(arg);
-});
+// Opener listeners (filesystem and url)
+ipcMain.on('open:url', (_, link) => shell.openExternal(link));
+ipcMain.on('open:folder', (_, folder) => shell.openItem(folder));
+ipcMain.on('open:file', (_, file) => shell.showItemInFolder(file));
 
-ipcMain.on('open-folder', async (event, arg) => {
-    console.log('opening' + arg);
-    await shell.openItem(arg);
-});
-ipcMain.on('open-item', async (event, arg) => {
-    await shell.showItemInFolder(arg);
-});
+// Util listeners
+ipcMain.on('launcher:is_dev', event => event.returnValue = isDev);
+ipcMain.on('launcher:restart', () => this.relaunch());
 
-ipcMain.on('argv', async event => {
-
-    const t = require('./task/taskmaster');
-    const tid = t.createTask("test");
-    await t.runJob(tid, 'test', {});
-
-    event.sender.send('argv', process.argv);
-    event.sender.send('argv', app.getAppPath());
-    event.sender.send('argv', path.join(require('electron').app.getPath('userData'), 'Install'));
-});
-
-ipcMain.on('util:isDev', event => event.returnValue = isDev);
-
-ipcMain.on('launcher:restart', () => {
-    app.relaunch({ args: process.argv.slice(1) });
-    app.exit(0)
-});
-
-ipcMain.once('sync', async event => {
+ipcMain.on('sync', async event => {
     event.returnValue = {
         vibrancy: await config.getValue('app/vibrancy')
     }
@@ -239,8 +221,3 @@ process.on('uncaughtException', err => {
     console.log('UNHANDLED EXCEPTION');
     console.log(err);
 });
-
-// require('node-fetch')(`https://addons-ecs.forgesvc.net/api/v2/addon/search?gameId=432&pageSize=20&index=0&sort=Featured&searchFilter=&gameVersion=&categoryId=0&sectionId=4471&sortDescending=false`, {
-//     headers: { "User-Agent": "Launcher (https://github.com/bhopahk/launcher/)" }
-    // headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) twitch-desktop-electron-platform/1.0.0 Chrome/66.0.3359.181 Twitch/3.0.16 Safari/537.36 desklight/8.40.1" }
-// }).then(resp => resp.json()).then(json => console.log(json));

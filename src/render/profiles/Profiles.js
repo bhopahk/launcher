@@ -85,7 +85,7 @@ const Profile = (props) => { //todo need to create an icon container for icon ce
                 <MenuItem onClick={() => props.onLaunch(props.name)}><i className="fas fa-play"></i>Launch</MenuItem>
                 <MenuItem onClick={() => alert("// not implemented //")} disabled><i className={`fa${props.favorite ? 'r' : 's' } fa-star`}></i>Favorite</MenuItem>
                 <MenuItem onClick={() => props.openOptions()}><i className="fas fa-cog"></i>Settings</MenuItem>
-                <MenuItem onClick={() => window.ipc.send('open-folder', props.directory)}><i className="fas fa-folder"></i>Open Folder</MenuItem>
+                <MenuItem onClick={() => window.ipc.send('open:folder', props.directory)}><i className="fas fa-folder"></i>Open Folder</MenuItem>
                 <MenuItem onClick={() => alert("// not implemented //")} disabled><i className="fas fa-link"></i>Create Shortcut</MenuItem>
                 <MenuItem onClick={() => alert("// not implemented //")} disabled><i className="fas fa-file-export"></i>Export</MenuItem>
                 <MenuItem divider />

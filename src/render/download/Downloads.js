@@ -21,7 +21,6 @@ SOFTWARE.
 */
 
 import React from 'react';
-import { CloseButton } from '../layout/window/WindowOptions';
 import {  } from '../layout/Generic';
 import './downloads.css';
 

@@ -153,7 +153,7 @@ const Modpack = (props) => {
                     })}
                 </SubMenu>
                 <MenuItem onClick={() => alert('// not implemented //')} disabled><i className="fas fa-ellipsis-h"></i>Details</MenuItem>
-                <MenuItem onClick={() => window.ipc.send('open-external', props.websiteUrl)}><i className="fas fa-link"></i>CurseForge</MenuItem>
+                <MenuItem onClick={() => window.ipc.send('open:url', props.websiteUrl)}><i className="fas fa-link"></i>CurseForge</MenuItem>
             </ContextMenu>
         </div>
     );

@@ -1,6 +1,5 @@
 import React from 'react';
 import './app.css';
-// import './default.css';
 import '../util/contextmenu.css';
 import '../util/tooltip.css';
 import '../util/badge.css';
@@ -77,11 +76,9 @@ class App extends React.Component {
         window.ipc.on('theme:change', (event, styles) => this.setStyling(styles));
 
         // Warning about pasting anything in devtools
-        window.ipc.on('devtools-openend', () => {
-            console.log('----------------------ALERT----------------------');
-            console.log('* Do not type anything in here unless you know what you are doing.');
-            console.log('* Do not paste anything here given by somebody else.');
-            console.log('* If you do not know exactly what you are doing, close this window immediately.')
+        window.ipc.on('launcher:devtools', () => {
+            console.log('%cStop!', 'color: #dc3545; font-size: 45px; text-shadow: 2px 2px black; font-weight: 900;');
+            console.log('%cCopy/pasting anything here could give somebody access to your Minecraft account.', 'color: #185cc9; font-size: 15px; font-weight: bold;');
         });
 
         // Register error reporter
@@ -96,7 +93,7 @@ class App extends React.Component {
                 console.log(data.errorMessage);
                 alert(`An error has occurred while uploading a report to hastebin.\n${data.errorMessage}`);
             } else
-                window.ipc.send('open-external', data.url);
+                window.ipc.send('open:url', data.url);
             ModalConductor.closeModals();
             this.setState({ errorLoading: false })
         });
@@ -181,7 +178,7 @@ class App extends React.Component {
                         <Page id="curse" icon="fire" display="Curse Modpacks">
                             <CurseModpackListing />
                         </Page>
-                        <Page id="technic" icon="wrench" display="Technic Modpacks" disabled={!window.ipc.sendSync('util:isDev')}>
+                        <Page id="technic" icon="wrench" display="Technic Modpacks" disabled={!window.ipc.sendSync('launcher:is_dev')}>
                             <p>Custom Profiles</p>
                         </Page>
                         <Page id="custom" icon="tools" display="Custom Profile">
@@ -203,7 +200,7 @@ class App extends React.Component {
                             <Settings id="app" display="App Settings">
                                 <Title>App Settings</Title>
                                 <SettingsField title="Instance Directory" description="The location for profiles to be installed. Your account must have access to the folder.">
-                                    <FolderSelect id="instanceDir" onMoreAction={value => window.ipc.send('open-folder', value)} />
+                                    <FolderSelect id="instanceDir" onMoreAction={value => window.ipc.send('open:folder', value)} />
                                 </SettingsField>
                                 <Title>Updates</Title>
                                 <SettingsField ni title="Prerelease Builds" switch description="Enables pre release builds. They are potentially buggy, however they contain the most up-to-date fixes and features.">
@@ -328,7 +325,7 @@ class App extends React.Component {
                                 this.setState({ errorLoading: true });
                             }}>Upload<div className={this.state.errorLoading ? "lds-dual-ring-small" : ""} style={{ marginLeft: this.state.errorLoading ? '5px' : '0' }}></div></Button>
                             <Button onClick={() => {
-                                window.ipc.send('open-folder', this.state.errorPath);
+                                window.ipc.send('open:folder', this.state.errorPath);
                                 ModalConductor.closeModals();
                             }}>View</Button>
                         </div>

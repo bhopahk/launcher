@@ -41,6 +41,7 @@ const baseDir = app.getPath('userData');
 const tempDir = path.join(baseDir, 'temp');
 let instanceDir;
 config.getValue('app/instanceDir').then(dir => instanceDir = dir.value);
+const onRender = [];
 
 // For sending to the window outside of an ipc method
 let mainWindow = null;
@@ -276,7 +277,13 @@ exports.getProfiles = () => profileDb.find({});
  *
  * @returns {Promise<void>} Completion.
  */
-exports.renderProfiles = async () => mainWindow.send('profile:render', (await this.getProfiles()).sort((a, b) => a.played < b.played ? 1 : b.played < a.played ? -1 : 0));
+exports.renderProfiles = async () => {
+    const profiles = (await this.getProfiles()).sort((a, b) => a.played < b.played ? 1 : b.played < a.played ? -1 : 0);
+    mainWindow.send('profile:render', profiles);
+    onRender.forEach(fun => fun(profiles));
+};
+
+exports.onRender = fun => onRender.push(fun);
 
 /**
  * Updates supplied fields on the target profile.

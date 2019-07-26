@@ -24,10 +24,6 @@ const { app, ipcMain } = require('electron');
 const { autoUpdater } = require('electron-updater');
 const isDev = require('electron-is-dev');
 
-app.on('ready', async () => { //todo allow for configurable update timer
-
-});
-
 this.available = false;
 autoUpdater.autoDownload = false;
 
