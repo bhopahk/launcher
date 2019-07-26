@@ -1,0 +1,88 @@
+.modal-page-wrapper {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+.modal-page-wrapper .modal-page-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  user-select: none;
+  color: var(--dark);
+}
+.modal-page-wrapper .modal-page-close:hover {
+  color: var(--medium);
+}
+.modal-page-selector {
+  box-sizing: border-box;
+  user-select: none;
+  width: 250px;
+  max-width: 250px;
+  height: 100%;
+  margin: 0;
+  padding: 20px;
+  border: none;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+  background-color: var(--background-darker-alt);
+}
+.modal-page-selector .modal-page-header h1 {
+  padding-bottom: 10px;
+  font-size: 25px;
+  font-family: Raleway, sans-serif;
+  color: var(--light);
+  text-shadow: 2px 2px var(--shadow);
+}
+.modal-page-selector hr {
+  width: 100%;
+  height: 1px;
+  border: none;
+  background-color: var(--background-main);
+}
+.modal-page-selector button {
+  box-sizing: border-box;
+  display: block;
+  outline: none;
+  cursor: pointer;
+  width: 100%;
+  margin: 3px 0;
+  padding: 5px 10px;
+  text-align: left;
+  font-size: 15px;
+  font-family: "Source Sans Pro", sans-serif;
+  border: none;
+  border-radius: 3px;
+  background-color: transparent;
+  color: var(--medium);
+  transition: background-color 0.1s;
+}
+.modal-page-selector button:hover {
+  background-color: var(--background-main);
+}
+.modal-page-selector button.active {
+  background-color: var(--background-lighter);
+}
+.modal-page-selector button.disabled {
+  cursor: default;
+  color: var(--dark);
+}
+.modal-page-selector button.disabled:hover {
+  background-color: transparent;
+}
+.modal-page {
+  box-sizing: border-box;
+  user-select: none;
+  width: 750px;
+  height: 100%;
+  margin: 0;
+  padding: 30px 5px 30px 30px;
+  overflow-x: hidden;
+  text-overflow: clip;
+  overflow-y: auto;
+  border: none;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  background-color: var(--background-lighter-alt);
+}
+/*# sourceMappingURL=pages.css.map */

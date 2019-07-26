@@ -1,0 +1,22 @@
+.header-generic {
+  font-size: 30px;
+  line-height: 35px;
+  font-family: Raleway, sans-serif;
+  color: var(--light);
+  text-shadow: 2px 2px var(--shadow);
+}
+.title-generic {
+  font-size: 20px;
+  font-family: Raleway, sans-serif;
+  color: var(--light);
+  text-shadow: 2px 2px var(--shadow);
+}
+.paragraph-generic {
+  font-size: 17px;
+  font-family: "Source Sans Pro", sans-serif;
+  color: var(--dark);
+}
+.icon {
+  font-size: 15px;
+}
+/*# sourceMappingURL=generic.css.map */

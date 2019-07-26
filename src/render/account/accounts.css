@@ -1,0 +1,96 @@
+.account-manager {
+  width: 100%;
+  height: 100%;
+}
+.am-content {
+  box-sizing: border-box;
+  width: calc(100% - 300px);
+  height: 100%;
+  margin: 0;
+}
+.am-header {
+  box-sizing: border-box;
+  display: flex;
+  width: calc(100% - 60px);
+  height: 200px;
+  margin: 30px 30px 0;
+  background-color: green;
+}
+.am-accounts {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-gap: 30px;
+  width: 100%;
+  height: calc(100% - 200px - 30px);
+  margin: 0;
+  padding: 30px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.am-accounts .am-account {
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  min-height: 72px;
+  max-height: 72px;
+  margin: 0;
+  padding: 11px;
+  border: none;
+  border-radius: 5px;
+  background-color: rgba(25, 25, 25, 0.85);
+}
+.am-accounts .am-account.active {
+  background-color: rgba(37, 37, 37, 0.8);
+}
+.am-accounts .am-account img {
+  user-select: none;
+  min-width: 50px;
+  max-width: 50px;
+  min-height: 50px;
+  max-height: 50px;
+  border-radius: 3px;
+}
+.am-accounts .am-account div {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  padding-left: 10px;
+}
+.am-accounts .am-account div h4 {
+  font-size: 20px;
+  font-family: Raleway, sans-serif;
+  color: #b5b3b3;
+}
+.am-accounts .am-account div h5 {
+  font-size: 12px;
+  font-family: Source Sans Pro, sans-serif;
+  color: #757575;
+}
+.am-accounts .am-account div button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  outline: none;
+  user-select: none;
+  cursor: pointer;
+  border: 1px solid #dc3545;
+  border-radius: 3px;
+  background-color: rgba(220, 53, 69, 0.2);
+  font-size: 15px;
+  font-family: Raleway, sans-serif;
+  color: #dc3545;
+}
+.am-accounts .am-account div button div {
+  position: absolute;
+  left: -1px;
+  top: -1px;
+  width: calc(100% + 2px);
+  height: calc(100% + 2px);
+  border: none;
+  border-radius: 3px;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+/*# sourceMappingURL=accounts.css.map */

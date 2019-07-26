@@ -1,0 +1,188 @@
+.modpack-browser-wrapper {
+  position: relative;
+}
+.modpack-browser-wrapper .create-profile-cover {
+  position: absolute;
+  left: 0;
+  top: -30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: calc(100% + 60px);
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 8;
+}
+.modpack-browser-wrapper .hidden {
+  display: none;
+}
+.modpack-browser {
+  box-sizing: border-box;
+  width: 100%;
+  height: calc(100vh - 30px - 3vh);
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-bottom: 30px;
+}
+.modpack-browser .modpack {
+  box-sizing: border-box;
+  display: flex;
+  position: relative;
+  width: calc(100% - 60px);
+  height: 150px;
+  margin: 30px 30px 0;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background-color: var(--background-main);
+  box-shadow: 0px 0px 10px 3px rgba(0, 0, 0, 0.3);
+}
+.modpack-browser .modpack img {
+  display: block;
+  width: 150px;
+  min-width: 150px;
+  height: 150px;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+.modpack-browser .modpack .modpack-info {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  margin: 5px 5px 5px 10px;
+}
+.modpack-browser .modpack .modpack-info .modpack-info-ext {
+  width: 100%;
+}
+.modpack-browser .modpack .modpack-info .modpack-info-ext h1 {
+  position: relative;
+  font-size: 30px;
+  font-family: "Source Sans Pro", sans-serif;
+  color: var(--light);
+  text-shadow: 2px 2px var(--shadow);
+  width: 85%;
+  padding-bottom: 5px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+.modpack-browser .modpack .modpack-info .modpack-info-ext i {
+  position: absolute;
+  left: 130px;
+  bottom: 130px;
+  font-size: 12px;
+  color: var(--light);
+  text-shadow: 2px 2px var(--shadow);
+}
+.modpack-browser .modpack .modpack-info .modpack-info-ext h2 {
+  font-size: 14px;
+  font-family: Raleway, sans-serif;
+  color: var(--inactive);
+}
+.modpack-browser .modpack .modpack-info .modpack-info-ext h2 span {
+  color: var(--medium);
+}
+.modpack-browser .modpack .modpack-info .modpack-info-ext p {
+  overflow: hidden;
+  width: 80%;
+  margin-top: 10px;
+  font-size: 15px;
+  font-family: "Source Sans Pro", sans-serif;
+  color: var(--medium);
+}
+.modpack-browser .modpack .modpack-info .modpack-details {
+  position: absolute;
+  bottom: 5px;
+  left: 160px;
+  display: flex;
+  align-self: flex-end;
+}
+.modpack-browser .modpack .modpack-info .modpack-details div {
+  box-sizing: border-box;
+  margin-right: 15px;
+}
+.modpack-browser .modpack .modpack-info .modpack-details div h3 {
+  font-size: 11px;
+  font-family: Raleway, sans-serif;
+  font-weight: lighter;
+  color: var(--medium);
+}
+.modpack-browser .modpack .modpack-info .modpack-details div h2 {
+  font-size: 17px;
+  font-family: "Source Sans Pro", sans-serif;
+  font-weight: normal;
+  color: var(--light);
+}
+.modpack-browser .modpack .modpack-install {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  right: 20px;
+  height: 100%;
+}
+.modpack-filter {
+  display: flex;
+  justify-content: center;
+  width: calc(100% - 60px);
+  height: 30px;
+  margin-left: 30px;
+  margin-top: 30px;
+}
+.modpack-filter .search {
+  box-sizing: border-box;
+  width: 200px;
+  color: var(--dark);
+}
+.modpack-filter .dropdowns {
+  width: 150px;
+}
+.modpack-filter .refresh {
+  position: relative;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  margin-left: 15px;
+  font-size: 15px;
+  color: var(--dark);
+  border: none;
+  border-radius: 3px;
+  background-color: var(--background-main);
+}
+.modpack-filter .refresh:hover {
+  color: var(--light);
+}
+.modpack-filter .refresh i {
+  margin-left: 7px;
+}
+.bug {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: calc(100vh - 30px - 3vh);
+}
+.bug h1 {
+  font-size: 70px;
+  color: var(--light);
+  text-shadow: 5px 5px var(--shadow);
+}
+.bug h1.small {
+  text-shadow: 2px 2px var(--shadow);
+}
+.bug p {
+  margin-top: 20px;
+  font-size: 20px;
+  font-family: Raleway, sans-serif;
+  color: var(--medium);
+}
+.bug p span {
+  cursor: pointer;
+  color: var(--light);
+}
+/*# sourceMappingURL=modpack.css.map */

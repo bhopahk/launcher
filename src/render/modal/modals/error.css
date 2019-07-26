@@ -1,0 +1,76 @@
+/*
+Copyright (c) 2019 Matt Worzala <bhop.me>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+.error-report-wrapper {
+  box-sizing: border-box;
+  display: flex;
+  width: 500px;
+  height: 0;
+  min-height: 320px;
+  padding: 15px;
+  border: none;
+  border-radius: 5px;
+  background-color: var(--background-main);
+}
+.error-report-wrapper .error-report-container {
+  width: 100%;
+}
+.error-report-wrapper .title-generic {
+  font-size: 30px;
+  padding-bottom: 10px;
+}
+.error-report-wrapper .paragraph-generic {
+  font-family: Courgette, cursive;
+}
+.error-report-wrapper .error-report-error {
+  box-sizing: border-box;
+  min-height: 150px;
+  max-height: 150px;
+  overflow: auto;
+  margin: 20px 30px;
+  padding: 15px;
+  white-space: pre-wrap;
+  background-color: var(--background-darker-alt);
+}
+.error-report-wrapper .error-report-error:before {
+  counter-reset: listing;
+}
+.error-report-wrapper .error-report-error code {
+  counter-increment: listing;
+  font-family: Inconsolata, sans-serif;
+  color: var(--medium);
+  display: block;
+  white-space: nowrap;
+}
+.error-report-wrapper .error-report-error code::before {
+  display: inline-block;
+  content: counter(listing) ". ";
+  font-family: Inconsolata, sans-serif;
+  color: var(--dark);
+  width: 15px;
+  text-align: right;
+  padding-right: 5px;
+}
+.error-report-wrapper .error-report-actions {
+  display: flex;
+  justify-content: space-evenly;
+}
+/*# sourceMappingURL=error.css.map */

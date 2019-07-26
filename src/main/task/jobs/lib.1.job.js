@@ -84,7 +84,7 @@ process.on('message', async libraries => {
         } else
             console.debug(`Library@${i + 1} has no (non native) libraries for the current platform.`);
 
-        if (!library.natives)
+        if (!library.natives || !library.natives[osName])
             return resolve();
         const native = library.natives[osName].replace(/\${arch}/g, process.arch === 'x64' ? '64' : '32');
         if (native === undefined)
