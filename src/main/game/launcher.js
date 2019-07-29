@@ -150,7 +150,7 @@ const launchMinecraft = async (profile) => {
             continue;
         if (!library.downloads || !library.downloads.artifact || !library.downloads.artifact.path) {
             if (library.clientreq !== false)
-                envars.classpath += path.join(baseDir, 'Install', 'libraries', artifact.findLibraryPath(library.name)) + ';';
+                envars.classpath += path.join(baseDir, 'Install', 'libraries', artifact.findLibraryPath(library.name)) + java.getOsSpecificClasspathSeparator();
         } else {
             if (library.rules && library.rules[0].os) {
                 if (library.rules[0].os.name !== envars.os.name)
@@ -159,7 +159,7 @@ const launchMinecraft = async (profile) => {
 
             const lib = path.join(baseDir, 'Install', 'libraries', library.downloads.artifact.path);
             if (!envars.classpath.includes(lib))
-                envars.classpath += lib + ';';
+                envars.classpath += lib + java.getOsSpecificClasspathSeparator();
         }
     }
     if (inheritedVersionJson)
@@ -244,6 +244,8 @@ const launchMinecraft = async (profile) => {
     }
     const javaExecutable = path.join(javaInstance.path, 'bin', java.getOsDefaultJavaExecutable());
 
+    // await fs.outputFile('/home/matt/Documents/cmd.txt', args.join('|'));
+
     this.process = spawn(javaExecutable, args, {
         stdio: [ 'ignore', 'pipe', 'pipe' ],
         cwd: profile.directory,
@@ -270,6 +272,7 @@ const launchMinecraft = async (profile) => {
     this.process.stderr.on('data', handleMessage);
     this.process.on('close', async code => {
         console.log(`Process exited with code ${code}`);
+        await accounts.refreshAccount(account._id);
         await fs.remove(nativeDirectory);
     });
 

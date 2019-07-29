@@ -38,6 +38,7 @@ require('../tasklogger');
 const path = require('path');
 const fs = require('fs-extra');
 const artifact = require('../../util/artifact');
+const java = require('../../config/java');
 const libDir = path.join(process.env.BASE_DIR, 'Install', 'libraries');
 
 process.on('message', async props => {
@@ -61,7 +62,7 @@ process.on('message', async props => {
         process.send({ task: `installing forge`, progress: i/props.processors.length });
         const processorJar = path.join(libDir, artifact.findLibraryPath(processor.jar));
 
-        let arguments = ['-cp', `"${processorJar};${processor.classpath.map(cp => path.join(libDir, artifact.findLibraryPath(cp))).join(';')}"`, await artifact.findMainClass(processorJar)];
+        let arguments = ['-cp', `"${processorJar};${processor.classpath.map(cp => path.join(libDir, artifact.findLibraryPath(cp))).join(java.getOsSpecificClasspathSeparator())}"`, await artifact.findMainClass(processorJar)];
         const envarKeys = Object.keys(envars);
         arguments = arguments.concat(processor.args.map(arg => {
             for (let j = 0; j < envarKeys.length; j++)
@@ -72,7 +73,14 @@ process.on('message', async props => {
             return arg;
         }));
 
-        const resp = await exec(`java ${arguments.join(' ')}`);
+        const javaInstance = await java.getSelectedJavaInstance();
+        if (javaInstance.error) {
+            console.log('CANNOT RUN FORGE PROCESS BECASUE MISSING JAVA!!!!!!!!!');
+            return;
+        }
+        const javaExecutable = path.join(javaInstance.path, 'bin', java.getOsDefaultJavaExecutable());
+
+        const resp = await exec(`${javaExecutable} ${arguments.join(' ')}`);
         console.debug(`ForgeProcess@${i + 1} has finished successfully.`);
         //todo detection of failure
         resolve(resp);

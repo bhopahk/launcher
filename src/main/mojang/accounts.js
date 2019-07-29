@@ -34,19 +34,7 @@ const accounts = new Database(path.join(baseDir, 'accounts.db'));
 
 // Sync accounts
 let mainWindow;
-ipcMain.on('sync', async event => {
-    mainWindow = event.sender;
-    console.log('Synchronizing Minecraft accounts...');
-    const clientToken = (await config.getValue('clientKey')).value;
-    accounts.find({ }).then(accs => accs.forEach(async account => {
-        if (await mojang.validateToken(account.token, clientToken))
-            return console.debug(`Account@${account.username} has a valid token.`);
-        console.debug(`Account@${account.username} has an invalid token, it will be refreshed.`);
-        const resp = await mojang.refreshToken(account.token, clientToken, false);
-        account.token = resp.accessToken;
-        await accounts.update({ _id: account._id }, account);
-    }));
-});
+ipcMain.on('sync', async event => mainWindow = event.sender);
 
 ipcMain.on('account:inst', () => this.addAccount());
 ipcMain.on('account:select', (event, uuid) => this.selectAccount(uuid));
@@ -110,7 +98,20 @@ exports.getAccount = (uuid) => accounts.findOne({ uuid });
 exports.renderAccounts = async () => mainWindow.send('account:render', await exports.getAccounts());
 
 exports.removeAccount = async uuid => {
-    accounts.remove({ _id: uuid });
+    await accounts.remove({ _id: uuid });
     await this.getSelectedAccount();
     this.renderAccounts();
+};
+
+exports.refreshAccount = async uuid => {
+    const account = await accounts.findOne({ _id: uuid });
+    if (!account)
+        return { error: 'not found', errorMessage: 'The target account could not be found!' };
+    const clientToken = (await config.getValue('clientKey')).value;
+    const resp = await mojang.refreshToken(account.token, clientToken, false);
+    if (resp.error)
+        return await this.removeAccount(uuid);
+    account.token = resp.accessToken;
+    await accounts.update({ _id: account._id }, account);
+    console.log(`Refreshed login token for ${account.username}.`)
 };

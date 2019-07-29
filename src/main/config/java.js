@@ -170,6 +170,7 @@ const getOsDefaultJavaDirectory = () => {
     }
 };
 exports.getOsDefaultJavaExecutable = () => process.platform === 'win32' ? 'java.exe' : 'java';
+exports.getOsSpecificClasspathSeparator = () => process.platform === 'win32' ? ';' : ':';
 const exec = cmd => new Promise((resolve, reject) => {
     require('child_process').exec(cmd, {maxBuffer: 1024 * 1024}, (err, stdout, stderr) => {
         if (err) reject(err);
