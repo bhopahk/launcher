@@ -37,7 +37,7 @@ let mainWindow = null;
 ipcMain.once('sync', async event => {
     mainWindow = event.sender;
 
-    const javaLocations = getOsDefaultJavaDirectory().map(async location => await fs.readdir(location, { withFileTypes: true }).then(results => results.filter(dir => dir.isDirectory()).map(dir => path.join(location, dir.name))));
+    const javaLocations = getOsDefaultJavaDirectory().filter(async location => await fs.pathExists(location)).map(async location => await fs.readdir(location, { withFileTypes: true }).then(results => results.filter(dir => dir.isDirectory()).map(dir => path.join(location, dir.name))));
     let all = [];
     for (let i = 0; i < javaLocations.length; i++)
         all = all.concat(await javaLocations[i]);
