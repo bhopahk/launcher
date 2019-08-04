@@ -9,6 +9,7 @@
 /.idea
 
 # production
+/dist
 /build
 
 # misc

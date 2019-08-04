@@ -45,7 +45,9 @@ process.on('message', async props => {
         console.debug(`Mod@${i + 1} is ${mod.projectID}.`);
         const name = (await (await fetch(`https://addons-ecs.forgesvc.net/api/v2/addon/${mod.projectID}`)).json()).name;
         process.send({ task: `installing ${name}`, progress: i/props.mods.length });
-        const fileJson = await (await fetch(`https://addons-ecs.forgesvc.net/api/v2/addon/${mod.projectID}/file/${mod.fileID}`)).json();
+        const fileJson = await (await fetch(`https://addons-ecs.forgesvc.net/api/v2/addon/${mod.projectID}/file/${mod.fileID}`, {
+            headers: { 'Content-Type': 'application/json' }
+        })).json();
         await files.download(fileJson.downloadUrl, path.join(modsDir, fileJson.fileName));
         console.debug(`Mod@${i + 1} has been downloaded.`);
     };

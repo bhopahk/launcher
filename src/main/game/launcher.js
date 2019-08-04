@@ -117,7 +117,6 @@ const launchMinecraft = async (profile) => {
     envars.auth_player_name = account.username;
     envars.auth_uuid = account._id.replace(/-/g, '');
     envars.auth_access_token = account.token;
-    // envars.version_name = profile.targetVersion;
     envars.version_name = `proton ${__launcher_version}`;
     envars.game_directory = `${profile.directory}`;
     envars.assets_root = `${path.join(baseDir, 'Install', 'assets')}`;

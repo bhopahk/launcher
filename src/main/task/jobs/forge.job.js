@@ -62,7 +62,7 @@ process.on('message', async props => {
         process.send({ task: `installing forge`, progress: i/props.processors.length });
         const processorJar = path.join(libDir, artifact.findLibraryPath(processor.jar));
 
-        let arguments = ['-cp', `"${processorJar};${processor.classpath.map(cp => path.join(libDir, artifact.findLibraryPath(cp))).join(java.getOsSpecificClasspathSeparator())}"`, await artifact.findMainClass(processorJar)];
+        let arguments = ['-cp', `"${processorJar}${java.getOsSpecificClasspathSeparator()}${processor.classpath.map(cp => path.join(libDir, artifact.findLibraryPath(cp))).join(java.getOsSpecificClasspathSeparator())}"`, (await artifact.findMainClass(processorJar)).trim()];
         const envarKeys = Object.keys(envars);
         arguments = arguments.concat(processor.args.map(arg => {
             for (let j = 0; j < envarKeys.length; j++)

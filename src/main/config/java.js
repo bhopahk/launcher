@@ -25,38 +25,43 @@ SOFTWARE.
  */
 
 const { app, ipcMain } = require('electron');
+
 const Database = require('../util/database');
 const path = require('path');
 const fs = require('fs-extra');
 
 // Useful paths
-const baseDir = app.getPath('userData');
+const baseDir = app ? app.getPath('userData') : process.env.BASE_DIR;
 
 // For sending to the window outside of an ipc method
 let mainWindow = null;
-ipcMain.once('sync', async event => {
-    mainWindow = event.sender;
+if (ipcMain) {
+    ipcMain.once('sync', async event => {
+        mainWindow = event.sender;
 
-    const javaLocations = getOsDefaultJavaDirectory().filter(async location => await fs.pathExists(location)).map(async location => await fs.readdir(location, { withFileTypes: true }).then(results => results.filter(dir => dir.isDirectory()).map(dir => path.join(location, dir.name))));
-    let all = [];
-    for (let i = 0; i < javaLocations.length; i++)
-        all = all.concat(await javaLocations[i]);
-    for (let i = 0; i < all.length; i++)
-        await this.addJavaInstance(all[i]);
-    const selected = await this.getSelectedJavaInstance();
-    if (selected.error) {
-        console.log('No valid java instance has been found!')
-    }
-});
+        const javaLocations = getOsDefaultJavaDirectory().filter(async location => await fs.pathExists(location)).map(async location => await fs.readdir(location, { withFileTypes: true }).then(results => results.filter(dir => dir.isDirectory()).map(dir => path.join(location, dir.name))));
+        let all = [];
+        for (let i = 0; i < javaLocations.length; i++)
+            all = all.concat(await javaLocations[i]);
+        for (let i = 0; i < all.length; i++)
+            await this.addJavaInstance(all[i]);
+        const selected = await this.getSelectedJavaInstance();
+        if (selected.error) {
+            console.log('No valid java instance has been found!')
+        }
+    });
+}
 
 // JVM instance data store
 const jvmDb = new Database(path.join(baseDir, 'jvm.db'));
 
 // IPC Listeners
-ipcMain.on('java:add', async (event, file) => this.addJavaInstance(file));
-ipcMain.on('java:select', async (event, id) => this.selectJavaInstance(id));
-ipcMain.on('java:remove', (event, id) => this.removeJavaInstance(id));
-ipcMain.on('java:render', async () => mainWindow.send('java:render', await this.listJavaInstances()));
+if (ipcMain) {
+    ipcMain.on('java:add', async (event, file) => this.addJavaInstance(file));
+    ipcMain.on('java:select', async (event, id) => this.selectJavaInstance(id));
+    ipcMain.on('java:remove', (event, id) => this.removeJavaInstance(id));
+    ipcMain.on('java:render', async () => mainWindow.send('java:render', await this.listJavaInstances()));
+}
 
 /**
  * Adds a java instance based on it's path.
@@ -156,7 +161,10 @@ exports.listJavaInstances = () => jvmDb.find({});
  *
  * @returns {Promise<Array<Object>>}
  */
-exports.renderJavaInstances = async () => mainWindow.send('java:render', await this.listJavaInstances());
+exports.renderJavaInstances = async () => {
+    if (mainWindow)
+        mainWindow.send('java:render', await this.listJavaInstances());
+};
 
 // Helper Functions
 const getOsDefaultJavaDirectory = () => {
