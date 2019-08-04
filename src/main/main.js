@@ -128,7 +128,10 @@ app.on('ready',  async () => {
 
     tray = new Tray(path.join(app.getAppPath() + '/public/icon.png'));
     tray.setToolTip('Proton Launcher');
-    tray.addListener('click', () => mainWindow.focus());
+    tray.addListener('click', () => {
+        mainWindow.show();
+        mainWindow.focus();
+    });
     tray.setContextMenu(Menu.buildFromTemplate([
         { label: `Proton Launcher v${__launcher_version}`, type: 'normal', click: () => clipboard.writeText(`Proton v${__launcher_version}`) },
         { label: 'Check for Updates NI', type: 'normal' },
@@ -174,6 +177,15 @@ app.on('activate', () => {
 exports.restart = () => {
     app.relaunch({ args: process.argv.slice(1) });
     app.exit(0)
+};
+
+exports.hide = () => {
+    mainWindow.hide();
+};
+
+exports.show = () => {
+    mainWindow.show();
+    mainWindow.focus();
 };
 
 /**

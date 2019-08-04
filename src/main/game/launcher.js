@@ -33,7 +33,7 @@ const config = require('../config/config');
 const sendSnack = require('../main').sendSnack;
 const accounts = require('../mojang/accounts');
 const java = require('../config/java');
-const updater = require('../app/updater');
+const main = require('../main');
 const path = require('path');
 const fs = require('fs-extra');
 const StreamZip = require('node-stream-zip');
@@ -246,6 +246,8 @@ const launchMinecraft = async (profile) => {
 
     // await fs.outputFile('/home/matt/Documents/cmd.txt', args.join('|'));
 
+    if ((await config.getValue('app/hideOnLaunch')).value)
+        main.hide();
     this.process = spawn(javaExecutable, args, {
         stdio: [ 'ignore', 'pipe', 'pipe' ],
         cwd: profile.directory,
@@ -272,6 +274,7 @@ const launchMinecraft = async (profile) => {
     this.process.stderr.on('data', handleMessage);
     this.process.on('close', async code => {
         console.log(`Process exited with code ${code}`);
+        main.show();
         await accounts.refreshAccount(account._id);
         await fs.remove(nativeDirectory);
     });

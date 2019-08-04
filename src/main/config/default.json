@@ -3,6 +3,9 @@
     "value": "",
     "readonly": true
   },
+  "app/hideOnLaunch": {
+    "value": true
+  },
   "app/instanceDir": {
     "value": ""
   },

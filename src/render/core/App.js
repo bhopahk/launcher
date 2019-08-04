@@ -127,6 +127,9 @@ class App extends React.Component {
                         <SettingsWrapper default="app">
                             <Settings id="app" display="App Settings">
                                 <Title>App Settings</Title>
+                                <SettingsField title="Close On Launch" description="The launcher window will be closed when launching a profile. It will re appear when the game exits.">
+                                    <SettingsSwitch id="hideOnLaunch" />
+                                </SettingsField>
                                 <SettingsField title="Instance Directory" description="The location for profiles to be installed. Your account must have access to the folder.">
                                     <FolderSelect id="instanceDir" onMoreAction={value => window.ipc.send('open:folder', value)} />
                                 </SettingsField>

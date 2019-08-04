@@ -31,6 +31,7 @@ SOFTWARE.
 
 const { app, ipcMain } = require('electron');
 const profile = require('./profile');
+const main = require('../main');
 
 // Handle `proton://` protocol.
 app.setAsDefaultProtocolClient('proton');
@@ -40,7 +41,10 @@ const locked = app.requestSingleInstanceLock();
 if (!locked) app.quit();
 
 // Called when a new instance is created.
-app.on('second-instance', (event, argv) => this.handle(argv[3]));
+app.on('second-instance', (event, argv) => {
+    main.show();
+    this.handle(argv[3])
+});
 ipcMain.on('uri:test', (event, uri) => this.handle(uri));
 
 /**
