@@ -25,7 +25,7 @@ import CreateProfile from "../create/CreateProfile";
 import {SettingsWrapper, Settings, Separator, Title, Subtitle} from "../settings/Settings";
 import { SettingsField, SettingsSwitch } from '../settings/SettingsInput';
 
-import { Checkbox, Check, FolderSelect, Dropdown, Option, TextField, Slider, Button } from '../input/Input';
+import { FolderSelect, Dropdown, Option, TextField, Slider, Button } from '../input/Input';
 import {JavaSettings} from '../settings/JavaSettings';
 
 class App extends React.Component {
@@ -196,19 +196,7 @@ class App extends React.Component {
                             <Separator/>
                             <Settings id="notifications" display="Notifications">
                                 <Title>Notifications</Title>
-                                <SettingsField ni title="Enabled" description="System notifications will be sent on certain events such as profile installation finishing.">
-                                    <SettingsSwitch id="sendNotifications" />
-                                </SettingsField>
-                                <SettingsField ni title="Taskbar" description="The system task bar will reflect notifications through a discrete flashing.">
-                                    <SettingsSwitch id="showTaskbar" />
-                                </SettingsField>
-                                <SettingsField ni title="Sounds" description="Choose which actions will make sounds.">
-                                    <Checkbox id="sounds" multiple>
-                                        <Check value="native" display="Native Launcher" description="The modern 'native' Mojang launcher." />
-                                        <Check value="legacy" display="Legacy Launcher" description="The legacy Java based Mojang launcher." />
-                                        <Check value="direct" display="Direct Launch" description="Who needs a Mojang launcher anyway?" />
-                                    </Checkbox>
-                                </SettingsField>
+                                <SettingsField title="Coming Soon..." description="This will be added in a later version of the launcher, hold tight!" />
                             </Settings>
                             <Settings id="personalization" display="Personalization">
                                 <Title>Personalization</Title>

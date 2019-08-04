@@ -57,8 +57,11 @@ exports.addAccount = () => {
         if (acc != null) {
             acc.token = data.token;
             acc.username = data.username;
-            await accounts.update({ _id: data._id }, acc);
-        } else await accounts.insert(data);
+            await accounts.update({ _id: acc._id }, acc);
+        } else {
+            delete accounts.clientKey;
+            await accounts.insert(data);
+        }
         await this.getSelectedAccount();
         await this.renderAccounts();
         window.close();
@@ -72,9 +75,9 @@ exports.selectAccount = async uuid => {
         await accounts.update({ selected: true }, current);
     }
 
-    const target = await accounts.findOne({ _id: uuid });
+    const target = await accounts.findOne({ uuid });
     target.selected = true;
-    await accounts.update({ _id: uuid }, target);
+    await accounts.update({ uuid }, target);
     await this.getSelectedAccount();
     this.renderAccounts();
 };
@@ -98,13 +101,13 @@ exports.getAccount = (uuid) => accounts.findOne({ uuid });
 exports.renderAccounts = async () => mainWindow.send('account:render', await exports.getAccounts());
 
 exports.removeAccount = async uuid => {
-    await accounts.remove({ _id: uuid });
+    await accounts.remove({ uuid });
     await this.getSelectedAccount();
     this.renderAccounts();
 };
 
 exports.refreshAccount = async uuid => {
-    const account = await accounts.findOne({ _id: uuid });
+    const account = await accounts.findOne({ uuid });
     if (!account)
         return { error: 'not found', errorMessage: 'The target account could not be found!' };
     const clientToken = (await config.getValue('clientKey')).value;

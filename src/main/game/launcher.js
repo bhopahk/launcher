@@ -117,7 +117,8 @@ const launchMinecraft = async (profile) => {
     envars.auth_player_name = account.username;
     envars.auth_uuid = account._id.replace(/-/g, '');
     envars.auth_access_token = account.token;
-    envars.version_name = profile.targetVersion;
+    // envars.version_name = profile.targetVersion;
+    envars.version_name = `proton ${__launcher_version}`;
     envars.game_directory = `${profile.directory}`;
     envars.assets_root = `${path.join(baseDir, 'Install', 'assets')}`;
     envars.assets_index_name = inheritedVersionJson ? inheritedVersionJson.assets : versionJson.assets;
@@ -125,7 +126,7 @@ const launchMinecraft = async (profile) => {
     envars.version_type = versionJson.type;
     envars.natives_directory = nativeDirectory;
     envars.launcher_name = 'proton';
-    envars.launcher_version = updater.CURRENT;
+    envars.launcher_version = __launcher_version;
     envars.resolution_width = profile.resolution.width;
     envars.resolution_height = profile.resolution.height;
     // envars.classpath = 'C:\\Users\\Matt Worzala\\Desktop\\launchwrapper-1.0.jar;';
@@ -163,7 +164,7 @@ const launchMinecraft = async (profile) => {
         }
     }
     if (inheritedVersionJson)
-        envars.classpath += path.join(baseDir, 'Install', 'versions', inheritedVersionJson.id, `${inheritedVersionJson.id}.jar`) + ';';
+        envars.classpath += path.join(baseDir, 'Install', 'versions', inheritedVersionJson.id, `${inheritedVersionJson.id}.jar`) + java.getOsSpecificClasspathSeparator();
     if (versionJson.jar)
         envars.classpath += path.join(baseDir, 'Install', 'versions', versionJson.jar, `${versionJson.jar}.jar`);
     else if (profile.flavor !== 'fabric')
@@ -262,7 +263,7 @@ const launchMinecraft = async (profile) => {
             message.level = json.elements[0].attributes.level;
             message.text = json.elements[0].elements[0].elements[0].cdata;
         } catch (e) {
-            console.log(raw);
+            console.log(raw.trim());
             return;
         }
         console.log(`Minecraft // ${message.level} : ${message.text}`);

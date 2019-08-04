@@ -18,7 +18,7 @@
                 console.error(`Received ${resp.error} from login request.`);
                 document.getElementById('errorDisplay').innerText = resp.errorMessage;
             } else ipc.send('login:complete', {
-                _id: resp.availableProfiles[0].id.substring(0, 8) + '-' + resp.availableProfiles[0].id.substring(8, 12) + '-' + resp.availableProfiles[0].id.substring(12, 16) + '-' + resp.availableProfiles[0].id.substring(16, 20) + '-' + resp.availableProfiles[0].id.substring(20),
+                uuid: resp.availableProfiles[0].id.substring(0, 8) + '-' + resp.availableProfiles[0].id.substring(8, 12) + '-' + resp.availableProfiles[0].id.substring(12, 16) + '-' + resp.availableProfiles[0].id.substring(16, 20) + '-' + resp.availableProfiles[0].id.substring(20),
                 token: resp.accessToken,
                 login: resp.user.username,
                 username: resp.availableProfiles[0].name,

@@ -53,8 +53,8 @@ exports.getLaunchMeta = async loaderVersion => {
         libraries: [],
     };
 
-    const url = `${this.MAVEN_SERVER_URL}/${this.PACKAGE_NAME}/${this.LOADER_NAME}/${loaderVersion}/${this.LOADER_NAME}-${loaderVersion}.json`;
-    const meta = await (await fetch(url)).json();
+    const url = `${this.MAVEN_SERVER_URL}${this.PACKAGE_NAME}/${this.LOADER_NAME}/${loaderVersion}/${this.LOADER_NAME}-${loaderVersion}.json`;
+    const meta = await (await fetch(encodeURI(url))).json();
 
     if (meta.mainClass.hasOwnProperty('client')) {
         processed.mainClass = meta.mainClass.client;

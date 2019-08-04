@@ -216,9 +216,9 @@ exports.installFabric = async (mappings, loader, validate) => {
     }
 
     console.debug(`${validate ? 'Installing' : 'Validating'} Fabric@${versionName}.`);
+    const versionJsonPath = path.join(versionDir, `${versionName}.json`);
+    const versionJarPath = path.join(versionDir, `${versionName}.jar`);
     if (await fs.pathExists(versionDir) && !validate) {
-        const versionJsonPath = path.join(versionDir, `${versionName}.json`);
-        const versionJarPath = path.join(versionDir, `${versionName}.jar`);
         if (!await fs.pathExists(versionJsonPath) || !await fs.pathExists(versionJarPath))
             return await this.installFabric(mappings, loader, true);
         return versionName;
