@@ -80,14 +80,14 @@ class AccountManager extends React.Component {
 
 const Account = (props) => {
     return (
-        <div className={`am-account ${props.selected ? 'active' : ''}`} onClick={() => window.ipc.send('account:select', props._id)}>
-            <img alt="User Head" src={`${HEAD_BASE_URL}${props._id}`} />
+        <div className={`am-account ${props.selected ? 'active' : ''}`} onClick={() => window.ipc.send('account:select', props.uuid)}>
+            <img alt="User Head" src={`${HEAD_BASE_URL}${props.uuid}`} />
             <div>
                 <h4>{props.username}</h4>
-                <h5>{props._id}</h5>
+                <h5>{props.uuid}</h5>
                 <button onClick={e => {
                     e.stopPropagation();
-                    window.ipc.send('account:remove', props._id);
+                    window.ipc.send('account:remove', props.uuid);
                 }} className="am-account-remove">Remove</button>
             </div>
         </div>

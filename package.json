@@ -1,6 +1,6 @@
 {
   "name": "proton",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "A custom minecraft launcher",
   "private": false,
   "author": "Matt Worzala <bhop.me>",
