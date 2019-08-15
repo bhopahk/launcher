@@ -135,7 +135,9 @@ const loadFabric = async () => {
     const mappingsVersion = xmlJs.xml2js(await (await fetch(FABRIC_MAPPINGS_META)).text(), { compact: true });
     mappingsVersion.metadata.versioning.versions.version.reverse().forEach(ver => {
         const version = fabricify(ver._text, FABRIC_MAPPINGS, 'yarn');
-        this.findGameVersion(version.game).fabric.push(version);
+        const game = this.findGameVersion(version.game);
+        if (game && game.fabric)
+            game.fabric.push(version);
     });
 };
 
