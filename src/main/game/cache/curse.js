@@ -38,6 +38,22 @@ ipcMain.on('curse:search', (event, newFilter) => {
     this.loadNextPage();
 });
 ipcMain.on('curse:page', () => this.loadNextPage());
+ipcMain.on('curse:files', (event, id) => {
+    console.log('fetching0');
+    fetch(`https://addons-ecs.forgesvc.net/api/v2/addon/${id}/files`, {
+        headers: { "User-Agent": "Launcher (https://github.com/bhopahk/launcher/)" }
+    }).then(resp => resp.json()).then(json => {
+        let versions = [];
+        json.forEach(ver => {
+            versions.push({
+                id: ver.id,
+                name: ver.fileName,
+                type: ver.releaseType,
+            });
+        });
+        event.sender.send('curse:files', versions.reverse());
+    });
+});
 
 exports.loadNextPage = () => {
     let current = modpacks.slice();

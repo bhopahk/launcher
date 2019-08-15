@@ -9,7 +9,6 @@ class CurseModpackListing extends React.Component {
 
         this.page = 0;
 
-        // noinspection SpellCheckingInspection
         this.state = {
             sort: 'Featured',
             search: '',
@@ -90,7 +89,7 @@ class CurseModpackListing extends React.Component {
         return (
             <div className="modpack-browser-wrapper">
                 <div className={`create-profile-cover ${this.state.loading ? '' : 'hidden'}`}>
-                    <div className="lds-dual-ring"></div>
+                    <div className="lds-dual-ring"/>
                 </div>
                 <div className="modpack-filter">
                     <div className="search">
@@ -135,7 +134,7 @@ class CurseModpackListing extends React.Component {
                         </Dropdown>
                     </div>
                     <div className="refresh" onClick={() => this.onRefresh()}>
-                        <i className="fas fa-redo flip"></i>
+                        <i className="fas fa-redo flip"/>
                     </div>
                 </div>
                 <ModpackBrowser modpacks={this.state.modpacks} loading={!this.state.loading} onRefresh={() => this.onRefresh()} onScrollBottom={() => {

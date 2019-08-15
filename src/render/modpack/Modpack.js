@@ -54,28 +54,19 @@ export class ModpackBrowser extends React.Component {
             versions: []
         });
 
-        fetch(`https://addons-ecs.forgesvc.net/api/v2/addon/${id}/files`, {
-            headers: { "User-Agent": "Launcher (https://github.com/bhopahk/launcher/)" }
-        }).then(resp => resp.json()).then(json => {
-            let versions = [];
-            json.forEach(ver => {
-                versions.push({
-                    id: ver.id,
-                    name: ver.fileName,
-                    type: ver.releaseType,
-                });
-            });
-            this.setState({
-                versions: versions.reverse(),
-            })
+        window.ipc.once('curse:files', (_, versions) => {
+            console.log(versions);
+            console.log('back');
+            this.setState({ versions });
         });
+        window.ipc.send('curse:files', id);
     };
 
     render() {
         if (this.props.error) {
             return (
                 <div className="bug">
-                    <h1><i className="fas fa-bug"></i></h1>
+                    <h1><i className="fas fa-bug"/></h1>
                     <p>An error has occurred, please <span onClick={() => Snackbar.sendSnack({ body: 'Refreshing Page...' })}>refresh</span> the page.</p>
                 </div>
             );
@@ -83,7 +74,7 @@ export class ModpackBrowser extends React.Component {
         if (this.props.modpacks.length === 0 && this.props.loading)
             return (
                 <div className="bug">
-                    <h1 className="small"><i className="fas fa-frown"></i></h1>
+                    <h1 className="small"><i className="fas fa-frown"/></h1>
                     <p>No modpacks were found, please edit your search!</p>
                 </div>
             );
@@ -116,7 +107,7 @@ const Modpack = (props) => {
                             <h1>{props.name}</h1>
                             <h2>by <span>{props.authors[0].name}</span></h2>
                             <p>{props.summary}</p>
-                            <i data-tip="" data-for="sad2" className={`fas ${props.featured ? 'fa-star' : ''}`}></i>
+                            <i data-tip="" data-for="sad2" className={`fas ${props.featured ? 'fa-star' : ''}`}/>
                             <ReactTooltip id='sad2' place="bottom">
                                 <span className="tooltip-text">Featured</span>
                             </ReactTooltip>
@@ -146,7 +137,7 @@ const Modpack = (props) => {
                 </div>
             </ContextMenuTrigger>
             <ContextMenu id={`${props.id}`} onShow={() => props.loadVersions()}>
-                <SubMenu title={<div><i className="fas fa-cloud-download-alt"></i>Install</div>} className={"submenu-menu modpack-versions"} hoverDelay={0}>
+                <SubMenu title={<div><i className="fas fa-cloud-download-alt"/>Install</div>} className={"submenu-menu modpack-versions"} hoverDelay={0}>
                     {/* 1=Release, 2=Beta, 3=Alpha */}
                     {props.getLoadedVersions().map(ver => {
                         return (<MenuItem key={ver.id} onClick={() => props.onInstall(ver.id)}>{ver.name}{ver.type === 2 ? (<span className="badge">Beta</span>) : ver.type === 3 ? (<span className="badge">Alpha</span>) : null}</MenuItem>);

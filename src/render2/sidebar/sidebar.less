@@ -1,0 +1,166 @@
+.sidebar {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  user-select: none;
+
+  width: 300px;
+  height: 100vh;
+
+  margin: 0;
+  padding: 30px 30px 0;
+
+  &.sidebar-normal {
+    background-color: var(--background-darker);
+  }
+  &.sidebar-vibrant {
+    background-color: var(--background-darker-vibrant);
+  }
+
+  nav .sidebar-group {
+
+    p {
+      margin-top: 30px;
+      padding-left: 10px;
+
+      font-size: 14px;
+      font-family: Oswald, sans-serif;
+      text-transform: uppercase;
+      color: var(--light);
+      text-shadow: 2px 2px var(--shadow);
+    }
+
+    a {
+      display: block;
+      box-sizing: border-box;
+      outline: none;
+      cursor: pointer;
+
+      width: 100%;
+      height: auto;
+
+      margin: 15px 0;
+      padding: 0;
+
+      text-align: left;
+      font-size: 15px;
+      font-family: "Source Sans Pro", sans-serif;
+      font-weight: bold;
+      text-decoration: none;
+      border: none;
+      background: transparent;
+      color: var(--inactive);
+
+      i {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        vertical-align: middle;
+
+        width: 30px;
+
+        padding-bottom: 3px;
+      }
+
+      &.active {
+        color: var(--light);
+
+        i {
+          color: var(--medium);
+          //background: @highlightGradient; //todo this needs to be put into the config maybe
+        }
+      }
+
+      &:hover {
+        color: var(--medium);
+        //background: @highlightGradient;
+      }
+
+      &.disabled {
+        cursor: auto;
+        color: var(--disabled);
+      }
+      &.disabled:hover {
+        text-decoration: line-through;
+
+        i {
+          color: var(--disabled);
+          background: transparent;
+        }
+      }
+    }
+  }
+}
+
+.sidebar-header {
+  display: flex;
+  flex-direction: row;
+
+  width: 100%;
+
+  margin: 0;
+
+  .title-generic {
+    line-height: 35px;
+  }
+}
+
+.sidebar-footer {
+  box-sizing: border-box;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+
+  margin: auto;
+
+  button {
+    position: relative;
+    box-sizing: border-box;
+    outline: none;
+    cursor: pointer;
+
+    margin: 10px;
+    padding: 0;
+
+    border: none;
+    background: transparent;
+    font-family: Oswald, sans-serif;
+    color: var(--medium);
+    text-shadow: 2px 2px var(--shadow);
+
+    i {
+      font-size: 20px;
+    }
+
+    &:hover {
+      color: var(--light);
+    }
+  }
+
+  .active {
+    color: var(--primary);
+
+    &:hover {
+      color: var(--secondary);
+    }
+  }
+
+  .fa-sync-alt {
+    text-shadow: none;
+
+    animation: test 2s infinite;
+    transform: rotateZ(90deg);
+  }
+
+  @keyframes test {
+    0% {
+      transform: rotateZ(90deg);
+    }
+    100% {
+      transform: rotateZ(450deg);
+    }
+  }
+}

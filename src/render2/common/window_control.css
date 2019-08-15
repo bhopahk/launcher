@@ -1,0 +1,29 @@
+.window-control {
+  -webkit-app-region: drag;
+  user-select: none;
+  position: absolute;
+  right: 0;
+  top: 0;
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  height: 30px;
+  z-index: 50;
+  font-size: 20px;
+}
+.window-control .close-icon {
+  position: absolute;
+  top: 0;
+  right: 1px;
+}
+.window-control .icon {
+  -webkit-app-region: no-drag;
+  cursor: pointer;
+  padding: 3px 2px;
+  font-size: 24px;
+  color: var(--medium);
+}
+.window-control .icon:hover {
+  color: var(--light);
+}
+/*# sourceMappingURL=window_control.css.map */

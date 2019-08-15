@@ -54,7 +54,8 @@ const createWindow = () => {
         minWidth: 950,
         minHeight: 550,
         frame: false,
-        transparent: process.platform === 'win32' || process.platform === 'darwin',
+        // transparent: process.platform === 'win32' || process.platform === 'darwin',
+        transparent: true,
         icon: app.getAppPath() + '/public/icon.png',
         webPreferences: {
             nodeIntegration: false,
