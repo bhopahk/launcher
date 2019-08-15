@@ -9,6 +9,7 @@ import CustomProfile from "./render2/custom";
 
 import './render2/common/standard.css';
 import './render2/common/window_control.css';
+import './render2/common/contextmenu.css';
 
 // import './render/core/index.css';
 // import App from './render/core/App';

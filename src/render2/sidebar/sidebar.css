@@ -4,6 +4,7 @@
   box-sizing: border-box;
   user-select: none;
   width: 300px;
+  min-width: 300px;
   height: 100vh;
   margin: 0;
   padding: 30px 30px 0;

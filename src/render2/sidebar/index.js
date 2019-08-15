@@ -1,9 +1,8 @@
 import React from 'react';
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import QuickLaunch from "../profiles/quick";
 import Tasks from './tasks';
 import { ImageSquare, Title } from "../../render/layout/Generic";
-
 
 import './sidebar.css';
 import logo from "../../render/static/LauncherNoText.png";

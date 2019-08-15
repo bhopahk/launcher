@@ -37,7 +37,7 @@ class Profiles extends React.Component {
         if (this.state.profiles.length === 0) {
             return (
                 <div className="profiles-empty">
-                    <h1><i className="fas fa-exclamation"></i></h1>
+                    <h1><i className="fas fa-exclamation"/></h1>
                     <p>You do not appear to have any profiles installed!</p>
                     <p>Consider&nbsp;
                         <span onClick={() => document.getElementById('curse').click()}>installing one from curse</span>

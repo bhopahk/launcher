@@ -1,0 +1,94 @@
+.react-contextmenu {
+  box-sizing: border-box;
+  min-width: 160px;
+  outline: none;
+
+  margin: 0;
+  padding: 5px 0;
+
+  border: none;
+  border-radius: 5px;
+  //background-color: var(--background-darker-alt);
+  background-color: rgba(20, 20, 20, 0.9);
+
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 250ms ease !important;
+
+  &.submenu-menu {
+    max-width: 350px;
+    max-height: 200px;
+    overflow-y: auto;
+    outline: none;
+  }
+
+  &.react-contextmenu--visible {
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 15;
+  }
+}
+.react-contextmenu-item {
+  cursor: pointer;
+  outline: none;
+
+  width: auto;
+
+  padding: 5px 10px;
+
+  white-space: nowrap;
+  border-radius: 5px;
+  font-size: 15px;
+  font-family: Source Sans Pro, sans-serif;
+  color: var(--medium);
+
+  &:hover {
+    background-color: var(--background-main);
+  }
+
+  i {
+    width: 17px;
+    font-size: 13px;
+    margin-right: 5px;
+  }
+
+  &.react-contextmenu-item--disabled {
+    cursor: default;
+    color: var(--dark);
+
+    &:hover {
+      background-color: transparent;
+    }
+  }
+
+  &.react-contextmenu-submenu {
+    padding: 0;
+
+    & > .react-contextmenu-item {
+
+      &:after {
+        content: "▶";
+        display: inline-block;
+        position: absolute;
+        right: 7px;
+        top: 4px;
+      }
+    }
+  }
+}
+
+.react-contextmenu-item--divider {
+  cursor: default;
+
+  width: 100%;
+  height: 2px;
+
+  padding: 0;
+
+  background-color: var(--background-lighter);
+
+  &:hover {
+    border-radius: 0;
+    background-color: var(--background-lighter);
+  }
+}

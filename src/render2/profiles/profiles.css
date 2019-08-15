@@ -1,0 +1,148 @@
+.profiles-empty {
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100vh;
+}
+.profiles-empty h1 {
+  padding-bottom: 10px;
+  font-size: 70px;
+  color: var(--light);
+  text-shadow: 5px 5px var(--shadow);
+}
+.profiles-empty p {
+  font-size: 20px;
+  font-family: Raleway, sans-serif;
+  color: var(--medium);
+}
+.profiles-empty p a {
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--light);
+  text-shadow: 2px 2px var(--shadow);
+}
+.profiles {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 200px);
+  grid-gap: 30px;
+  grid-template-rows: repeat(auto-fill, 200px);
+  width: 100%;
+  height: 100vh;
+  padding: 30px;
+  overflow-y: auto;
+}
+.profiles .profile {
+  position: relative;
+  cursor: pointer;
+  width: 200px;
+  height: 200px;
+  border: none;
+  border-radius: 5px;
+  box-shadow: 0 0 15px -4px #000000;
+}
+.profiles .profile .profile-flavor {
+  position: absolute;
+  right: 15px;
+  top: 10px;
+  font-size: 15px;
+  color: var(--medium);
+  text-shadow: 2px 2px var(--shadow);
+  z-index: 5;
+}
+.profiles .profile img {
+  width: 200px;
+  height: 200px;
+  border: none;
+  border-radius: 5px;
+}
+.profiles .profile .profile-content {
+  box-sizing: border-box;
+  position: absolute;
+  overflow: hidden;
+  left: 0;
+  top: 0;
+  user-select: none;
+  width: 200px;
+  height: 200px;
+  border: none;
+  border-radius: 5px;
+  background-repeat: no-repeat;
+  background-attachment: unset;
+  background-size: contain;
+  background-position: top;
+}
+.profiles .profile .profile-content .profile-blur {
+  position: absolute;
+  bottom: -2px;
+  width: 202px;
+  height: 50px;
+  border-bottom-right-radius: 5px;
+  border-bottom-left-radius: 5px;
+  background: inherit;
+  background-size: 200px;
+  background-position-y: -150px;
+  overflow: hidden;
+}
+.profiles .profile .profile-content .profile-blur::before {
+  position: absolute;
+  left: -3px;
+  content: '';
+  width: 205px;
+  height: 200px;
+  background: inherit;
+  filter: blur(1px) brightness(60%);
+}
+.profiles .profile .profile-content .profile-details {
+  position: absolute;
+  bottom: 5px;
+  left: 5px;
+  width: calc(100% - 10px);
+  text-align: center;
+}
+.profiles .profile .profile-content .profile-details h1 {
+  overflow: hidden;
+  padding-bottom: 5px;
+  font-size: 20px;
+  font-family: Raleway, sans-serif;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--light);
+  text-shadow: 2px 2px var(--shadow);
+}
+.profiles .profile .profile-content .profile-details p {
+  font-size: 15px;
+  font-family: "Source Sans Pro", sans-serif;
+  color: var(--light);
+}
+.profiles .profile .profile-content .profile-details p span {
+  padding-left: 5px;
+  padding-right: 5px;
+  color: var(--medium);
+  text-shadow: 1px 1px var(--shadow);
+}
+.profiles .profile .profile-content .profile-play {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+.profiles .profile .profile-content .profile-play i {
+  display: none;
+  font-size: 30px;
+  color: var(--light);
+  text-shadow: 2px 2px var(--shadow);
+}
+.profiles .profile .profile-content .profile-play:hover i {
+  display: block;
+}
+.profiles .profile .profile-content .profile-play:active i {
+  text-shadow: none;
+}
+/*# sourceMappingURL=profiles.css.map */
