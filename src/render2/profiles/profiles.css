@@ -26,6 +26,7 @@
   text-shadow: 2px 2px var(--shadow);
 }
 .profiles {
+  position: relative;
   box-sizing: border-box;
   display: grid;
   grid-template-columns: repeat(auto-fill, 200px);

@@ -39,6 +39,11 @@ ipcMain.on('cache:versions:keys', async event => {
         await loadVanilla();
         await loadForge();
         await loadFabric();
+        Object.keys(this.minecraft)
+            .filter(key => key.startsWith('1.14') || key.startsWith('1.13'))
+            .forEach(key =>
+                this.minecraft[key].forge = this.minecraft[key].forge.sort((a, b) =>
+                    parseInt(b.id.substring(b.id.lastIndexOf('.') + 1)) - parseInt(a.id.substring(a.id.lastIndexOf('.') + 1))));
         loaded = true;
     }
 

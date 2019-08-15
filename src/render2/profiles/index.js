@@ -4,13 +4,14 @@ import { ContextMenu, ContextMenuTrigger, MenuItem } from 'react-contextmenu';
 import { flavorIcon } from "../common/helper";
 
 import './profiles.css';
+import {LoadingOverlay} from "../common/overlay";
 
 class Profiles extends React.Component {
     constructor(props) {
         super(props);
 
         this.rerender = (_, profiles) => this.setState({ profiles });
-        this.state = { profiles: [ ] };
+        this.state = { };
     }
 
     componentDidMount() {
@@ -22,6 +23,9 @@ class Profiles extends React.Component {
     }
 
     render() {
+        if (!this.state.profiles)
+            return <div className="profiles"><LoadingOverlay padding={0} /></div>;
+
         return this.state.profiles.length === 0 ? (
             <div className="profiles-empty">
                 <h1><i className="fas fa-exclamation"/></h1>

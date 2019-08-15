@@ -1,0 +1,102 @@
+.custom-profile {
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+  height: 100vh;
+}
+.custom-profile .header-generic {
+  padding-bottom: 10px;
+}
+.custom-profile .create-profile-name {
+  width: 30%;
+  margin-left: 35%;
+}
+.modloaders {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin: 20px 0;
+}
+.modloaders .modloader {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1;
+  position: relative;
+  cursor: pointer;
+  height: 285px;
+  max-width: 300px;
+  margin: 10px;
+  padding: 5px 10px 15px;
+  text-align: center;
+  border: none;
+  border-radius: 5px;
+  background-color: var(--background-lighter);
+  transition: all 0.3s;
+}
+.modloaders .modloader .icon {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  color: var(--medium);
+}
+.modloaders .modloader .icon:hover {
+  color: var(--light);
+}
+.modloaders .modloader .title-generic {
+  padding-top: 10px;
+  padding-bottom: 15px;
+  text-transform: uppercase;
+  color: var(--medium);
+}
+.modloaders .modloader .title-generic span {
+  text-transform: none;
+}
+.modloaders .modloader .paragraph-generic {
+  overflow: hidden;
+  max-height: 93px;
+  padding-bottom: 10px;
+}
+.modloaders .modloader .dropdown {
+  box-sizing: border-box;
+  margin-bottom: 10px;
+  border: 1px solid var(--background-darker);
+  border-radius: 3px;
+  background-color: var(--background-main-alt);
+}
+.modloaders .modloader .dropdown .dropdown-active {
+  background-color: transparent;
+}
+.modloaders .modloader.active {
+  box-shadow: 3px 3px 5px 0 rgba(0, 0, 0, 0.75);
+}
+.modloaders .modloader.disabled {
+  cursor: not-allowed;
+  background: var(--background-main-alt);
+}
+.modloaders .modloader.disabled * {
+  cursor: not-allowed;
+}
+.modloaders .modloader.disabled .icon {
+  color: var(--inactive);
+}
+.modloaders .modloader.disabled .icon:hover {
+  color: var(--inactive);
+}
+.modloaders .modloader.disabled .title-generic {
+  color: var(--inactive);
+  text-shadow: none;
+}
+.modloaders .modloader.disabled .paragraph-generic {
+  color: var(--inactive);
+}
+.modloaders .modloader.disabled .dropdown {
+  opacity: 0.5;
+}
+/*# sourceMappingURL=custom.css.map */

@@ -1,0 +1,45 @@
+// Loading icon code adapted from https://loading.io
+// I do not claim ownership over the following code.
+
+.loading-spinner {
+  display: inline-block;
+  width: 64px;
+  height: 64px;
+
+  &:after {
+    content: " ";
+    display: block;
+    width: 46px;
+    height: 46px;
+    margin: 1px;
+    border-radius: 50%;
+    border: 5px solid;
+    border-color: var(--light) transparent var(--light) transparent;
+    animation: loading-spinner 1.2s linear infinite;
+  }
+
+  &.small {
+    width: 15px;
+    height: 15px;
+    margin-right: 4px;
+
+    &:after {
+      width: 15px;
+      height: 15px;
+      margin: 1px;
+      border-width: 1px;
+    }
+  }
+
+  &.primary:after {
+    border-color: var(--primary) transparent var(--primary) transparent;
+  }
+}
+@keyframes loading-spinner {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

@@ -24,11 +24,11 @@ import React from 'react';
 import './overlay.css';
 
 /**
- * Overlay for dimming background with/without a loading icon.
+ * Overlay for dimming background with/without a overlay icon.
  *
  * @since 0.2.25
  *
- * @property loading (String) Whether to include a loading symbol or not.
+ * @property loading (String) Whether to include a overlay symbol or not.
  * @property active (Boolean: false) Show the overlay.
  * @property padding (Integer: 30) Amount of space to include around the parent element.
  * @property onClick (Function) Called when the overlay is clicked.

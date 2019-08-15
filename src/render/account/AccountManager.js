@@ -41,6 +41,7 @@ class AccountManager extends React.Component {
         window.ipc.on('account:render', this.renderAccounts);
         window.ipc.send('account:render');
     }
+
     componentWillUnmount() {
         window.ipc.removeListener('account:render', this.renderAccounts);
     }
@@ -56,21 +57,21 @@ class AccountManager extends React.Component {
         return (
             <div className="account-manager">
                 {/*<div className="am-content">*/}
-                    {/*<div className="am-header">*/}
-                        {/*<img alt="User Head" src={`${HEAD_BASE_URL}${activeAccount.uuid}`} />*/}
-                        {/*<div className="am-header-info">*/}
-                        {/*    <h1>{activeAccount.username}</h1>*/}
-                        {/*    <h2>{activeAccount.uuid}</h2>*/}
-                        {/*</div>*/}
-                        {/*<div className="am-header-actions">*/}
-                        {/**/}
-                        {/*</div>*/}
-                    {/*</div>*/}
-                    <div className="am-accounts">
-                        {this.state.accounts.map(acc => {
-                            return (<Account key={acc._id} {...acc} />);
-                        })}
-                    </div>
+                {/*<div className="am-header">*/}
+                {/*<img alt="User Head" src={`${HEAD_BASE_URL}${activeAccount.uuid}`} />*/}
+                {/*<div className="am-header-info">*/}
+                {/*    <h1>{activeAccount.username}</h1>*/}
+                {/*    <h2>{activeAccount.uuid}</h2>*/}
+                {/*</div>*/}
+                {/*<div className="am-header-actions">*/}
+                {/**/}
+                {/*</div>*/}
+                {/*</div>*/}
+                <div className="am-accounts">
+                    {this.state.accounts.map(acc => {
+                        return (<Account key={acc._id} {...acc} />);
+                    })}
+                </div>
                 <button onClick={() => window.ipc.send('account:inst')}>Add Account</button>
                 {/*</div>*/}
             </div>
@@ -80,15 +81,17 @@ class AccountManager extends React.Component {
 
 const Account = (props) => {
     return (
-        <div className={`am-account ${props.selected ? 'active' : ''}`} onClick={() => window.ipc.send('account:select', props.uuid)}>
-            <img alt="User Head" src={`${HEAD_BASE_URL}${props.uuid}`} />
+        <div className={`am-account ${props.selected ? 'active' : ''}`}
+             onClick={() => window.ipc.send('account:select', props.uuid)}>
+            <img alt="User Head" src={`${HEAD_BASE_URL}${props.uuid}`}/>
             <div>
                 <h4>{props.username}</h4>
                 <h5>{props.uuid}</h5>
                 <button onClick={e => {
                     e.stopPropagation();
                     window.ipc.send('account:remove', props.uuid);
-                }} className="am-account-remove">Remove</button>
+                }} className="am-account-remove">Remove
+                </button>
             </div>
         </div>
     );

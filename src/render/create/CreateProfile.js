@@ -178,7 +178,7 @@ export default class CreateProfile extends React.Component {
                     </Dropdown>
                     <div className="create-profile-flavors">
                         <div className={`create-profile-flavor ${this.state.active === 'vanilla' ? 'active' : ''}`} onClick={() => this.setActive('vanilla')}>
-                            <Icon icon="fas fa-info-circle" onClick={() => window.ipc.send('open:url', 'https://minecraft.net/')}></Icon>
+                            <Icon icon="fas fa-info-circle" onClick={() => window.ipc.send('open:url', 'https://minecraft.net/')}/>
                             <div>
                                 <Title>vanilla</Title>
                                 <Paragraph>The unmodified game distributed by Mojang. Snapshot versions are not guaranteed to function correctly, expect bugs.</Paragraph>
