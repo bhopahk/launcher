@@ -1,11 +1,12 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { ImageSquare, Title } from "../../render/layout/Generic";
-import logo from "../../render/static/LauncherNoText.png";
-// import {ModalConductor} from "../../render/modal/Modal";
+import { NavLink, Link } from 'react-router-dom';
+import QuickLaunch from "../profiles/quick";
 import Tasks from './tasks';
+import { ImageSquare, Title } from "../../render/layout/Generic";
+
+
 import './sidebar.css';
-// import {Downloads} from "../../render/download/Downloads";
+import logo from "../../render/static/LauncherNoText.png";
 
 export default class Sidebar extends React.Component {
     render() {
@@ -18,8 +19,8 @@ export default class Sidebar extends React.Component {
                 <nav>
                     <div className="sidebar-group">
                         <p>library</p>
-                        <Tab exact to="/profiles" icon="lock" display="Profiles" />
-                        <Tab exact to="/accounts" icon="lock" display="Accounts" />
+                        <Tab exact to="/profiles" icon="list" display="Profiles" />
+                        <Tab exact to="/accounts" icon="user" display="Accounts" />
                         <Tab disabled exact to="/" icon="lock" display="Coming Soon" />
                     </div>
                     <div className="sidebar-group">
@@ -31,6 +32,7 @@ export default class Sidebar extends React.Component {
                     </div>
                     <div className="sidebar-group">
                         <p>quick launch</p>
+                        <QuickLaunch />
                     </div>
                 </nav>
                 <div className="sidebar-footer">
@@ -44,6 +46,10 @@ export default class Sidebar extends React.Component {
     }
 }
 
-const Tab = props => props.disabled ?
-    <a href="javascript:void(0)" className="disabled"><i className={`fas fa-${props.icon}`}/>{props.display}</a> :
+const Tab = props => props.disabled || props.clickable ?
+    <button className={props.disabled && 'disabled'} onClick={() => props.clickable && props.onClick()}><i className={`fas fa-${props.icon}`}/>{props.display}</button> :
     <NavLink to={props.to} exact={props.exact} activeClassName="active"><i className={`fas fa-${props.icon}`}/>{props.display}</NavLink>;
+
+export {
+    Tab
+}

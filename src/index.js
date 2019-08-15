@@ -17,18 +17,34 @@ const doc = document.createElement("style");
 doc.innerHTML = window.ipc.sendSync('theme');
 document.head.appendChild(doc);
 
-const Wrapper = () => (
-    <Router>
-        <Controls/>
-        <Sidebar/>
-        <Route exact path="/" render={() => <Redirect to="/profiles"/>}/>
-        <Route path="/profiles" component={Profiles}/>
-        <Route path="/profiles/:id/settings" component={ProfileSettings}/>
-        <Route exact path="/accounts" component={Accounts}/>
-        <Route exact path="/curse" component={CurseModpacks}/>
-        <Route exact path="/custom" component={CustomProfile}/>
-    </Router>
-);
+class Wrapper extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {};
+    }
+
+    componentDidMount() {
+        const settings = window.ipc.sendSync('sync');
+        console.log('Received Settings...');
+        console.log(settings);
+    }
+
+    render() {
+        return (
+            <Router>
+                <Controls/>
+                <Sidebar/>
+                <Route exact path="/" render={() => <Redirect to="/profiles"/>}/>
+                <Route path="/profiles" component={Profiles}/>
+                <Route path="/profiles/:id/settings" component={ProfileSettings}/>
+                <Route exact path="/accounts" component={Accounts}/>
+                <Route exact path="/curse" component={CurseModpacks}/>
+                <Route exact path="/custom" component={CustomProfile}/>
+            </Router>
+        );
+    }
+}
 
 const Controls = () => (
     <div className="window-control">
