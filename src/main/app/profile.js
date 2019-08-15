@@ -35,6 +35,7 @@ const StreamZip = require('node-stream-zip');
 const fetch = require('node-fetch');
 const taskmaster = require('../task/taskmaster');
 const sendSnack = require('../main').sendSnack;
+const sanitize = require('sanitize-filename');
 
 // Useful paths
 const baseDir = app.getPath('userData');
@@ -132,7 +133,7 @@ exports.createProfile = async data => {
         data.name = zipName.substring(0, zipName.lastIndexOf('.'));
     } else icon = 'https://via.placeholder.com/240';
 
-    const name = await findName(data.name);
+    const name = await findName(sanitize(data.name));
     const tid = taskmaster.createTask(name);
 
     await taskmaster.updateTask(tid, 'creating directory', 1/total);
