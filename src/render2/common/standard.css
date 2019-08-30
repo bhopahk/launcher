@@ -168,6 +168,8 @@ table {
 }
 #root {
   display: flex;
+  width: 100vw;
+  height: 100vh;
   background-color: #1b1c1c;
 }
 .material-icons {

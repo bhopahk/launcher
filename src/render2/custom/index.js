@@ -141,6 +141,7 @@ export default class CustomProfile extends React.Component {
             version,
             name: this.state.input_name.trim(),
         });
+        this.props.history.push('/profiles');
     }
 
     render() {

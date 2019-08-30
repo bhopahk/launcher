@@ -50,7 +50,7 @@ let report = {
 
 window.ipc.on('reporter:report', (_, newReport) => {
     report = newReport;
-    ModalConductor.openModal('errorReportModal');
+    // ModalConductor.openModal('errorReportModal');
 });
 
 class ErrorReport extends React.Component {

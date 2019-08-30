@@ -72,7 +72,7 @@ class AccountManager extends React.Component {
                         return (<Account key={acc._id} {...acc} />);
                     })}
                 </div>
-                <button onClick={() => window.ipc.send('account:inst')}>Add Account</button>
+                <button id="temp" onClick={() => window.ipc.send('account:inst')}>Add Account</button>
                 {/*</div>*/}
             </div>
         );

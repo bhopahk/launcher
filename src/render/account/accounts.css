@@ -71,7 +71,7 @@
 }
 .am-accounts .am-account div button {
   position: absolute;
-  top: 0;
+  top: 30px;
   right: 0;
   outline: none;
   user-select: none;

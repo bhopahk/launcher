@@ -2,9 +2,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ContextMenu, ContextMenuTrigger, MenuItem } from 'react-contextmenu';
 import { flavorIcon } from "../common/helper";
+import { LoadingOverlay } from "../common/overlay";
 
 import './profiles.css';
-import {LoadingOverlay} from "../common/overlay";
+import './profile_settings.css';
 
 class Profiles extends React.Component {
     constructor(props) {
@@ -69,7 +70,7 @@ const Profile = props => (
         <ContextMenu id={props.name}>
             <MenuItem onClick={() => window.ipc.send('profile:launch', props.name)}><i className="fas fa-play"/>Launch</MenuItem>
             <MenuItem onClick={() => alert("// not implemented //")} disabled><i className={`fa${props.favorite ? 'r' : 's'} fa-star`}/>Favorite</MenuItem>
-            <MenuItem onClick={() => props.redirect('/curse')}><i className="fas fa-cog"/>Settings</MenuItem>
+            <MenuItem onClick={() => props.redirect(`/profiles/${props.id}/settings`)}><i className="fas fa-cog"/>Settings</MenuItem>
             <MenuItem onClick={() => window.ipc.send('open:folder', props.directory)}><i className="fas fa-folder"/>Open Folder</MenuItem>
             <MenuItem onClick={() => alert("// not implemented //")} disabled><i className="fas fa-link"/>Create Shortcut</MenuItem>
             <MenuItem onClick={() => alert("// not implemented //")} disabled><i className="fas fa-file-export"/>Export</MenuItem>
@@ -83,7 +84,7 @@ class ProfileSettings extends React.Component {
 
     render() {
         return (
-            <div>
+            <div className="profile-settings">
                 PROFILE_SETTINGS!!!
             </div>
         );

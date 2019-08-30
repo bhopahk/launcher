@@ -1,0 +1,56 @@
+.profile-settings {
+  position: absolute;
+  display: flex;
+
+  width: 800px;
+  height: 500px;
+
+  .po-overview-image {
+    position: relative;
+
+    width: 159px;
+    height: 159px;
+
+    margin-left: 3px;
+
+    border: none;
+    border-radius: 3px;
+
+    &:hover .po-o-hidden {
+      display: flex;
+
+      & ~ img {
+        filter: brightness(0.7) blur(1px);
+      }
+    }
+
+    .po-o-hidden {
+      position: absolute;
+      left: 0;
+      top: 0;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+
+      width: 100%;
+      height: 100%;
+
+      font-size: 17px;
+      font-family: Source Sans Pro, sans-serif;
+      font-style: italic;
+      color: var(--light);
+      text-shadow: 2px 2px var(--shadow);
+
+      z-index: 10;
+    }
+
+    img {
+      overflow: hidden;
+
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+}

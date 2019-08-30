@@ -11,8 +11,8 @@ import './render2/common/standard.css';
 import './render2/common/window_control.css';
 import './render2/common/contextmenu.css';
 
-// import './render/core/index.css';
-// import App from './render/core/App';
+import './render/core/index.css';
+import App from './render/core/App';
 
 const doc = document.createElement("style");
 doc.innerHTML = window.ipc.sendSync('theme');
