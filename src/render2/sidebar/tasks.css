@@ -1,0 +1,124 @@
+#downloads-button {
+  position: relative;
+}
+#downloads-button .downloads {
+  box-sizing: border-box;
+  display: none;
+  position: absolute;
+  left: -105px;
+  top: -315px;
+  cursor: default;
+  width: 250px;
+  height: 300px;
+  margin: 0;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: var(--background-lighter);
+  box-shadow: 0 0 9px 1px rgba(0, 0, 0, 0.4);
+  z-index: 3;
+  text-align: left;
+}
+#downloads-button .downloads .task-header {
+  display: flex;
+  justify-content: space-between;
+}
+#downloads-button .downloads .task-header h1 {
+  margin-bottom: 10px;
+  font-size: 25px;
+  color: var(--light);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#downloads-button .downloads .task-header h1:hover {
+  color: var(--light);
+}
+#downloads-button .downloads .task-header .task-progress {
+  width: 150px;
+  margin-top: 10px;
+}
+#downloads-button .tasks {
+  box-sizing: border-box;
+  width: 100%;
+  height: calc(100% - 60px);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+#downloads-button .tasks .task {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  height: 60px;
+  margin-bottom: 10px;
+  padding: 3px 5px 5px;
+  border: none;
+  border-radius: 5px;
+  background-color: var(--background-main);
+}
+#downloads-button .tasks .task .task-info {
+  display: flex;
+  align-items: center;
+}
+#downloads-button .tasks .task .task-info h1 {
+  margin: 0;
+  padding: 0 0 3px;
+  font-size: 20px;
+  font-family: Raleway, sans-serif;
+  color: var(--light);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: none;
+}
+#downloads-button .tasks .task .task-info .task-cancel {
+  color: white;
+  margin: 0;
+  padding: 0;
+}
+#downloads-button.active .downloads {
+  display: block;
+}
+#downloads-button i {
+  -webkit-text-fill-color: transparent;
+  text-shadow: none;
+  filter: drop-shadow(2px 2px #0c0c0c);
+}
+.task-progress {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: var(--shadow);
+}
+.task-progress .task-progress-complete {
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  height: 16px;
+  border: none;
+  border-radius: 5px;
+  background-color: var(--primary);
+  transition: 0.3s;
+  z-index: 1;
+}
+.task-progress h2 {
+  font-size: 10px;
+  font-family: Raleway, sans-serif;
+  width: 95%;
+  text-transform: uppercase;
+  text-shadow: none;
+  color: var(--light);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  z-index: 2;
+}
+.task-progress h2:hover {
+  color: var(--light);
+}
+/*# sourceMappingURL=tasks.css.map */

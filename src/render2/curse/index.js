@@ -1,4 +1,5 @@
 import React from 'react';
+import Snackbar from "../common/snackbar";
 
 export default class CurseModpacks extends React.Component {
 
@@ -6,6 +7,17 @@ export default class CurseModpacks extends React.Component {
         return (
             <div>
                 CURSE MODPACKS
+                <br/>
+                <br/>
+                <br/>
+                <button onClick={() => Snackbar.enqueue({
+                    body: 'I am some text on a snack! ' + Math.random(),
+                    timeout: false,
+                    dismissable: false,
+                    action: 'fix',
+                    onAction: () => alert('hi'),
+                    onClick: () => alert('also hi')
+                })}>SNack</button>
             </div>
         );
     }

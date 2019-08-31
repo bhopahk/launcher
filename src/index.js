@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {BrowserRouter as Router, Route, Redirect} from "react-router-dom";
+import Snackbar from "./render2/common/snackbar";
 import Sidebar from './render2/sidebar';
 import {Profiles, ProfileSettings} from './render2/profiles';
 import Accounts from './render2/accounts';
@@ -18,7 +19,9 @@ const doc = document.createElement("style");
 doc.innerHTML = window.ipc.sendSync('theme');
 document.head.appendChild(doc);
 
-class Wrapper extends React.Component {
+export default class Wrapper extends React.Component {
+    static snackbar = React.createRef();
+
     constructor(props) {
         super(props);
 
@@ -35,6 +38,7 @@ class Wrapper extends React.Component {
         return (
             <Router>
                 <Controls/>
+                <Snackbar ref={Wrapper.snackbar} />
                 <Sidebar/>
                 <Route exact path="/" render={() => <Redirect to="/profiles"/>}/>
                 <Route path="/profiles" component={Profiles}/>

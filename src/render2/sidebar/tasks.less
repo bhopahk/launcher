@@ -1,0 +1,169 @@
+#downloads-button {
+  position: relative;
+
+  .downloads {
+    box-sizing: border-box;
+    display: none;
+    position: absolute;
+    left: -105px;
+    top: -315px;
+    cursor: default;
+
+    width: 250px;
+    height: 300px;
+
+    margin: 0;
+    padding: 10px 20px;
+
+    border: none;
+    border-radius: 5px;
+    background-color: var(--background-lighter);
+    box-shadow: 0 0 9px 1px rgba(0, 0, 0, 0.4);
+
+    z-index: 3;
+    text-align: left;
+
+    .task-header {
+      display: flex;
+      justify-content: space-between;
+
+      h1 {
+        margin-bottom: 10px;
+
+        font-size: 25px;
+        color: var(--light);
+
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        &:hover {
+          color: var(--light);
+        }
+      }
+
+      .task-progress {
+        width: 150px;
+        margin-top: 10px;
+      }
+    }
+
+
+  }
+
+  .tasks {
+    box-sizing: border-box;
+
+    width: 100%;
+    height: calc(100% - 60px);
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    .task {
+      position: relative;
+      box-sizing: border-box;
+      width: 100%;
+      height: 60px;
+
+      margin-bottom: 10px;
+      padding: 3px 5px 5px;
+
+      border: none;
+      border-radius: 5px;
+      background-color: var(--background-main);
+
+      .task-info {
+        display: flex;
+        align-items: center;
+
+        h1 {
+          margin: 0;
+          padding: 0 0 3px;
+
+          font-size: 20px;
+          font-family: Raleway, sans-serif;
+          color: var(--light);
+
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+
+          text-shadow: none;
+        }
+
+        .task-cancel {
+          //height: 10px;
+          //background-color: blue;
+          color: white;
+          margin: 0;
+          padding: 0;
+          //position: absolute;
+          //right: 0;
+          //top: 0;
+        }
+      }
+    }
+  }
+
+  &.active .downloads {
+    display: block;
+  }
+
+  i {
+    -webkit-text-fill-color: transparent;
+    text-shadow: none;
+
+    filter: drop-shadow(2px 2px #0c0c0c);
+  }
+}
+
+.task-progress {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 100%;
+  height: 20px;
+
+  border: none;
+  border-radius: 5px;
+  background-color: var(--shadow); //todo needs to not be shadow
+
+  .task-progress-complete {
+    position: absolute;
+    left: 2px;
+    top: 2px;
+
+    height: 16px;
+
+    border: none;
+    border-radius: 5px;
+    background-color: var(--primary);
+
+    transition: 0.3s;
+    z-index: 1;
+  }
+
+  h2 {
+    font-size: 10px;
+    font-family: Raleway, sans-serif;
+
+    width: 95%;
+
+    text-transform: uppercase;
+    text-shadow: none;
+    color: var(--light);
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    z-index: 2;
+
+    &:hover {
+      color: var(--light);
+    }
+  }
+}

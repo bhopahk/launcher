@@ -21,7 +21,7 @@ SOFTWARE.
 */
 
 import React from 'react';
-import {  } from '../layout/Generic';
+import {} from '../layout/Generic';
 import './downloads.css';
 
 class Downloads extends React.Component {
@@ -39,6 +39,7 @@ class Downloads extends React.Component {
         this.componentDidUpdate();
         window.ipc.on('task:render', this.renderTasks)
     }
+
     componentWillUnmount() {
         window.ipc.removeListener('task:render', this.renderTasks);
     }
@@ -50,7 +51,7 @@ class Downloads extends React.Component {
         this.iconOverlay.current.style.webkitBackgroundClip = `text`;
     }
 
-    renderTasks = (event, tasks) => this.setState({ tasks });
+    renderTasks = (event, tasks) => this.setState({tasks});
     cancelTask = tid => window.ipc.send('task:cancel', tid);
 
     calculateTotalProgress = () => {
@@ -67,7 +68,7 @@ class Downloads extends React.Component {
         return (
             <button id="downloads-button">
                 <i ref={this.iconOverlay} className="fas fa-cloud-download-alt"
-                   onClick={() => this.hide()}></i>
+                   onClick={() => this.hide()}/>
                 <div className="downloads">
                     {/*<CloseButton onClose={() => this.hide()} />*/}
                     <h1>Tasks</h1>
@@ -89,7 +90,7 @@ const Task = (props) => {
             <div className="task-progress">
                 <div className="task-progress-complete" style={{
                     width: `calc(${props.progress * 100}% - 4px)`
-                }}></div>
+                }}/>
                 <h2>{props.task}</h2>
             </div>
         </div>
