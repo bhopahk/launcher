@@ -10,16 +10,16 @@ export default class Tasks extends React.Component {
 
         this.state = {
             tasks: [
-                {
-                    name: 'Skyfactory 4',
-                    progress: 0.2,
-                    task: 'downloading mods'
-                },
-                {
-                    name: 'Skyfactory 3 Skyfactory 3 Skyfactory 3',
-                    progress: 0.6213123123123,
-                    task: 'downloading mods'
-                }
+                // {
+                //     name: 'Skyfactory 4',
+                //     progress: 0.2,
+                //     task: 'downloading mods'
+                // },
+                // {
+                //     name: 'Skyfactory 3 Skyfactory 3 Skyfactory 3',
+                //     progress: 0.6213123123123,
+                //     task: 'downloading mods'
+                // }
             ],
         };
     }

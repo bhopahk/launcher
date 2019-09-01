@@ -18,6 +18,7 @@ export default class CurseModpacks extends React.Component {
                     onAction: () => alert('hi'),
                     onClick: () => alert('also hi')
                 })}>SNack</button>
+                <button onClick={() => window.ipc.send('test', '')}>test</button>
             </div>
         );
     }

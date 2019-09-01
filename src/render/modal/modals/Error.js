@@ -48,10 +48,10 @@ let report = {
     path: ''
 };
 
-window.ipc.on('reporter:report', (_, newReport) => {
-    report = newReport;
+// window.ipc.on('reporter:report', (_, newReport) => {
+//     report = newReport;
     // ModalConductor.openModal('errorReportModal');
-});
+// });
 
 class ErrorReport extends React.Component {
     constructor(props) {

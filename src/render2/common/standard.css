@@ -166,7 +166,8 @@ table {
   font-display: swap;
   src: local('Inconsolata Regular'), local('Inconsolata-Regular'), url(https://fonts.gstatic.com/s/inconsolata/v18/QldKNThLqRwH-OJ1UHjlKGlZ5qg.woff2) format('woff2');
 }
-#root {
+#root,
+#root2 {
   display: flex;
   width: 100vw;
   height: 100vh;
