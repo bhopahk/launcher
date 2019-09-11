@@ -1,14 +1,24 @@
 import React from 'react';
+import Sidebar from './';
 
 import './tasks.css';
 
 export default class Tasks extends React.Component {
+    static pulse(count = 1) {
+        Sidebar.tasks.current.setState({
+            pulse: true
+        }, () => setTimeout(() => Sidebar.tasks.current.setState({
+            pulse: false
+        }), count * 1000));
+    }
+
     constructor(props) {
         super(props);
 
         this.iconOverlay = React.createRef();
 
         this.state = {
+            pulse: false,
             tasks: [
                 // {
                 //     name: 'Skyfactory 4',
@@ -26,11 +36,13 @@ export default class Tasks extends React.Component {
 
     componentDidMount() {
         this.componentDidUpdate();
-        window.ipc.on('task:render', this.renderTasks)
+        window.ipc.on('task:render', this.renderTasks);
+        window.ipc.on('task:pulse', this.ipcPulse);
     }
 
     componentWillUnmount() {
         window.ipc.removeListener('task:render', this.renderTasks);
+        window.ipc.removeListener('task:pulse', this.ipcPulse);
     }
 
     componentDidUpdate() {
@@ -40,6 +52,7 @@ export default class Tasks extends React.Component {
         this.iconOverlay.current.style.webkitBackgroundClip = `text`;
     }
 
+    ipcPulse = (_, count) => Tasks.pulse(count);
     renderTasks = (event, tasks) => this.setState({tasks});
     cancelTask = tid => window.ipc.send('task:cancel', tid);
 
@@ -58,6 +71,7 @@ export default class Tasks extends React.Component {
             <button id="downloads-button">
                 <i ref={this.iconOverlay} className="fas fa-cloud-download-alt"
                    onClick={() => this.hide()}/>
+                {this.state.pulse && <div className="task-pulse"/>}
                 <div className="downloads">
                     <div className="task-header">
                         <h1>Tasks</h1>
@@ -66,7 +80,6 @@ export default class Tasks extends React.Component {
                                 width: `calc(${this.calculateTotalProgress() * 100}% - 4px)`
                             }}/>
                             <h2>{Math.round(this.calculateTotalProgress() * 1000) / 10}%</h2>
-                            {/*<h2>{props.task}</h2>*/}
                         </div>
                     </div>
                     <div className="tasks">

@@ -1,5 +1,6 @@
 import React from 'react';
 import Snackbar from "../common/snackbar";
+import Tasks from "../sidebar/tasks";
 
 export default class CurseModpacks extends React.Component {
 
@@ -19,6 +20,7 @@ export default class CurseModpacks extends React.Component {
                     onClick: () => alert('also hi')
                 })}>SNack</button>
                 <button onClick={() => window.ipc.send('test', '')}>test</button>
+                <button onClick={() => Tasks.pulse(5)}>pulse</button>
             </div>
         );
     }

@@ -1,11 +1,13 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, BrowserRouter as Router, Redirect, Route } from 'react-router-dom';
 import { ContextMenu, ContextMenuTrigger, MenuItem } from 'react-contextmenu';
 import { flavorIcon } from "../common/helper";
 import { LoadingOverlay } from "../common/overlay";
+import { Tab } from "../sidebar";
 
 import './profiles.css';
 import './profile_settings.css';
+import {ModalConductor} from "../../render/modal/Modal";
 
 class Profiles extends React.Component {
     constructor(props) {
@@ -70,7 +72,7 @@ const Profile = props => (
         <ContextMenu id={props.name}>
             <MenuItem onClick={() => window.ipc.send('profile:launch', props.name)}><i className="fas fa-play"/>Launch</MenuItem>
             <MenuItem onClick={() => alert("// not implemented //")} disabled><i className={`fa${props.favorite ? 'r' : 's'} fa-star`}/>Favorite</MenuItem>
-            <MenuItem onClick={() => props.redirect(`/profiles/${props.id}/settings`)}><i className="fas fa-cog"/>Settings</MenuItem>
+            <MenuItem onClick={() => props.redirect(`/profiles/${props.name}/settings`)}><i className="fas fa-cog"/>Settings</MenuItem>
             <MenuItem onClick={() => window.ipc.send('open:folder', props.directory)}><i className="fas fa-folder"/>Open Folder</MenuItem>
             <MenuItem onClick={() => alert("// not implemented //")} disabled><i className="fas fa-link"/>Create Shortcut</MenuItem>
             <MenuItem onClick={() => alert("// not implemented //")} disabled><i className="fas fa-file-export"/>Export</MenuItem>
@@ -81,11 +83,43 @@ const Profile = props => (
 );
 
 class ProfileSettings extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.imageSelect = React.createRef();
+
+        this.state = window.ipc.sendSync('profile:get', props.match.params.name);
+    }
+
 
     render() {
         return (
-            <div className="profile-settings">
-                PROFILE_SETTINGS!!!
+            <div className="profile-settings-wrapper">
+                <div className="profile-settings">
+                    <div className="profile-settings-close">
+                        <Link to="/profiles"><i className="material-icons">close</i></Link>
+                    </div>
+                    <div className="sidebar-group profile-settings-sidebar">
+                        <div className="profile-icon">
+                            <div onClick={() => this.imageSelect.current.click()}>
+                                <p>Change Icon</p>
+                            </div>
+                            <input type="file" ref={this.imageSelect} accept="image/png" onChange={e => this.handleChangeIcon(this.state.name, e.target.files[0].path)} hidden />
+                            <img src={this.state.icon} alt="Profile Icon" />
+                        </div>
+                        <Tab exact to={`/profiles/${this.state.name}/settings`} icon="fire" display="Overview"/>
+                        {this.state.flavor === 'vanilla' || <Tab exact to={`/profiles/${this.state.name}/settings/mods`} icon="fire" display="Mods"/>}
+                        <Tab exact to={`/profiles/${this.state.name}/settings/screenshots`} icon="fire" display="Screenshots"/>
+                        <Tab exact to={`/profiles/${this.state.name}/settings/textures`} icon="fire" display="Resource Packs"/>
+                        <Tab exact to={`/profiles/${this.state.name}/settings/worlds`} icon="fire" display="Worlds"/>
+                    </div>
+                    <div className="profile-settings-content">
+                        PROFILE_SETTINGS!!!
+                        <Router>
+                            {/*<Route exact path="" render={() => <Redirect to={`/profiles/${this.state.name}/settings/overview`}/>}/>*/}
+                        </Router>
+                    </div>
+                </div>
             </div>
         );
     }

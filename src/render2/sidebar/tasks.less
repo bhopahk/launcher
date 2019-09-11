@@ -1,6 +1,32 @@
 #downloads-button {
   position: relative;
 
+  z-index: 2;
+
+  .task-pulse {
+    position: absolute;
+    top: 11px;
+    left: 11px;
+
+    width: 1px;
+    height: 1px;
+
+    border-radius: 50%;
+    background-color: transparent;
+
+    z-index: 0;
+    animation: pulse 1s infinite;
+  }
+
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(24, 92, 201, 1);
+    }
+    100% {
+      box-shadow: 0 0 0 40px rgba(24, 92, 201, 0);
+    }
+  }
+
   .downloads {
     box-sizing: border-box;
     display: none;
@@ -47,8 +73,6 @@
         margin-top: 10px;
       }
     }
-
-
   }
 
   .tasks {

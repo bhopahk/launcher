@@ -15,7 +15,7 @@
 .sidebar.sidebar-vibrant {
   background-color: var(--background-darker-vibrant);
 }
-.sidebar nav .sidebar-group p {
+.sidebar-group p {
   margin-top: 30px;
   padding-left: 10px;
   font-size: 14px;
@@ -24,8 +24,8 @@
   color: var(--light);
   text-shadow: 2px 2px var(--shadow);
 }
-.sidebar nav .sidebar-group a,
-.sidebar nav .sidebar-group button {
+.sidebar-group a,
+.sidebar-group button {
   display: block;
   box-sizing: border-box;
   outline: none;
@@ -43,8 +43,8 @@
   background: transparent;
   color: var(--inactive);
 }
-.sidebar nav .sidebar-group a i,
-.sidebar nav .sidebar-group button i {
+.sidebar-group a i,
+.sidebar-group button i {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -52,29 +52,29 @@
   width: 30px;
   padding-bottom: 3px;
 }
-.sidebar nav .sidebar-group a.active,
-.sidebar nav .sidebar-group button.active {
+.sidebar-group a.active,
+.sidebar-group button.active {
   color: var(--light);
 }
-.sidebar nav .sidebar-group a.active i,
-.sidebar nav .sidebar-group button.active i {
+.sidebar-group a.active i,
+.sidebar-group button.active i {
   color: var(--medium);
 }
-.sidebar nav .sidebar-group a:hover,
-.sidebar nav .sidebar-group button:hover {
+.sidebar-group a:hover,
+.sidebar-group button:hover {
   color: var(--medium);
 }
-.sidebar nav .sidebar-group a.disabled,
-.sidebar nav .sidebar-group button.disabled {
+.sidebar-group a.disabled,
+.sidebar-group button.disabled {
   cursor: auto;
   color: var(--disabled);
 }
-.sidebar nav .sidebar-group a.disabled:hover,
-.sidebar nav .sidebar-group button.disabled:hover {
+.sidebar-group a.disabled:hover,
+.sidebar-group button.disabled:hover {
   text-decoration: line-through;
 }
-.sidebar nav .sidebar-group a.disabled:hover i,
-.sidebar nav .sidebar-group button.disabled:hover i {
+.sidebar-group a.disabled:hover i,
+.sidebar-group button.disabled:hover i {
   color: var(--disabled);
   background: transparent;
 }

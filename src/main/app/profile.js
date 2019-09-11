@@ -56,6 +56,7 @@ profileDb.index({ fieldName: 'name', unique: true });
 // Base profile
 ipcMain.on('profile:create', (event, payload) => this.createProfile(payload));
 ipcMain.on('profile:list', () => this.renderProfiles());
+ipcMain.on('profile:get', async (event, name) => event.returnValue = await this.getProfile(name));
 ipcMain.on('profile:update', () => {}); //todo
 ipcMain.on('profile:update:icon', async (event, data) => {
     if (!await fs.pathExists(data.icon))
@@ -135,6 +136,7 @@ exports.createProfile = async data => {
 
     const name = await findName(sanitize(data.name));
     const tid = taskmaster.createTask(name);
+    mainWindow.send('task:pulse');
 
     await taskmaster.updateTask(tid, 'creating directory', 1/total);
     const directory = path.join(instanceDir, name);

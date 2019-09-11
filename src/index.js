@@ -47,7 +47,7 @@ export default class Wrapper extends React.Component {
                             <Sidebar/>
                             <Route exact path="/" render={() => <Redirect to="/profiles"/>}/>
                             <Route path="/profiles" component={Profiles}/>
-                            <Route path="/profiles/:id/settings" component={ProfileSettings}/>
+                            <Route path="/profiles/:name/settings" component={ProfileSettings}/>
                             <Route exact path="/accounts" component={Accounts}/>
                             <Route exact path="/curse" component={CurseModpacks}/>
                             <Route exact path="/custom" component={CustomProfile}/>

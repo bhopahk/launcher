@@ -17,76 +17,76 @@
   &.sidebar-vibrant {
     background-color: var(--background-darker-vibrant);
   }
+}
 
-  nav .sidebar-group {
-    p {
-      margin-top: 30px;
-      padding-left: 10px;
+.sidebar-group {
+  p {
+    margin-top: 30px;
+    padding-left: 10px;
 
-      font-size: 14px;
-      font-family: Oswald, sans-serif;
-      text-transform: uppercase;
-      color: var(--light);
-      text-shadow: 2px 2px var(--shadow);
+    font-size: 14px;
+    font-family: Oswald, sans-serif;
+    text-transform: uppercase;
+    color: var(--light);
+    text-shadow: 2px 2px var(--shadow);
+  }
+
+  a, button {
+    display: block;
+    box-sizing: border-box;
+    outline: none;
+    cursor: pointer;
+
+    width: 100%;
+    height: auto;
+
+    margin: 15px 0;
+    padding: 0;
+
+    text-align: left;
+    font-size: 15px;
+    font-family: "Source Sans Pro", sans-serif;
+    font-weight: bold;
+    text-decoration: none;
+    border: none;
+    background: transparent;
+    color: var(--inactive);
+
+    i {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      vertical-align: middle;
+
+      width: 30px;
+
+      padding-bottom: 3px;
     }
 
-    a, button {
-      display: block;
-      box-sizing: border-box;
-      outline: none;
-      cursor: pointer;
-
-      width: 100%;
-      height: auto;
-
-      margin: 15px 0;
-      padding: 0;
-
-      text-align: left;
-      font-size: 15px;
-      font-family: "Source Sans Pro", sans-serif;
-      font-weight: bold;
-      text-decoration: none;
-      border: none;
-      background: transparent;
-      color: var(--inactive);
+    &.active {
+      color: var(--light);
 
       i {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        vertical-align: middle;
-
-        width: 30px;
-
-        padding-bottom: 3px;
-      }
-
-      &.active {
-        color: var(--light);
-
-        i {
-          color: var(--medium);
-          //background: @highlightGradient; //todo this needs to be put into the config maybe
-        }
-      }
-
-      &:hover {
         color: var(--medium);
-        //background: @highlightGradient;
+        //background: @highlightGradient; //todo this needs to be put into the config maybe
       }
+    }
 
-      &.disabled {
-        cursor: auto;
+    &:hover {
+      color: var(--medium);
+      //background: @highlightGradient;
+    }
+
+    &.disabled {
+      cursor: auto;
+      color: var(--disabled);
+    }
+    &.disabled:hover {
+      text-decoration: line-through;
+
+      i {
         color: var(--disabled);
-      }
-      &.disabled:hover {
-        text-decoration: line-through;
-
-        i {
-          color: var(--disabled);
-          background: transparent;
-        }
+        background: transparent;
       }
     }
   }

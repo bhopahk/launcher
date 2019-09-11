@@ -8,6 +8,8 @@ import './sidebar.css';
 import logo from "../../render/static/LauncherNoText.png";
 
 export default class Sidebar extends React.Component {
+    static tasks = React.createRef();
+
     render() {
         return (
             <div className="sidebar sidebar-normal">
@@ -36,7 +38,7 @@ export default class Sidebar extends React.Component {
                 </nav>
                 <div className="sidebar-footer">
                     <button><i className="fas fa-cog"/></button>
-                    <Tasks />
+                    <Tasks ref={Sidebar.tasks} />
                     <button>v1.2.3</button>
                     {/*{this.getVersionButton()}*/}
                 </div>
