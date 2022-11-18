@@ -43,7 +43,7 @@
     "electron-builder": "^20.39.0",
     "electron-devtools-installer": "^2.2.4",
     "mocha": "^6.1.4",
-    "react-scripts": "3.0.0",
+    "react-scripts": "5.0.1",
     "typescript": "^3.4.5",
     "wait-on": "^3.3.0"
   },
